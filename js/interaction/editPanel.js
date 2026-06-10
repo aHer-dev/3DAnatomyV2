@@ -1,20 +1,18 @@
-// js/interaction/editPanel.js - VERBESSERTE UX VERSION
+// js/interaction/editPanel.js
 import * as THREE from 'three';
 import { renderer } from '../core/renderer.js';
 import { scene } from '../core/scene.js';
 import { camera } from '../core/camera.js';
 import { setModelColor, setModelOpacity } from '../features/appearance.js';
 import { toggleModelVisibility, isModelVisible, hideModel } from '../features/visibility.js';
-import { state } from '../store/state.js';
+import { getStore } from '../store/useStore.js';
 import { clearMultiSelect } from './multiSelect.js';
 import { extractModelData } from '../utils/modelData.js';
 import { attachRecentColors } from '../ui/recentColors.js';
 import { enterIsolatedView } from './isolationView.js';
 
-// WeakMap zur Speicherung von Event-Listenern
 const listeners = new WeakMap();
 
-// RAF-Debounce: max. 1 render pro Frame bei Input-Events
 let _rafId = null;
 function _scheduleRender() {
     if (_rafId !== null) return;
@@ -24,10 +22,6 @@ function _scheduleRender() {
     });
 }
 
-/**
- * Entfernt alle vorhandenen Event-Listener für ein Element
- * @param {HTMLElement} element 
- */
 function removeElementListeners(element) {
     const handler = listeners.get(element);
     if (handler) {
@@ -37,11 +31,7 @@ function removeElementListeners(element) {
     }
 }
 
-/**
- * 🎯 DEZENTES FEEDBACK - Zeigt Status unter dem Button
- */
 function showFeedbackMessage(container, message, type = 'success') {
-    // Entferne vorherige Nachrichten
     const existing = container.querySelector('.feedback-message');
     if (existing) existing.remove();
 
@@ -70,53 +60,20 @@ function showFeedbackMessage(container, message, type = 'success') {
     `;
 
     container.appendChild(feedback);
-
-    // Fade in
     setTimeout(() => feedback.style.opacity = '1', 10);
-
-    // Fade out nach 3 Sekunden
     setTimeout(() => {
         feedback.style.opacity = '0';
-        setTimeout(() => {
-            if (feedback.parentNode) feedback.remove();
-        }, 300);
+        setTimeout(() => { if (feedback.parentNode) feedback.remove(); }, 300);
     }, 3000);
 }
 
-/**
- * 🎯 BUTTON-ANIMATION - Kurz grün färben bei Erfolg
- */
-function animateButtonSuccess(button, originalText) {
-    const originalColor = button.style.backgroundColor;
-    const originalTextColor = button.style.color;
-
-    // Erfolgs-Animation
-    button.style.backgroundColor = '#4caf50';
-    button.style.color = 'white';
-    button.textContent = '✅ Hinzugefügt!';
-    button.disabled = true;
-
-    setTimeout(() => {
-        button.style.backgroundColor = originalColor;
-        button.style.color = originalTextColor;
-        button.textContent = originalText;
-        button.disabled = false;
-    }, 2000);
-}
-
-
-/**
- * Baut die UI-Controls für das ausgewählte Modell
- * @param {HTMLElement} container 
- * @param {THREE.Object3D} selectedModel 
- */
 function _cleanupContainer(container) {
     container.querySelectorAll('input, button').forEach(removeElementListeners);
 }
 
 function _isMuscleOrCartilage(model) {
     if (!model) return false;
-    return (state.groups['muscles']?.includes(model) || state.groups['cartilage']?.includes(model)) ?? false;
+    return (getStore().groups['muscles']?.includes(model) || getStore().groups['cartilage']?.includes(model)) ?? false;
 }
 
 function _buildMuscleButtons(container, model) {
@@ -138,13 +95,12 @@ function _buildMuscleButtons(container, model) {
 }
 
 function _wireMusclePanelListeners(container, selectedModel) {
-    const colorInput   = container.querySelector('#edit-color');
+    const colorInput    = container.querySelector('#edit-color');
     const opacitySlider = container.querySelector('#edit-opacity');
-    const hideBtn      = container.querySelector('#edit-hide-btn');
-    const isolateBtn   = container.querySelector('#edit-isolate-btn');
-    const addToSetBtn  = container.querySelector('#edit-add-to-set');
+    const hideBtn       = container.querySelector('#edit-hide-btn');
+    const isolateBtn    = container.querySelector('#edit-isolate-btn');
+    const addToSetBtn   = container.querySelector('#edit-add-to-set');
 
-    // Initialwerte
     let initialColor = '#ffffff';
     let initialOpacity = 1;
     selectedModel.traverse(child => {
@@ -194,7 +150,7 @@ function _wireAddToSet(btn, container, selectedModel) {
     const { id: modelId, name: modelName, group: modelGroup } = extractModelData(selectedModel);
 
     function _updateBtnState() {
-        const inCollection = state.collection.some(item => item.id === modelId);
+        const inCollection = getStore().collection.some(item => item.id === modelId);
         btn.textContent = inCollection ? 'Aus Sammlung entfernen' : 'Zur Sammlung hinzufügen';
         btn.style.backgroundColor = inCollection ? '#c0392b' : '';
         btn.style.color = inCollection ? 'white' : '';
@@ -203,10 +159,9 @@ function _wireAddToSet(btn, container, selectedModel) {
     _updateBtnState();
 
     const h = () => {
-        const inCollection = state.collection.some(item => item.id === modelId);
+        const inCollection = getStore().collection.some(item => item.id === modelId);
         if (inCollection) {
-            const idx = state.collection.findIndex(item => item.id === modelId);
-            state.collection.splice(idx, 1);
+            getStore().removeFromCollection(modelId);
             showFeedbackMessage(container, `"${modelName}" aus der Sammlung entfernt`, 'warning');
             document.dispatchEvent(new CustomEvent('collectionUpdated'));
             renderer.render(scene, camera);
@@ -221,7 +176,7 @@ function _wireAddToSet(btn, container, selectedModel) {
                 currentOpacity = child.material.opacity ?? 1;
             }
         });
-        state.collection.push({
+        getStore().addToCollection({
             id: modelId, name: modelName, group: modelGroup,
             meta: selectedModel.userData?.meta || selectedModel.userData?.entry || {},
             color: currentColor, opacity: currentOpacity,
@@ -236,8 +191,6 @@ function _wireAddToSet(btn, container, selectedModel) {
     btn.addEventListener('click', h);
     listeners.set(btn, { click: h });
 }
-
-// ─── Standard buildEditPanel ─────────────────────────────────────────────────
 
 export function buildEditPanel(container, selectedModel) {
     if (!selectedModel || !container) {
@@ -263,15 +216,14 @@ export function buildEditPanel(container, selectedModel) {
     <button id="edit-add-to-set" style="margin-bottom: 5px;">Zur Sammlung hinzufügen</button>
   `;
 
-    const colorInput = container.querySelector('#edit-color');
+    const colorInput    = container.querySelector('#edit-color');
     const opacitySlider = container.querySelector('#edit-opacity');
-    const toggleButton = container.querySelector('#edit-toggle-visible');
+    const toggleButton  = container.querySelector('#edit-toggle-visible');
     const addToSetButton = container.querySelector('#edit-add-to-set');
 
-    // Initialwerte spiegeln
     let initialColor = '#ffffff';
     let initialOpacity = 1;
-    let initialVisible = isModelVisible(selectedModel);
+    const initialVisible = isModelVisible(selectedModel);
 
     selectedModel.traverse(child => {
         if (child.isMesh && child.material) {
@@ -320,7 +272,7 @@ export function buildEditPanel(container, selectedModel) {
         const { id: modelId, name: modelName, group: modelGroup } = extractModelData(selectedModel);
 
         function _updateAddBtnState() {
-            const inCollection = state.collection.some(item => item.id === modelId);
+            const inCollection = getStore().collection.some(item => item.id === modelId);
             addToSetButton.textContent = inCollection ? 'Aus Sammlung entfernen' : 'Zur Sammlung hinzufügen';
             addToSetButton.style.backgroundColor = inCollection ? '#c0392b' : '';
             addToSetButton.style.color = inCollection ? 'white' : '';
@@ -329,10 +281,9 @@ export function buildEditPanel(container, selectedModel) {
         _updateAddBtnState();
 
         const addToSetHandler = () => {
-            const inCollection = state.collection.some(item => item.id === modelId);
+            const inCollection = getStore().collection.some(item => item.id === modelId);
             if (inCollection) {
-                const idx = state.collection.findIndex(item => item.id === modelId);
-                state.collection.splice(idx, 1);
+                getStore().removeFromCollection(modelId);
                 showFeedbackMessage(container, `"${modelName}" aus der Sammlung entfernt`, 'warning');
                 document.dispatchEvent(new CustomEvent('collectionUpdated'));
                 renderer.render(scene, camera);
@@ -349,7 +300,7 @@ export function buildEditPanel(container, selectedModel) {
                 }
             });
 
-            state.collection.push({
+            getStore().addToCollection({
                 id: modelId, name: modelName, group: modelGroup,
                 meta: selectedModel.userData?.meta || selectedModel.userData?.entry || {},
                 color: currentColor, opacity: currentOpacity,
@@ -370,23 +321,12 @@ export function buildEditPanel(container, selectedModel) {
     renderer.render(scene, camera);
 }
 
-/**
- * Bereinigt alle Event-Listener im Edit-Panel
- * @param {HTMLElement} container 
- */
 export function cleanupEditPanel(container) {
     if (!container) return;
-
     container.querySelectorAll('input, button').forEach(removeElementListeners);
     container.innerHTML = '';
 }
 
-/**
- * Batch-Controls für Mehrfachauswahl
- * @param {HTMLElement} container
- * @param {THREE.Object3D[]} models  – alle selektierten Roots
- * @param {() => void} onUpdate      – Panel nach Änderung neu aufbauen
- */
 export function buildMultiEditPanel(container, models, onUpdate) {
     if (!container || !models?.length) return;
 
@@ -404,20 +344,18 @@ export function buildMultiEditPanel(container, models, onUpdate) {
         <button id="multi-edit-clear">Auswahl aufheben</button>
     `;
 
-    const colorInput   = container.querySelector('#multi-edit-color');
+    const colorInput    = container.querySelector('#multi-edit-color');
     const opacitySlider = container.querySelector('#multi-edit-opacity');
-    const addAllBtn    = container.querySelector('#multi-edit-add-all');
-    const hideAllBtn   = container.querySelector('#multi-edit-hide-all');
-    const clearBtn     = container.querySelector('#multi-edit-clear');
+    const addAllBtn     = container.querySelector('#multi-edit-add-all');
+    const hideAllBtn    = container.querySelector('#multi-edit-hide-all');
+    const clearBtn      = container.querySelector('#multi-edit-clear');
 
-    // Startwert: Farbe des ersten Modells übernehmen
     models[0]?.traverse(child => {
         if (child.isMesh && child.material?.color) {
             colorInput.value = '#' + child.material.color.getHexString();
         }
     });
 
-    // Farbe auf alle anwenden
     colorInput.addEventListener('input', (e) => {
         const col = new THREE.Color(e.target.value);
         models.forEach(m => setModelColor(m, col));
@@ -429,23 +367,16 @@ export function buildMultiEditPanel(container, models, onUpdate) {
         _scheduleRender();
     });
 
-    // Transparenz auf alle anwenden
     opacitySlider.addEventListener('input', (e) => {
         const v = parseFloat(e.target.value);
         models.forEach(m => setModelOpacity(m, v));
         _scheduleRender();
     });
 
-    // Alle zur Sammlung / Alle aus Sammlung entfernen
     function _updateMultiAddBtnState() {
-        const allIn = models.every(m => {
-            const { id } = extractModelData(m);
-            return state.collection.some(item => item.id === id);
-        });
-        const anyIn = models.some(m => {
-            const { id } = extractModelData(m);
-            return state.collection.some(item => item.id === id);
-        });
+        const collection = getStore().collection;
+        const allIn = models.every(m => { const { id } = extractModelData(m); return collection.some(item => item.id === id); });
+        const anyIn = models.some(m => { const { id } = extractModelData(m); return collection.some(item => item.id === id); });
         if (allIn) {
             addAllBtn.textContent = 'Alle aus Sammlung entfernen';
             addAllBtn.style.backgroundColor = '#c0392b';
@@ -464,26 +395,21 @@ export function buildMultiEditPanel(container, models, onUpdate) {
     _updateMultiAddBtnState();
 
     addAllBtn.addEventListener('click', () => {
-        const allIn = models.every(m => {
-            const { id } = extractModelData(m);
-            return state.collection.some(item => item.id === id);
-        });
+        const collection = getStore().collection;
+        const allIn = models.every(m => { const { id } = extractModelData(m); return collection.some(item => item.id === id); });
 
         if (allIn) {
-            // Alle entfernen
             for (const model of models) {
                 const { id } = extractModelData(model);
-                const idx = state.collection.findIndex(item => item.id === id);
-                if (idx !== -1) state.collection.splice(idx, 1);
+                getStore().removeFromCollection(id);
             }
             document.dispatchEvent(new CustomEvent('collectionUpdated'));
             showFeedbackMessage(container, `${models.length} Struktur${models.length !== 1 ? 'en' : ''} aus der Sammlung entfernt`, 'warning');
         } else {
-            // Fehlende hinzufügen
             let added = 0;
             for (const model of models) {
                 const { id: modelId, name: modelName, group: modelGroup } = extractModelData(model);
-                if (state.collection.some(item => item.id === modelId)) continue;
+                if (getStore().collection.some(item => item.id === modelId)) continue;
                 let color = new THREE.Color(0xffffff).getHex();
                 let opacity = 1;
                 model.traverse(child => {
@@ -492,7 +418,7 @@ export function buildMultiEditPanel(container, models, onUpdate) {
                         opacity = child.material.opacity ?? 1;
                     }
                 });
-                state.collection.push({
+                getStore().addToCollection({
                     id: modelId, name: modelName, group: modelGroup,
                     meta: model.userData?.meta || model.userData?.entry || {},
                     color, opacity, visible: model.visible !== false,
@@ -508,7 +434,6 @@ export function buildMultiEditPanel(container, models, onUpdate) {
         _updateMultiAddBtnState();
     });
 
-    // Alle verstecken
     hideAllBtn.addEventListener('click', () => {
         models.forEach(m => hideModel(m));
         clearMultiSelect();
@@ -516,7 +441,6 @@ export function buildMultiEditPanel(container, models, onUpdate) {
         renderer.render(scene, camera);
     });
 
-    // Auswahl aufheben
     clearBtn.addEventListener('click', () => {
         clearMultiSelect();
         import('./infoPanel.js').then(({ hideInfoPanel }) => hideInfoPanel()).catch(() => {});

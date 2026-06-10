@@ -15,7 +15,7 @@ import { enterIsolatedView, exitIsolatedView } from '../interaction/isolationVie
 import { isMuskelfinderPreviewMode } from './muskelfinderPreview.js';
 import { createGLTFLoader } from '../loaders/gltfLoaderFactory.js';
 import { updateModelColors } from '../modelLoader/color.js';
-import { state } from '../store/state.js';
+import { getStore, INITIAL_COLORS, DEFAULT_COLOR } from '../store/useStore.js';
 
 const MAP_URL = dataPath('muskelfinder-map.json');
 const STRUCTURAL_GROUPS = ['bones', 'teeth', 'cartilage', 'ligaments'];
@@ -193,7 +193,7 @@ function resolveMetaMatchesByLabel(label, group = 'muscles') {
     return [];
   }
 
-  return (state.groupedMeta?.[group] || []).filter((entry) => {
+  return (getStore().groupedMeta?.[group] || []).filter((entry) => {
     const labels = [
       entry?.labels?.la,
       entry?.labels?.en,
@@ -235,7 +235,7 @@ function resolveTargetEntries(request, mapping) {
   if (mapped?.entry) {
     const group = mapped.entry.group || 'muscles';
     const byId = (mapped.entry.ids || [])
-      .map((id) => state.metaById?.[id] || null)
+      .map((id) => getStore().metaById?.[id] || null)
       .filter(Boolean);
 
     if (byId.length) {
@@ -274,7 +274,7 @@ function resolveTargetEntries(request, mapping) {
 }
 
 function findLoadedModel(entry, group) {
-  return (state.groups?.[group] || []).find(
+  return (getStore().groups?.[group] || []).find(
     (model) => model?.userData?.meta?.id === entry.id
   ) || null;
 }
@@ -296,23 +296,19 @@ async function ensureEntryModelLoaded(entry, fallbackGroup, loader) {
 
 async function ensureStructuralContextLoaded() {
   for (const group of STRUCTURAL_GROUPS) {
-    if (!state.groups?.[group]?.length) {
+    if (!getStore().groups?.[group]?.length) {
       await loadGroupByName(group, { centerCamera: false });
     }
 
-    state.groupStates[group] = true;
+    getStore().setGroupVisible(group, true);
     applyGroupMaterialTweaks(group);
 
-    const hex =
-      state.colors?.[group] ??
-      state.defaultSettings?.colors?.[group] ??
-      state.defaultSettings?.defaultColor;
-
+    const hex = getStore().colors?.[group] ?? INITIAL_COLORS[group] ?? DEFAULT_COLOR;
     if (hex != null) {
       updateModelColors(group, hex);
     }
 
-    for (const model of state.groups?.[group] || []) {
+    for (const model of getStore().groups?.[group] || []) {
       setModelVisibility(model, true);
     }
   }
@@ -320,14 +316,10 @@ async function ensureStructuralContextLoaded() {
 
 function applyResolvedGroupState(groups) {
   groups.forEach((group) => {
-    state.groupStates[group] = true;
+    getStore().setGroupVisible(group, true);
     applyGroupMaterialTweaks(group);
 
-    const hex =
-      state.colors?.[group] ??
-      state.defaultSettings?.colors?.[group] ??
-      state.defaultSettings?.defaultColor;
-
+    const hex = getStore().colors?.[group] ?? INITIAL_COLORS[group] ?? DEFAULT_COLOR;
     if (hex != null) {
       updateModelColors(group, hex);
     }

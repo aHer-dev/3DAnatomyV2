@@ -5,7 +5,7 @@ import * as THREE from 'three';
 import { camera } from '../core/camera.js';
 import { renderer } from '../core/renderer.js';
 import { controls } from '../core/controls.js';
-import { state } from '../store/state.js';
+import { getStore } from '../store/useStore.js';
 import { addToMultiSelect } from './multiSelect.js';
 import { getActiveTool, TOOL, onToolChange, setActiveTool } from '../ui/toolbar.js';
 
@@ -23,7 +23,7 @@ function getMeshesInScreenRect(rect) {
     const found = new Set();
     const canvasRect = renderer.domElement.getBoundingClientRect();
 
-    for (const mesh of (state.pickableMeshes || new Set())) {
+    for (const mesh of (getStore().pickableObjects || new Set())) {
         if (!mesh.visible || !mesh.geometry) continue;
 
         mesh.geometry.computeBoundingBox();

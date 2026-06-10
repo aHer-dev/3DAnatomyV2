@@ -43,7 +43,7 @@ export async function lazyImport(modulePath, exportName) {
  */
 export async function validateModules() {
     const criticalModules = [
-        { path: '../store/state.js', exports: ['state'] },
+        { path: '../store/useStore.js', exports: ['getStore'] },
         { path: '../core/raycaster.js', exports: ['pickAt'] },
         { path: '../features/visibility.js', exports: ['setModelVisibility'] },
         { path: '../features/selection.js', exports: ['setPickable'] }
@@ -81,13 +81,11 @@ export async function fallbackSetPickable(mesh, pickable) {
         }
 
         // Versuche State zu finden
-        const state = await lazyImport('../store/state.js', 'state');
-        if (state?.pickableMeshes) {
-            if (pickable) {
-                state.pickableMeshes.add(mesh);
-            } else {
-                state.pickableMeshes.delete(mesh);
-            }
+        const { getStore } = await import('../store/useStore.js');
+        if (pickable) {
+            getStore().addPickable(mesh);
+        } else {
+            getStore().removePickable(mesh);
         }
     } catch (error) {
         console.warn('Fallback setPickable Fehler:', error);

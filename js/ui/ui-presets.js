@@ -8,7 +8,7 @@
  *   3. git push
  */
 
-import { state }                          from '../store/state.js';
+import { getStore }                       from '../store/useStore.js';
 import { loadGroupByName }                from '../features/modelLoader-core.js';
 import { setModelColor, setModelOpacity } from '../features/appearance.js';
 import { updateSetList, showCollectionRobust } from './ui-set.js';
@@ -73,15 +73,14 @@ async function applyPreset(preset) {
     // Gruppen laden
     const needed = [...new Set(data.collection.map(i => i.group).filter(Boolean))];
     for (const group of needed) {
-      if (!state.groups[group] || state.groups[group].length === 0) {
+      if (!(getStore().groups[group]?.length)) {
         _setOverlayText(`Lade ${group}…`);
         try { await loadGroupByName(group, { centerCamera: false }); }
         catch (e) { console.error(`Gruppe "${group}" konnte nicht geladen werden:`, e); }
       }
     }
 
-    // Sammlung aufbauen
-    state.collection = [];
+    getStore().clearCollection();
     _setOverlayText('Wende Preset an…');
 
     for (const item of data.collection) {
@@ -89,7 +88,7 @@ async function applyPreset(preset) {
       if (!model) { console.warn(`⚠️ Nicht gefunden: ${item.name}`); continue; }
       if (item.color  != null) setModelColor(model, item.color);
       if (item.opacity != null) setModelOpacity(model, item.opacity);
-      state.collection.push({
+      getStore().addToCollection({
         id: item.id, name: item.name, group: item.group,
         meta: item.meta || {}, color: item.color,
         opacity: item.opacity, visible: item.visible !== false, model,
@@ -114,10 +113,10 @@ async function applyPreset(preset) {
 function _findModel(id, groupHint) {
   if (!id) return null;
   const sid = String(id);
-  if (groupHint && state.groups[groupHint]) {
-    for (const m of state.groups[groupHint]) if (_match(m, sid)) return m;
+  if (groupHint && getStore().groups[groupHint]) {
+    for (const m of getStore().groups[groupHint]) if (_match(m, sid)) return m;
   }
-  for (const models of Object.values(state.groups)) {
+  for (const models of Object.values(getStore().groups)) {
     for (const m of models || []) if (_match(m, sid)) return m;
   }
   return null;

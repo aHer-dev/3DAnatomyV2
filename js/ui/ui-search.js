@@ -7,7 +7,7 @@ import { scene } from '../core/scene.js'; // Ersetzt init.js
 import { controls } from '../core/controls.js'; // Falls für Interaktionen nötig
 
 // ... Rest des Code
-import { state } from '../store/state.js';                        // 🔁 Globaler App-Zustand              
+import { getStore } from '../store/useStore.js';
 import { getMeta } from '../utils/index.js';                     // 📄 Lädt Metadaten der Modelle
 import { createGLTFLoader } from '../loaders/gltfLoaderFactory.js';
 import { highlightModel } from '../interaction/highlightModel.js';
@@ -62,7 +62,7 @@ export function setupSearchUI() {
         await loadModels([entry], entryGroup, true, scene, loader);
 
         // 🟢 Modellobjekt im geladenen Zustand finden
-        const model = state.groups[entryGroup]?.find(
+        const model = getStore().groups[entryGroup]?.find(
           m => (m.userData?.meta?.id || m.userData?.entry?.id || m.name) === entry.id
         );
 

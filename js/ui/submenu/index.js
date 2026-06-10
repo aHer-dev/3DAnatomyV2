@@ -3,7 +3,7 @@ import { getMeta } from '../../utils/index.js';
 import { createGroupBlock } from './createGroupBlock.js';
 
 
-import { state } from '../../store/state.js';
+import { getStore } from '../../store/useStore.js';
 
 /**
  * Initialisiert das dynamische Submenü (nur optionale Gruppen)
@@ -17,7 +17,7 @@ export async function setupSubmenuUI() {
 
     const meta = await getMeta();
     const hiddenGroups = ['bones', 'teeth', 'muscles', 'ligaments'];
-    const submenuGroups = state.availableGroups.filter(
+    const submenuGroups = getStore().availableGroups.filter(
         g => !hiddenGroups.includes(g)
     );
 

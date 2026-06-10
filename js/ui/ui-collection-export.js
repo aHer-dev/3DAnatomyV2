@@ -1,7 +1,7 @@
 // ui-collection-export.js
 // 📤📥 Export/Import-Modul für Sammlungen - Modular, stabil und benutzerfreundlich
 
-import { state } from '../store/state.js';
+import { getStore } from '../store/useStore.js';
 import { loadGroupByName } from '../features/modelLoader-core.js';
 import { setModelColor, setModelOpacity } from '../features/appearance.js';
 import { setModelVisibility } from '../features/visibility.js';
@@ -150,7 +150,7 @@ class CollectionManager {
      * Exportiert die aktuelle Sammlung als JSON-Datei
      */
     exportCollection(customName = null) {
-        if (!state.collection || state.collection.length === 0) {
+        if (!getStore().collection || getStore().collection.length === 0) {
             this.showToast('Die Sammlung ist leer', 'warning');
             return;
         }
@@ -165,10 +165,10 @@ class CollectionManager {
                     exportDate: new Date().toLocaleDateString()
                 },
                 statistics: {
-                    totalObjects: state.collection.length,
+                    totalObjects: getStore().collection.length,
                     groups: this.getGroupStatistics()
                 },
-                collection: state.collection.map(item => this.serializeItem(item))
+                collection: getStore().collection.map(item => this.serializeItem(item))
             };
 
             // JSON erstellen mit schöner Formatierung
@@ -194,7 +194,7 @@ class CollectionManager {
             URL.revokeObjectURL(url);
 
             // Erfolgsmeldung
-            this.showToast(`✅ ${state.collection.length} Objekte exportiert`, 'success');
+            this.showToast(`✅ ${getStore().collection.length} Objekte exportiert`, 'success');
             console.log('📤 Sammlung exportiert:', exportData);
 
         } catch (error) {
@@ -227,10 +227,10 @@ class CollectionManager {
             }
 
             // Warnung bei vorhandener Sammlung
-            if (state.collection.length > 0) {
+            if (getStore().collection.length > 0) {
                 const confirmed = await this.showConfirmDialog(
                     'Vorhandene Sammlung überschreiben?',
-                    `Die aktuelle Sammlung enthält ${state.collection.length} Objekte. Diese werden beim Import überschrieben.`
+                    `Die aktuelle Sammlung enthält ${getStore().collection.length} Objekte. Diese werden beim Import überschrieben.`
                 );
                 if (!confirmed) {
                     this.hideLoadingOverlay();
@@ -277,15 +277,14 @@ class CollectionManager {
             details: []
         };
 
-        // Sammlung zurücksetzen
-        state.collection = [];
+        getStore().clearCollection();
 
         // Benötigte Gruppen identifizieren
         const requiredGroups = [...new Set(data.collection.map(item => item.group).filter(Boolean))];
 
         // Fehlende Gruppen laden
         for (const group of requiredGroups) {
-            if (!state.groups[group] || state.groups[group].length === 0) {
+            if (!(getStore().groups[group]?.length)) {
                 try {
                     this.updateLoadingText(`Lade Gruppe: ${group}...`);
                     await loadGroupByName(group, { centerCamera: false });
@@ -324,7 +323,7 @@ class CollectionManager {
                     importedAt: Date.now()
                 };
 
-                state.collection.push(collectionItem);
+                getStore().addToCollection(collectionItem);
                 results.success++;
                 results.details.push({ name: savedItem.name, status: 'success' });
             } else {
@@ -371,15 +370,15 @@ class CollectionManager {
      */
     findModelById(id, groupHint = null) {
         // Zuerst in der angegebenen Gruppe suchen
-        if (groupHint && state.groups[groupHint]) {
-            for (const model of state.groups[groupHint]) {
+        if (groupHint && getStore().groups[groupHint]) {
+            for (const model of getStore().groups[groupHint]) {
                 const modelId = model.userData?.meta?.id || model.name;
                 if (modelId === id) return model;
             }
         }
 
         // In allen Gruppen suchen
-        for (const [groupName, models] of Object.entries(state.groups)) {
+        for (const [groupName, models] of Object.entries(getStore().groups)) {
             for (const model of models || []) {
                 const modelId = model.userData?.meta?.id || model.name;
                 if (modelId === id) return model;
@@ -455,7 +454,7 @@ class CollectionManager {
      */
     getGroupStatistics() {
         const stats = {};
-        state.collection.forEach(item => {
+        getStore().collection.forEach(item => {
             const group = item.group || 'unknown';
             stats[group] = (stats[group] || 0) + 1;
         });
@@ -536,7 +535,7 @@ class CollectionManager {
     showSaveModal() {
         if (document.getElementById('save-modal-overlay')) return;
 
-        if (!state.collection || state.collection.length === 0) {
+        if (!getStore().collection || getStore().collection.length === 0) {
             this.showToast('Die Sammlung ist leer', 'warning');
             return;
         }
@@ -586,7 +585,7 @@ class CollectionManager {
 
         // Hinweis
         const hint = document.createElement('div');
-        hint.textContent = `${state.collection.length} Struktur${state.collection.length !== 1 ? 'en' : ''} werden gespeichert`;
+        hint.textContent = `${getStore().collection.length} Struktur${getStore().collection.length !== 1 ? 'en' : ''} werden gespeichert`;
         hint.style.cssText = `
             font-size: 12px;
             color: rgba(255,255,255,0.4);
