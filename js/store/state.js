@@ -139,15 +139,6 @@ export const state = {
   colors: {}, // Wird in initializeGroupsFromMeta befüllt
 
   // Konsistente Auswahl-Verwaltung
-//  selected: {
- //   root: null,        // Gesamtes Modell-Root-Objekt
-//    mesh: null,        // Spezifisches Mesh
-//   point: null,       // 3D-Punkt des Klicks
-//    meta: null         // Zugehörige Metadaten
-//  },
-
-
-  // Konsistente Auswahl-Verwaltung --CLAUDE
   selected: {
     root: null,        // Gesamtes Modell-Root-Objekt
     mesh: null,        // Spezifisches Mesh

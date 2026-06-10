@@ -1,13 +1,3 @@
-//  ! BUG - AKTIVIERUNG BEINFLUST CANVAS
-// SCHRITT 1: config.js (Zentrale Konfiguration)
-// Erstellen Sie: js/config/config.js
-// ============================================
-
-/**
- * SOLO-ENTWICKLER KONFIGURATION
- * Ein zentraler Ort für alle Einstellungen
- * WICHTIG: Alle Features sind standardmäßig AUS!
- */
 export const APP_CONFIG = {
     // ===================
     // ENTWICKLUNGSMODUS
@@ -22,11 +12,7 @@ export const APP_CONFIG = {
     // FEATURE-SCHALTER (ALLE AUS!)
     // ===================
     features: {
-        // 8.1 Zentrale Konfiguration ✅ (diese Datei)
-        centralConfig: true,
-
-        // 8.2 Resource Manager
-        resourceManager: false,      // ← HIER: true zum Aktivieren
+        resourceManager: false,
         resourceManagerConfig: {
             enabled: false,           // Doppelte Sicherheit
             maxMemoryMB: 200,         // 100MB Speicherlimit
@@ -34,8 +20,7 @@ export const APP_CONFIG = {
             debugLogs: false          // Memory-Logs
         },
 
-        // 8.3 Performance Monitor  
-        performanceMonitor: false,   // ← HIER: true zum Aktivieren
+        performanceMonitor: false,
         performanceConfig: {
             enabled: true,           // Doppelte Sicherheit
             showFPS: true,            // FPS-Anzeige
@@ -44,9 +29,6 @@ export const APP_CONFIG = {
             position: 'bottom-right'      // Position der Stats
         },
 
-        // Bestehende Features (Ihre aktuellen)
-        renderOptimization: false,   // Ihr bestehendes Feature
-        debugControls: true         // Konsole-Commands (sicher)
     },
 
     // ===================
