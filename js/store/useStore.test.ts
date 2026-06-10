@@ -1,23 +1,31 @@
 import { describe, it, expect, beforeEach } from 'vitest'
 import store from './useStore.js'
-import type { MetaEntry } from '../types/index.js'
+import type { CollectionItem, MetaEntry } from '../types/index.js'
 
-// Minimales Mock-Objekt — Store braucht keine echten THREE.Object3D
-const mockMesh = () => ({ uuid: crypto.randomUUID(), type: 'Mesh' }) as unknown as THREE.Object3D
+const mockMesh = () => ({ uuid: crypto.randomUUID(), type: 'Mesh', name: 'testMesh', isMesh: true }) as unknown as THREE.Object3D
 const mockMeta = () => ({ id: 'fma12345', labels: { de: 'Test', en: 'Test', la: 'Test' } }) as MetaEntry
 
-// Vor jedem Test Store auf Initialzustand zurücksetzen
+const emptyState = () => ({
+  groups: {},
+  groupStates: {},
+  modelStates: {},
+  modelsByName: new Map(),
+  selected: { root: null, mesh: null, point: null, meta: null },
+  multiSelected: new Set<THREE.Object3D>(),
+  colors: {},
+  opacity: {},
+  pickableObjects: new Set<THREE.Object3D>(),
+  protection: { bones: true, teeth: true },
+  groupedMeta: {},
+  availableGroups: [],
+  metaById: {},
+  metaByFile: {},
+  collection: [],
+  clickCounts: {},
+})
+
 beforeEach(() => {
-  store.setState({
-    groups: {},
-    groupStates: {},
-    modelStates: {},
-    selected: { root: null, mesh: null, point: null, meta: null },
-    colors: {},
-    opacity: {},
-    pickableObjects: new Set(),
-    protection: { bones: true, teeth: true },
-  })
+  store.setState(emptyState())
 })
 
 // ─── Selection ────────────────────────────────────────────────────────────────
@@ -39,7 +47,7 @@ describe('Selection', () => {
     store.getState().setSelection({ meta: mockMeta() })
 
     const { selected } = store.getState()
-    expect(selected.root).toBe(mesh)   // nicht gelöscht
+    expect(selected.root).toBe(mesh)
     expect(selected.meta).not.toBeNull()
   })
 
@@ -51,6 +59,30 @@ describe('Selection', () => {
     expect(selected.root).toBeNull()
     expect(selected.mesh).toBeNull()
     expect(selected.meta).toBeNull()
+  })
+})
+
+// ─── MultiSelect ──────────────────────────────────────────────────────────────
+
+describe('MultiSelect', () => {
+  it('fügt ein Mesh hinzu', () => {
+    const mesh = mockMesh()
+    store.getState().addToMultiSelected(mesh)
+    expect(store.getState().multiSelected.has(mesh)).toBe(true)
+  })
+
+  it('entfernt ein Mesh', () => {
+    const mesh = mockMesh()
+    store.getState().addToMultiSelected(mesh)
+    store.getState().removeFromMultiSelected(mesh)
+    expect(store.getState().multiSelected.has(mesh)).toBe(false)
+  })
+
+  it('löscht alle Meshes', () => {
+    store.getState().addToMultiSelected(mockMesh())
+    store.getState().addToMultiSelected(mockMesh())
+    store.getState().clearMultiSelected()
+    expect(store.getState().multiSelected.size).toBe(0)
   })
 })
 
@@ -91,6 +123,15 @@ describe('Models', () => {
     const { groups, groupStates } = store.getState()
     expect(groups['muscles']).toHaveLength(2)
     expect(groupStates['muscles']).toBe(true)
+  })
+
+  it('addGroupModel fügt einzelnes Modell hinzu und trägt in modelsByName ein', () => {
+    const mesh = mockMesh()
+    store.getState().addGroupModel('bones', mesh)
+
+    const { groups, modelsByName } = store.getState()
+    expect(groups['bones']).toHaveLength(1)
+    expect(modelsByName.get(mesh)).toBe(mesh.name)
   })
 
   it('entlädt eine Gruppe', () => {
@@ -137,6 +178,78 @@ describe('Pickables', () => {
   })
 })
 
+// ─── MetaData ─────────────────────────────────────────────────────────────────
+
+describe('MetaData', () => {
+  it('setzt alle Meta-Felder auf einmal', () => {
+    const meta = mockMeta()
+    store.getState().setMetaData({
+      groupedMeta: { muscles: [meta] },
+      availableGroups: ['muscles'],
+      metaById: { fma12345: meta },
+      metaByFile: { 'test.glb': meta },
+    })
+
+    const s = store.getState()
+    expect(s.availableGroups).toEqual(['muscles'])
+    expect(s.metaById['fma12345']).toBe(meta)
+    expect(s.metaByFile['test.glb']).toBe(meta)
+    expect(s.groupedMeta['muscles']).toHaveLength(1)
+  })
+})
+
+// ─── Collection ───────────────────────────────────────────────────────────────
+
+describe('Collection', () => {
+  const makeItem = (id: string): CollectionItem => ({
+    id,
+    name: id,
+    group: 'muscles',
+    meta: {},
+    color: 0xff0000,
+    opacity: 1,
+    visible: true,
+    model: mockMesh(),
+    addedAt: Date.now(),
+    source: 'test',
+  })
+
+  it('fügt ein Item hinzu', () => {
+    store.getState().addToCollection(makeItem('a'))
+    expect(store.getState().collection).toHaveLength(1)
+  })
+
+  it('verhindert doppelte IDs', () => {
+    store.getState().addToCollection(makeItem('a'))
+    store.getState().addToCollection(makeItem('a'))
+    expect(store.getState().collection).toHaveLength(1)
+  })
+
+  it('entfernt nach ID', () => {
+    store.getState().addToCollection(makeItem('a'))
+    store.getState().addToCollection(makeItem('b'))
+    store.getState().removeFromCollection('a')
+    expect(store.getState().collection).toHaveLength(1)
+    expect(store.getState().collection[0].id).toBe('b')
+  })
+
+  it('leert die Sammlung', () => {
+    store.getState().addToCollection(makeItem('a'))
+    store.getState().clearCollection()
+    expect(store.getState().collection).toHaveLength(0)
+  })
+})
+
+// ─── ClickCounts ──────────────────────────────────────────────────────────────
+
+describe('ClickCounts', () => {
+  it('zählt Klicks hoch', () => {
+    store.getState().incrementClickCount('fma12345')
+    store.getState().incrementClickCount('fma12345')
+    expect(store.getState().clickCounts['fma12345']).toBe(2)
+  })
+})
+
 // ─── Reset ────────────────────────────────────────────────────────────────────
 
 describe('resetAll', () => {
@@ -145,13 +258,17 @@ describe('resetAll', () => {
     store.getState().setGroupLoaded('bones', [mockMesh()])
     store.getState().setGroupLoaded('teeth', [mockMesh()])
     store.getState().setSelection({ root: mockMesh() })
+    store.getState().addToCollection({ id: 'x', name: 'x', group: 'muscles', meta: {}, color: 0, opacity: 1, visible: true, model: mockMesh(), addedAt: 0, source: 'test' })
+    store.getState().addToMultiSelected(mockMesh())
 
     store.getState().resetAll()
 
-    const { groups, selected } = store.getState()
-    expect(groups['muscles']).toBeUndefined()   // entfernt
-    expect(groups['bones']).toBeDefined()        // geschützt
-    expect(groups['teeth']).toBeDefined()        // geschützt
-    expect(selected.root).toBeNull()             // Auswahl gelöscht
+    const { groups, selected, collection, multiSelected } = store.getState()
+    expect(groups['muscles']).toBeUndefined()
+    expect(groups['bones']).toBeDefined()
+    expect(groups['teeth']).toBeDefined()
+    expect(selected.root).toBeNull()
+    expect(collection).toHaveLength(0)
+    expect(multiSelected.size).toBe(0)
   })
 })
