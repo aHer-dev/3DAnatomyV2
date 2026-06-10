@@ -7,6 +7,16 @@ Format: [Keep a Changelog](https://keepachangelog.com/de/1.0.0/)
 
 ## [Unreleased]
 
+### Changed (Phase 2c-4)
+- Alle custom `window.*`-Globals eliminiert — keine globale Verschmutzung mehr
+  - `window.requestRender` → neues Modul `js/core/renderScheduler.js` (Late-init-Singleton)
+    - `startApp.js` registriert die echte Implementierung via `registerRequestRender()`
+    - 8 Consumer-Dateien importieren `requestRender` direkt statt über `window`
+  - `window.renderOptimizer` → `optimizerControls` als benannter Export aus `renderer.js`
+  - `window.loadingScreenManager` → entfernt (war nie von App-Code gelesen)
+  - `window.testToggle/testLoad/testUnload` → entfernt (Debug-Krücken, Funktionen weiter exportiert)
+  - `window.testProgress/progressUtils` → entfernt (alle Funktionen bereits als ES-Module exportiert)
+
 ### Changed (Phase 2c-3)
 - Alle verbleibenden 19 Consumer-Dateien von `state.js` auf Zustand-Store migriert
   - `js/interaction/`: boxSelect, highlightModel, multiSelect, index, infoPanel, isolationView, editPanel

@@ -13,6 +13,7 @@ import { registerPickables } from '../features/selection.js';
 import { getShadowFlagsForGroup } from '../features/appearance.js';
 import { updateModelColors } from '../modelLoader/color.js';
 import { getStore, INITIAL_COLORS, DEFAULT_COLOR } from '../store/useStore.js';
+import { requestRender } from '../core/renderScheduler.js';
 import { createGLTFLoader } from '../loaders/gltfLoaderFactory.js';
 import { setGroupVisibility, showObject, hideObject, setModelVisibility } from '../features/visibility.js';
 import { showLoadingBar, hideLoadingBar, updateLoadingBar } from '../modelLoader/progress.js';
@@ -146,7 +147,7 @@ export async function loadModels(entries, group, centerCamera, scene, loader, ca
     );
 
     if (yieldBetweenBatches && i + batchSize < entries.length) {
-      if (typeof window !== 'undefined') window.requestRender?.();
+      requestRender();
       await waitForBrowserBreather();
     }
   }

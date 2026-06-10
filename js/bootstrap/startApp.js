@@ -16,7 +16,7 @@ import * as THREE from 'three';
 import { scene } from '../core/scene.js';
 import { camera } from '../core/camera.js';
 import { controls } from '../core/controls.js';
-import { renderer, requestShadowUpdate, freezeShadows } from '../core/renderer.js';
+import { renderer, requestShadowUpdate, freezeShadows, optimizerControls } from '../core/renderer.js';
 
 import {
     defaultAppearance as appearance,
@@ -54,6 +54,7 @@ import { updatePerformanceMonitor } from '../debug/performanceMonitor.js';
 import { showLoadingCircle, updateLoadingCircle, hideLoadingCircle } from '../modelLoader/progress.js';
 import '../utils/migration-helper.js';
 import { lifecycle } from '../core/lifecycle.js';
+import { registerRequestRender } from '../core/renderScheduler.js';
 
 
 // --- RENDER-OPTIMIERUNG (optional) ---
@@ -174,8 +175,7 @@ export function requestRender(frames = DEFAULT_RENDER_BURST) {
     _loopKeepAliveFrames = Math.max(_loopKeepAliveFrames, frames);
     ensureLoopRunning();
 }
-// Auch global verfügbar machen (für Module ohne direkten Import)
-if (typeof window !== 'undefined') window.requestRender = requestRender;
+registerRequestRender(requestRender);
 
 // --- zentraler Render-Loop (einzig) ---
 let stopLoop = null;
@@ -338,24 +338,16 @@ export async function startApp() {
 
 // Bestehende Funktionen...
 export function enableRenderOptimization() {
-    if (window.renderOptimizer) {
-        window.renderOptimizer.enable();
-    } else {
-        console.warn('⚠️ Optimizer nicht verfügbar - RENDER_OPTIMIZATION.enabled auf true setzen');
-    }
+    optimizerControls.enable();
 }
 
 export function disableRenderOptimization() {
-    if (window.renderOptimizer) {
-        window.renderOptimizer.disable();
-    }
+    optimizerControls.disable();
 }
 
 export function showRenderStats() {
-    if (window.renderOptimizer) {
-        console.table(window.renderOptimizer.stats());
-    } else {
-    }
+    const stats = optimizerControls.stats();
+    if (stats) console.table(stats);
 }
 
 async function tryApplyEnvironment(renderer) {
@@ -648,14 +640,4 @@ export async function loadMultipleGroups(groups) {
 // ============================================
 // EXPORT FÜR VERWENDUNG IN ANDEREN MODULEN
 // ============================================
-
-// Für direkte Verwendung in anderen Files:
-window.loadingScreenManager = loadingScreen;
-
-// Oder als ES6 Export:
 export { loadingScreen };
-
-// Beispiel Verwendung in anderen Modulen:
-// window.loadingScreenManager.showLiveLoader();
-// await loadSomeModel();
-// window.loadingScreenManager.hideLiveLoader();

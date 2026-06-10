@@ -7,6 +7,7 @@ import { renderer }           from '../core/renderer.js';
 import { scene }              from '../core/scene.js';
 import { setCameraDirection } from '../core/cameraUtils.js';
 import { hideControlsPanel }  from './ui-controls.js';
+import { requestRender } from '../core/renderScheduler.js';
 
 // ─── Konfiguration ───────────────────────────────────────────────────────────
 
@@ -326,8 +327,7 @@ function _capturePhoto() {
   camera.aspect = origAspect;
   camera.updateProjectionMatrix();
 
-  // Einen Frame neu rendern
-  window.requestRender?.();
+  requestRender();
 
   // Download
   const ts   = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);

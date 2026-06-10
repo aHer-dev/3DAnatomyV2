@@ -6,6 +6,7 @@ import * as THREE from 'three';
 import { getStore } from '../store/useStore.js';
 import { markPickablesDirty } from '../core/raycaster.js';
 import { setPickable } from './selection.js';
+import { requestRender } from '../core/renderScheduler.js';
 
 // === PRIVATE HELPER FUNCTIONS ===
 function _asArray(mat) {
@@ -112,10 +113,7 @@ export function setModelVisibility(model, visible) {
     if (!model) return;
     const v = !!visible;
 
-    // Demand-Render + Raycaster-Sync anfordern
-    if (typeof window !== 'undefined' && typeof window.requestRender === 'function') {
-        window.requestRender();
-    }
+    requestRender();
     markPickablesDirty();
 
     // Sichtbarkeit & Layer für gesamten Subtree setzen
