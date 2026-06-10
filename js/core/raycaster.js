@@ -2,7 +2,7 @@
 // Hybrid: Offizielle Three.js Octree + Custom Mesh-Raycasting
 import * as THREE from 'three';
 import { Octree } from 'three/addons/math/Octree.js'
-import { state } from '../store/state.js';
+import { getStore } from '../store/useStore.js';
 import { camera } from './camera.js';
 import { renderer } from './renderer.js';
 
@@ -286,7 +286,7 @@ class OptimizedRaycaster {
             const allCandidates = this.getPickCandidates();
 
             if (allCandidates.length === 0) {
-                state.selected = null;
+                getStore().clearSelection();
                 return null;
             }
 
@@ -307,7 +307,7 @@ class OptimizedRaycaster {
             }
 
             if (intersections.length === 0) {
-                state.selected = null;
+                getStore().clearSelection();
                 return null;
             }
 
@@ -324,12 +324,12 @@ class OptimizedRaycaster {
                 normal: hit.face?.normal?.clone() || null
             };
 
-            state.selected = selection;
+            getStore().setSelection({ root: selection.root, mesh: selection.mesh, point: selection.point });
             return selection;
 
         } catch (error) {
             console.error('Fehler beim Raycasting:', error);
-            state.selected = null;
+            getStore().clearSelection();
             return null;
         }
     }
@@ -339,16 +339,16 @@ class OptimizedRaycaster {
         if (!_pickablesDirty) return;
         _pickablesDirty = false;
 
-        const statePickables = state.pickableMeshes || new Set();
+        const pickables = getStore().pickableObjects;
 
         for (const mesh of this.spatialHash.meshes) {
-            if (!statePickables.has(mesh)) this.spatialHash.removeMesh(mesh);
+            if (!pickables.has(mesh)) this.spatialHash.removeMesh(mesh);
         }
-        for (const mesh of statePickables) {
+        for (const mesh of pickables) {
             if (!this.spatialHash.meshes.has(mesh)) this.spatialHash.addMesh(mesh);
         }
 
-        this.cachedPickCandidates = Array.from(statePickables).filter(mesh => this.isCandidatePickable(mesh));
+        this.cachedPickCandidates = Array.from(pickables).filter(mesh => this.isCandidatePickable(mesh));
     }
 
     // NDC-Koordinaten berechnen
@@ -387,7 +387,7 @@ class OptimizedRaycaster {
         return {
             ...spatialInfo,
             hasCollisionOctree: !!this.collisionOctree,
-            pickableMeshes: state.pickableMeshes?.size || 0,
+            pickableMeshes: getStore().pickableObjects?.size ?? 0,
             performance: this.getPerformanceMetrics()
         };
     }

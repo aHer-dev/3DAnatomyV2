@@ -1,6 +1,6 @@
 
 // groupToggle.js - ERWEITERTE VERSION
-import { state, dispatch, StateActions } from '../store/state.js';
+import { getStore } from '../store/useStore.js';
 import { loadGroupByName } from './modelLoader-core.js';
 import { scene } from '../core/scene.js';
 import { disposeObject3D } from '../modelLoader/cleanup.js';
@@ -10,24 +10,20 @@ import { unregisterPickables } from './selection.js';
 
 
 export async function toggleGroup(groupName) {
-    const isLoaded = state.groups[groupName]?.length > 0;
+    const isLoaded = (getStore().groups[groupName]?.length ?? 0) > 0;
 
     if (isLoaded) {
-        // ENTLADEN
         console.log(`🔻 Entlade Gruppe "${groupName}"...`);
 
-        const models = state.groups[groupName] || [];
+        const models = getStore().groups[groupName] ?? [];
         for (const model of models) {
             unregisterPickables(model);
             scene.remove(model);
             disposeObject3D(model);
         }
 
-dispatch(StateActions.UNLOAD_GROUP, { group: groupName });
-dispatch(StateActions.SET_GROUP_VISIBILITY, { 
-    group: groupName,
-    visible: false
-});
+        getStore().unloadGroup(groupName);
+        getStore().setGroupVisible(groupName, false);
 
         const btn = document.getElementById(`btn-load-${groupName}`);
         if (btn) {
@@ -38,14 +34,10 @@ dispatch(StateActions.SET_GROUP_VISIBILITY, {
         console.log(`✅ Gruppe "${groupName}" entladen`);
 
     } else {
-        // LADEN
         console.log(`🔺 Lade Gruppe "${groupName}"...`);
 
         await loadGroupByName(groupName, { centerCamera: false });
-        dispatch(StateActions.SET_GROUP_VISIBILITY, { 
-group: groupName,
-visible: true
-});
+        getStore().setGroupVisible(groupName, true);
 
         const btn = document.getElementById(`btn-load-${groupName}`);
         if (btn) {
@@ -79,7 +71,7 @@ export function setupGroupToggle() {
     // ❌ Kein resetGroupStates-Listener nötig
 }
 
-// Debug: „geladene“ Gruppen aus dem Store ableiten
 export function getLoadedGroupsDebug() {
-    return Object.keys(state.groups).filter(g => (state.groups[g]?.length ?? 0) > 0);
+    const { groups } = getStore();
+    return Object.keys(groups).filter(g => (groups[g]?.length ?? 0) > 0);
 }

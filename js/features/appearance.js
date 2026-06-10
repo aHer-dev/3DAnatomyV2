@@ -4,7 +4,7 @@
 
 import * as THREE from 'three';
 import { setModelVisibility } from '../features/visibility.js';
-import { state } from '../store/state.js';
+import { getStore } from '../store/useStore.js';
 
 
 const fallback = {
@@ -98,7 +98,7 @@ export const defaultAppearance = {
 
 
 function cfg() {
-  return state?.defaultSettings?.appearance ?? fallback;
+  return fallback;
 }
 
 export function applyEnvIntensity(scene, cfg = defaultAppearance) {
@@ -118,7 +118,7 @@ export function applyRendererAppearance(renderer, cfg = defaultAppearance) {
 // Gruppenweise Material-Defaults (für Modelle ohne Texturen sehr wichtig)
 export function applyGroupMaterialTweaks(groupName, c = cfg()) {
   const rules = (c.groups && (c.groups[groupName] || c.groups.default)) || {};
-  const roots = state.groups?.[groupName] || [];
+  const roots = getStore().groups?.[groupName] ?? [];
   const { castShadow, receiveShadow } = getShadowFlagsForGroup(groupName);
   for (const root of roots) {
     root.traverse(o => {
@@ -208,29 +208,15 @@ export function restoreOriginalMaterials(model) {
  * @param {string} groupName
  * @param {string | THREE.Color} color
  */
-export async function setGroupColor(groupName, color) {
-  const { state } = await import('../store/state.js');
-  const THREE = await import('three');
-  const models = state.groups[groupName] || [];
+export function setGroupColor(groupName, color) {
+  const models = getStore().groups[groupName] ?? [];
   models.forEach(model => setModelColor(model, color));
-
-  // Speichere Farbe im State für spätere Verwendung
-  if (state.colors) {
-    state.colors[groupName] = (typeof color === 'string')
-      ? new THREE.Color(color).getHex()
-      : color.getHex();
-  }
+  const hex = (typeof color === 'string') ? new THREE.Color(color).getHex() : color instanceof THREE.Color ? color.getHex() : color;
+  getStore().setGroupColor(groupName, hex);
 }
 
-/**
- * Setzt Transparenz für eine ganze Gruppe
- * @param {string} groupName
- * @param {number} opacity
- */
-export async function setGroupOpacity(groupName, opacity) {
-  const { state } = await import('../store/state.js');
-  const models = state.groups[groupName] || [];
-  models.forEach(model => setModelOpacity(model, opacity));
+export function setGroupOpacity(groupName, opacity) {
+  (getStore().groups[groupName] ?? []).forEach(model => setModelOpacity(model, opacity));
 }
 
 /**

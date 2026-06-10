@@ -2,25 +2,8 @@
 // ✅ BROWSER-KOMPATIBLE VERSION (kein require!)
 
 import * as THREE from 'three';
-import { dispatch, StateActions } from '../store/state.js';
+import { getStore } from '../store/useStore.js';
 import { markPickablesDirty } from '../core/raycaster.js';
-
-// WICHTIG: Nur minimale Imports - state wird via Parameter übergeben oder lazy geladen
-const PICK_LAYER = 1; // Layer für Raycasting
-
-// Lazy state getter um zirkuläre Imports zu vermeiden
-let _state = null;
-function getState() {
-    if (!_state) {
-        // Dynamischer Import für Browser (async, aber wir cachen das Ergebnis)
-        import('../store/state.js').then(module => {
-            _state = module.state;
-        }).catch(err => {
-            console.warn('State import failed:', err);
-        });
-    }
-    return _state;
-}
 
 /**
  * Setzt ein Mesh als pickbar/nicht-pickbar
@@ -44,8 +27,8 @@ export function setPickable(mesh, pickable, pickableSet = null) {
     mesh.userData.pickable = enable;
     mesh.raycast = enable ? mesh.userData.__origRaycast : () => { };
 
-    // SSOT: Set-Änderung über Actions
-    dispatch(enable ? StateActions.ADD_PICKABLE : StateActions.REMOVE_PICKABLE, { mesh });
+    if (enable) getStore().addPickable(mesh);
+    else getStore().removePickable(mesh);
     markPickablesDirty();
 }
 
@@ -55,18 +38,11 @@ export function setPickable(mesh, pickable, pickableSet = null) {
  * @param {THREE.Object3D} root 
  * @param {Set} pickableSet 
  */
-export function registerPickables(root, pickableSet = null) {
+export function registerPickables(root) {
     if (!root) return;
-
-    // Fallback für State
-    if (!pickableSet) {
-        const state = getState();
-        pickableSet = state?.pickableMeshes || null;
-    }
-
     root.traverse(node => {
         if (node.isMesh && node.visible) {
-            setPickable(node, true, pickableSet);
+            setPickable(node, true);
         }
     });
 }
@@ -76,18 +52,11 @@ export function registerPickables(root, pickableSet = null) {
  * @param {THREE.Object3D} root 
  * @param {Set} pickableSet 
  */
-export function unregisterPickables(root, pickableSet = null) {
+export function unregisterPickables(root) {
     if (!root) return;
-
-    // Fallback für State
-    if (!pickableSet) {
-        const state = getState();
-        pickableSet = state?.pickableMeshes || null;
-    }
-
     root.traverse(node => {
         if (node.isMesh) {
-            setPickable(node, false, pickableSet);
+            setPickable(node, false);
         }
     });
 }
@@ -98,35 +67,12 @@ export function unregisterPickables(root, pickableSet = null) {
  * @param {Set} pickableSet 
  * @returns {boolean}
  */
-export function isPickable(mesh, pickableSet = null) {
-    if (!pickableSet) {
-        const state = getState();
-        pickableSet = state?.pickableMeshes || new Set();
-    }
-    return pickableSet.has(mesh);
+export function isPickable(mesh) {
+    return getStore().pickableObjects.has(mesh);
 }
 
-/**
- * Bulk-Operation: Mehrere Meshes gleichzeitig setzen
- * @param {THREE.Mesh[]} meshes 
- * @param {boolean} pickable 
- */
 export function setMultiplePickable(meshes, pickable) {
-    const state = getState();
-    const pickableSet = state?.pickableMeshes || null;
-
     for (const mesh of meshes) {
-        setPickable(mesh, pickable, pickableSet);
+        setPickable(mesh, pickable);
     }
-}
-
-// State initialisieren beim Laden (falls noch nicht vorhanden)
-if (typeof window !== 'undefined') {
-    // Nur im Browser ausführen
-    import('../store/state.js').then(module => {
-        _state = module.state;
-        console.log('✅ Selection: State geladen');
-    }).catch(err => {
-        console.warn('⚠️ Selection: State konnte nicht geladen werden:', err);
-    });
 }

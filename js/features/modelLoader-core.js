@@ -12,7 +12,7 @@ import { modelPath, withBase } from '../core/path.js';
 import { registerPickables } from '../features/selection.js';
 import { getShadowFlagsForGroup } from '../features/appearance.js';
 import { updateModelColors } from '../modelLoader/color.js';
-import { state } from '../store/state.js';
+import { getStore, INITIAL_COLORS, DEFAULT_COLOR } from '../store/useStore.js';
 import { createGLTFLoader } from '../loaders/gltfLoaderFactory.js';
 import { setGroupVisibility, showObject, hideObject, setModelVisibility } from '../features/visibility.js';
 import { showLoadingBar, hideLoadingBar, updateLoadingBar } from '../modelLoader/progress.js';
@@ -237,9 +237,7 @@ export function loadSingleModel(entry, group, scene, loader) {
           registerPickables(model);
 
           // 9) In State registrieren
-          if (!state.groups[effectiveGroup]) state.groups[effectiveGroup] = [];
-          state.groups[effectiveGroup].push(model);
-          state.modelsByName?.set?.(model, model.name);
+          getStore().addGroupModel(effectiveGroup, model);
 
           // 10) In Szene einhängen
           scene.add(model);
@@ -286,7 +284,7 @@ function ensureMuscleLighting(scene) {
  */
 export async function loadGroupByName(groupName, { centerCamera = false, loaderReuse = null } = {}) {
   try {
-    const entries = state.groupedMeta?.[groupName] || [];
+    const entries = getStore().groupedMeta?.[groupName] ?? [];
     console.log(`🔍 Lade ${entries.length} Modelle aus Gruppe "${groupName}"...`);
 
     if (!entries.length) {
@@ -298,9 +296,7 @@ export async function loadGroupByName(groupName, { centerCamera = false, loaderR
     await loadModels(entries, groupName, centerCamera, scene, loader, camera, controls, renderer);
 
     // ✅ FIX: Farbe für ALLE Gruppen anwenden, nicht nur bones/teeth
-    const hex = state.colors?.[groupName] ??
-      state.defaultSettings?.colors?.[groupName] ??
-      state.defaultSettings?.colors?.default;
+    const hex = getStore().colors?.[groupName] ?? INITIAL_COLORS[groupName] ?? DEFAULT_COLOR;
 
     if (hex != null) {
       updateModelColors(groupName, hex);
@@ -320,10 +316,11 @@ export async function loadGroupByName(groupName, { centerCamera = false, loaderR
  */
 export function restoreGroupState(groupName) {
   if (!groupName || typeof groupName !== 'string') return;
-  if (!(groupName in state.groups)) return;
+  const { groups, groupStates } = getStore();
+  if (!(groupName in groups)) return;
 
-  const models = state.groups?.[groupName];
-  const saved = state.groupStates?.[groupName];
+  const models = groups?.[groupName];
+  const saved = groupStates?.[groupName];
   if (!Array.isArray(models)) return;
 
   // Boolean: gesamte Gruppe
