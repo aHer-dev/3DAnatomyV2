@@ -16,6 +16,7 @@ import { isMuskelfinderPreviewMode } from './muskelfinderPreview.js';
 import { createGLTFLoader } from '../loaders/gltfLoaderFactory.js';
 import { updateModelColors } from '../modelLoader/color.js';
 import { getStore, INITIAL_COLORS, DEFAULT_COLOR } from '../store/useStore.js';
+import { requestRender } from '../core/renderScheduler.js';
 
 const MAP_URL = dataPath('muskelfinder-map.json');
 const STRUCTURAL_GROUPS = ['bones', 'teeth', 'cartilage', 'ligaments'];
@@ -451,7 +452,7 @@ export async function handleMuskelfinderDeeplink() {
     }
 
     result.ok = true;
-    window.requestRender?.();
+    requestRender();
 
     emitDeeplinkEvent('muskelfinderDeeplinkResolved', result);
     return storeResult(result);

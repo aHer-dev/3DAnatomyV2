@@ -5,6 +5,7 @@ import { camera } from '../core/camera.js';
 import { controls } from '../core/controls.js';
 import { focusOnObject, setCameraDirection } from '../core/cameraUtils.js';
 import { getStore } from '../store/useStore.js';
+import { requestRender } from '../core/renderScheduler.js';
 
 export const TOOL = {
     SELECT: 'select',
@@ -175,7 +176,7 @@ async function _toggleLayer(system, btn) {
     btn.classList.toggle('layer-active', _layerState[system]);
     btn.setAttribute('aria-pressed', String(_layerState[system]));
 
-    window.requestRender?.();
+    requestRender();
 }
 
 function _buildLayerButtons(toolbar) {

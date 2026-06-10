@@ -337,36 +337,4 @@ export function initDynamicGroupLoading() {
     });
 
     console.log('🎬 Alle Buttons mit Toggle-Animation konfiguriert');
-
-    // Debug-Funktionen
-    if (typeof window !== 'undefined') {
-        window.testToggle = async (groupName = 'muscles') => {
-            const btn = document.getElementById(`btn-load-${groupName}`);
-            if (btn) {
-                console.log('🧪 Teste Toggle-Animation...');
-                await toggleGroupWithAnimation(groupName, btn);
-            }
-        };
-
-        window.testLoad = async (groupName = 'muscles') => {
-            const btn = document.getElementById(`btn-load-${groupName}`);
-            if (btn) {
-                console.log('🧪 Teste Lade-Animation...');
-                await loadGroupWithAnimation(groupName, btn);
-            }
-        };
-
-        window.testUnload = async (groupName = 'muscles') => {
-            const btn = document.getElementById(`btn-load-${groupName}`);
-            if (btn) {
-                console.log('🧪 Teste Entlade-Animation...');
-                await unloadGroupWithAnimation(groupName, btn);
-            }
-        };
-
-        console.log('🧪 Debug verfügbar:');
-        console.log('  window.testToggle("muscles") - Toggle testen');
-        console.log('  window.testLoad("muscles") - Laden testen');
-        console.log('  window.testUnload("muscles") - Entladen testen');
-    }
 }

@@ -99,14 +99,11 @@ export function thawShadows() {
 // Resize handling moved to centralized initResizeHandler.js
 
 
-// Optimizer-Controls für Debug/Testing
-if (typeof window !== 'undefined') {
-  window.renderOptimizer = {
-    enable: () => optimizer?.enable(),
-    disable: () => optimizer?.disable(),
-    stats: () => optimizer?.getStats(),
-    auto: () => optimizer?.autoOptimize()
-  };
-}
+export const optimizerControls = {
+  enable: () => optimizer?.enable(),
+  disable: () => optimizer?.disable(),
+  stats: () => optimizer?.getStats(),
+  auto: () => optimizer?.autoOptimize()
+};
 
 export { renderer };

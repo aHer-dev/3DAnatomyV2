@@ -10,6 +10,7 @@ import { camera } from '../core/camera.js';
 import { renderer } from '../core/renderer.js';
 import { controls } from '../core/controls.js';
 import { getStore } from '../store/useStore.js';
+import { requestRender } from '../core/renderScheduler.js';
 import { hideAllManagedModels, setModelVisibility, showModel, hideModel } from '../features/visibility.js';
 import { collectionManager } from './ui-collection-export.js';
 
@@ -181,7 +182,7 @@ export async function showCollectionRobust() {
     await new Promise(resolve => setTimeout(resolve, 200));
 
     showSceneAfterLoading();
-    window.requestRender?.();
+    requestRender();
 
     showToast(`Sammlung angezeigt: ${preparedCount} Objekte`, 'success');
 

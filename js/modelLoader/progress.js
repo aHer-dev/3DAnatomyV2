@@ -296,11 +296,6 @@ export function testProgressBar() {
   }, 200);
 }
 
-// Debug: Progress Bar testen (nur im Development-Modus)
-if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
-  window.testProgress = testProgressBar;
-  window.progressUtils = { showLoadingBar, updateLoadingBar, hideLoadingBar, getProgress };
-}
 
 // =============== CIRCULAR PROGRESS OVERLAY (CENTER) ===============
 let __circle = {

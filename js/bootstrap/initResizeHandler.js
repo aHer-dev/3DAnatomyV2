@@ -3,6 +3,7 @@
 
 import { camera } from '../core/camera.js';
 import { renderer, getTargetPixelRatio } from '../core/renderer.js';
+import { requestRender } from '../core/renderScheduler.js';
 
 
 // Flag um Mehrfachregistrierung zu verhindern
@@ -30,7 +31,7 @@ export function initResizeHandler() {
                 // Kamera-Aspekt anpassen
                 camera.aspect = width / height;
             camera.updateProjectionMatrix();
-            if (typeof window !== 'undefined') window.requestRender?.(4);
+            requestRender(4);
 
                 // Debug nur bei Bedarf
             if (window.DEBUG_RESIZE) {

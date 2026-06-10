@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { getConfig } from '../config/config.js';
+import { requestRender } from './renderScheduler.js';
 
 const _box  = new THREE.Box3();
 const _size = new THREE.Vector3();
@@ -171,14 +172,14 @@ export function animateCameraTo(camera, controls, newPosition, newTarget, durati
     camera.position.lerpVectors(startPos, endPos, e);
     controls.target.lerpVectors(startTarget, endTarget, e);
     camera.lookAt(controls.target);
-    if (typeof window !== 'undefined') window.requestRender?.(4);
+    requestRender(4);
 
     if (t < 1) {
       requestAnimationFrame(animateFrame);
     } else {
       controls.enabled = true;
       controls.update();
-      if (typeof window !== 'undefined') window.requestRender?.(8);
+      requestRender(8);
     }
   }
 
