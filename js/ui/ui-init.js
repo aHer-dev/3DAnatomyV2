@@ -12,8 +12,6 @@ import { licenseHTML } from './licenseContent.js';
 import { initPhotoMode } from './photoMode.js';
 import { setupPresetsUI } from './ui-presets.js';
 
-// import { loadModels } from '../modelLoader/index.js'; // Nicht nötig hier – in app.js
-
 export function setupUI() {
   try {
     setupSearchUI();
