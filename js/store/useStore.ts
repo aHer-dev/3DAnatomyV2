@@ -1,31 +1,60 @@
 import { createStore } from 'zustand/vanilla'
 import type * as THREE from 'three'
-import type { AnatomyGroup, MetaEntry, SelectionState } from '../types/index.js'
+import type { AnatomyGroup, CollectionItem, MetaEntry, SelectionState } from '../types/index.js'
 import { APP_CONFIG } from '../config/config.js'
+
+// ─── Konstanten ──────────────────────────────────────────────────────────────
+
+export const DEFAULT_COLOR = 0xcccccc
+
+// Exportiert für Fallback-Nutzung in migrierten Dateien
+export const INITIAL_COLORS: Record<string, number> = {
+  ...(APP_CONFIG.ui.colors as Record<string, number>),
+}
 
 // ─── State-Form ──────────────────────────────────────────────────────────────
 
 export interface StoreState {
-  // Welche Modelle sind pro Gruppe geladen
+  // ─── Geladene Modelle ───────────────────────────────────────────────────────
   groups: Partial<Record<AnatomyGroup, THREE.Object3D[]>>
-  // Sichtbarkeit pro Gruppe (true = sichtbar)
   groupStates: Record<string, boolean>
-  // Sichtbarkeit einzelner Modelle (override pro Model-ID)
   modelStates: Record<string, boolean>
-  // Auswahl
+  modelsByName: Map<THREE.Object3D, string>
+
+  // ─── Auswahl ────────────────────────────────────────────────────────────────
   selected: SelectionState
-  // Farben pro Gruppe (Hex-Number wie 0xe85861)
+  multiSelected: Set<THREE.Object3D>
+
+  // ─── Darstellung ────────────────────────────────────────────────────────────
   colors: Record<string, number>
-  // Opazität pro Model-ID (0.0–1.0)
   opacity: Record<string, number>
-  // Für Raycasting: Menge der anklickbaren Objekte
+
+  // ─── Raycasting ─────────────────────────────────────────────────────────────
   pickableObjects: Set<THREE.Object3D>
-  // Schutz-Gruppen (bones/teeth werden nicht gelöscht beim Reset)
+
+  // ─── Schutz-Gruppen (werden beim Reset nicht gelöscht) ──────────────────────
   protection: { bones: boolean; teeth: boolean }
+
+  // ─── Meta-Daten (einmalig von meta.json befüllt) ────────────────────────────
+  groupedMeta: Record<string, MetaEntry[]>
+  availableGroups: string[]
+  metaById: Record<string, MetaEntry>
+  metaByFile: Record<string, MetaEntry>
+
+  // ─── Sammlung ───────────────────────────────────────────────────────────────
+  collection: CollectionItem[]
+
+  // ─── Klick-Statistik ────────────────────────────────────────────────────────
+  clickCounts: Record<string, number>
 
   // ─── Actions: Selection ───────────────────────────────────────────────────
   setSelection: (s: Partial<SelectionState>) => void
   clearSelection: () => void
+
+  // ─── Actions: MultiSelect ─────────────────────────────────────────────────
+  addToMultiSelected: (mesh: THREE.Object3D) => void
+  removeFromMultiSelected: (mesh: THREE.Object3D) => void
+  clearMultiSelected: () => void
 
   // ─── Actions: Visibility ──────────────────────────────────────────────────
   setGroupVisible: (group: string, visible: boolean) => void
@@ -33,6 +62,7 @@ export interface StoreState {
 
   // ─── Actions: Models ──────────────────────────────────────────────────────
   setGroupLoaded: (group: AnatomyGroup, models: THREE.Object3D[]) => void
+  addGroupModel: (group: AnatomyGroup, model: THREE.Object3D) => void
   unloadGroup: (group: AnatomyGroup) => void
 
   // ─── Actions: Appearance ──────────────────────────────────────────────────
@@ -42,6 +72,22 @@ export interface StoreState {
   // ─── Actions: Pickables ───────────────────────────────────────────────────
   addPickable: (mesh: THREE.Object3D) => void
   removePickable: (mesh: THREE.Object3D) => void
+
+  // ─── Actions: Meta-Daten ──────────────────────────────────────────────────
+  setMetaData: (data: {
+    groupedMeta: Record<string, MetaEntry[]>
+    availableGroups: string[]
+    metaById: Record<string, MetaEntry>
+    metaByFile: Record<string, MetaEntry>
+  }) => void
+
+  // ─── Actions: Collection ──────────────────────────────────────────────────
+  addToCollection: (item: CollectionItem) => void
+  removeFromCollection: (id: string) => void
+  clearCollection: () => void
+
+  // ─── Actions: ClickCounts ─────────────────────────────────────────────────
+  incrementClickCount: (id: string) => void
 
   // ─── Actions: Reset ───────────────────────────────────────────────────────
   resetVisibility: () => void
@@ -57,22 +103,25 @@ const emptySelection: SelectionState = {
   meta: null,
 }
 
-// Default-Farben aus config.ts übernehmen
-const defaultColors: Record<string, number> = {
-  ...(APP_CONFIG.ui.colors as Record<string, number>),
-}
-
 // ─── Store ───────────────────────────────────────────────────────────────────
 
 const useStore = createStore<StoreState>((set, get) => ({
   groups: {},
   groupStates: {},
   modelStates: {},
+  modelsByName: new Map(),
   selected: emptySelection,
-  colors: defaultColors,
+  multiSelected: new Set(),
+  colors: { ...INITIAL_COLORS },
   opacity: {},
   pickableObjects: new Set(),
   protection: { bones: true, teeth: true },
+  groupedMeta: {},
+  availableGroups: [],
+  metaById: {},
+  metaByFile: {},
+  collection: [],
+  clickCounts: {},
 
   // Selection
   setSelection: (s) =>
@@ -81,6 +130,23 @@ const useStore = createStore<StoreState>((set, get) => ({
     })),
 
   clearSelection: () => set({ selected: emptySelection }),
+
+  // MultiSelect
+  addToMultiSelected: (mesh) =>
+    set((state) => {
+      const next = new Set(state.multiSelected)
+      next.add(mesh)
+      return { multiSelected: next }
+    }),
+
+  removeFromMultiSelected: (mesh) =>
+    set((state) => {
+      const next = new Set(state.multiSelected)
+      next.delete(mesh)
+      return { multiSelected: next }
+    }),
+
+  clearMultiSelected: () => set({ multiSelected: new Set() }),
 
   // Visibility
   setGroupVisible: (group, visible) =>
@@ -97,9 +163,19 @@ const useStore = createStore<StoreState>((set, get) => ({
   setGroupLoaded: (group, models) =>
     set((state) => ({
       groups: { ...state.groups, [group]: models },
-      // Gruppe beim Laden automatisch sichtbar schalten
       groupStates: { ...state.groupStates, [group]: true },
     })),
+
+  addGroupModel: (group, model) =>
+    set((state) => {
+      const existing = state.groups[group] ?? []
+      const next = new Map(state.modelsByName)
+      next.set(model, model.name)
+      return {
+        groups: { ...state.groups, [group]: [...existing, model] },
+        modelsByName: next,
+      }
+    }),
 
   unloadGroup: (group) =>
     set((state) => {
@@ -134,6 +210,29 @@ const useStore = createStore<StoreState>((set, get) => ({
       return { pickableObjects: next }
     }),
 
+  // Meta-Daten
+  setMetaData: (data) => set(data),
+
+  // Collection
+  addToCollection: (item) =>
+    set((state) => {
+      if (state.collection.some((c) => c.id === item.id)) return {}
+      return { collection: [...state.collection, item] }
+    }),
+
+  removeFromCollection: (id) =>
+    set((state) => ({
+      collection: state.collection.filter((c) => c.id !== id),
+    })),
+
+  clearCollection: () => set({ collection: [] }),
+
+  // ClickCounts
+  incrementClickCount: (id) =>
+    set((state) => ({
+      clickCounts: { ...state.clickCounts, [id]: (state.clickCounts[id] ?? 0) + 1 },
+    })),
+
   // Reset: nur Sichtbarkeit zurücksetzen, Modelle bleiben geladen
   resetVisibility: () =>
     set((state) => ({
@@ -161,10 +260,14 @@ const useStore = createStore<StoreState>((set, get) => ({
         groups: preservedGroups,
         groupStates: preservedStates,
         modelStates: {},
+        modelsByName: new Map(),
         selected: emptySelection,
-        colors: defaultColors,
+        multiSelected: new Set(),
+        colors: { ...INITIAL_COLORS },
         opacity: {},
         pickableObjects: new Set(),
+        collection: [],
+        clickCounts: {},
       }
     })
   },

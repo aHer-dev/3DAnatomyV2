@@ -1,7 +1,6 @@
 import type * as THREE from 'three'
 
 // ─── Anatomie-Gruppen ────────────────────────────────────────────────────────
-// Alle 16 Gruppen direkt aus meta.json abgeleitet — Single Source of Truth
 
 export type AnatomyGroup =
   | 'arteries'
@@ -79,8 +78,7 @@ export interface MetaEntry {
   }
 }
 
-// ─── App-State ───────────────────────────────────────────────────────────────
-// Aktueller Zustand (state.js) — wird in Phase 2b durch Zustand-Store ersetzt
+// ─── Auswahl ─────────────────────────────────────────────────────────────────
 
 export interface SelectionState {
   root: THREE.Object3D | null
@@ -89,43 +87,17 @@ export interface SelectionState {
   meta: MetaEntry | null
 }
 
-export interface AppState {
-  groups: Record<string, THREE.Object3D[]>
-  groupStates: Record<string, boolean | Record<string, boolean>>
-  pickableObjects: Set<THREE.Object3D>
-  selected: SelectionState
-  colors: Record<string, string>
-  protection: {
-    bones: boolean
-    teeth: boolean
-  }
-  allowProtectedCut: boolean
-}
+// ─── Sammlung ────────────────────────────────────────────────────────────────
 
-// ─── Store-Slices (für Phase 2b — Zustand) ───────────────────────────────────
-// Hier schon definiert damit Phase 2b direkt loslegen kann
-
-export interface ModelsSlice {
-  groups: Record<AnatomyGroup, THREE.Object3D[]>
-  loadedGroups: Set<AnatomyGroup>
-}
-
-export interface SelectionSlice {
-  selected: SelectionState
-  setSelection: (s: SelectionState) => void
-  clearSelection: () => void
-}
-
-export interface VisibilitySlice {
-  groupStates: Record<string, boolean>
-  modelStates: Record<string, boolean>
-  setGroupVisible: (group: string, visible: boolean) => void
-  setModelVisible: (modelId: string, visible: boolean) => void
-}
-
-export interface AppearanceSlice {
-  colors: Record<string, string>
-  opacity: Record<string, number>
-  setColor: (id: string, color: string) => void
-  setOpacity: (id: string, opacity: number) => void
+export interface CollectionItem {
+  id: string
+  name: string
+  group: string
+  meta: Partial<MetaEntry>
+  color: number
+  opacity: number
+  visible: boolean
+  model: THREE.Object3D
+  addedAt: number
+  source: string
 }
