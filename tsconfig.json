@@ -1,0 +1,26 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+
+    // Schrittweise Migration: JS läuft weiter, wird aber noch nicht geprüft
+    "allowJs": true,
+    "checkJs": false,
+
+    // Typen
+    "strict": false,
+    "noImplicitAny": false,
+    "skipLibCheck": true,
+
+    // Vite übernimmt das Kompilieren — TS prüft nur
+    "noEmit": true,
+    "isolatedModules": true,
+
+    // Vite-Umgebungsvariablen (import.meta.env)
+    "types": ["vite/client", "node"]
+  },
+  "include": ["js/**/*", "app.js", "app.ts", "vite.config.js"],
+  "exclude": ["node_modules", "dist", "public"]
+}

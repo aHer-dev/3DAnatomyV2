@@ -7,6 +7,7 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
+    "typecheck": "tsc --noEmit",
     "lint": "eslint js/ app.js",
     "format": "prettier --write \"js/**/*.js\" \"app.js\"",
     "build:muskelfinder-map": "node scripts/build-muskelfinder-map.js"
@@ -16,8 +17,9 @@
     "three": "^0.179.1"
   },
   "devDependencies": {
-    "@types/three": "^0.179.0",
     "@eslint/js": "^9.0.0",
+    "@types/node": "^25.9.2",
+    "@types/three": "^0.179.0",
     "dependency-cruiser": "^16.10.4",
     "eslint": "^9.0.0",
     "globals": "^15.0.0",
