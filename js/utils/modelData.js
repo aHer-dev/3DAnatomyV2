@@ -1,7 +1,7 @@
 // js/utils/modelData.js
 // Gemeinsame Hilfsfunktionen zur Extraktion von Modell-Metadaten
 
-import { state } from '../store/state.js';
+import { getStore } from '../store/useStore.js';
 import { getStructureDisplayLabel } from './anatomyLabels.js';
 
 /**
@@ -67,7 +67,7 @@ function _extractGroup(obj) {
         if (c && c !== 'undefined' && typeof c === 'string') return c;
     }
     // Fallback: in geladenen Gruppen suchen
-    for (const [groupName, models] of Object.entries(state.groups || {})) {
+    for (const [groupName, models] of Object.entries(getStore().groups || {})) {
         if (models.includes(obj)) return groupName;
     }
     return 'unknown';

@@ -1,6 +1,6 @@
 /**
- * @file ui-set.js - VERBESSERTE UX VERSION
- * @description Sammlung mit dezentestem Feedback (ohne störende Alerts)
+ * @file ui-set.js
+ * @description Sammlung mit dezentestem Feedback
  */
 import * as THREE from 'three';
 
@@ -9,7 +9,7 @@ import { scene } from '../core/scene.js';
 import { camera } from '../core/camera.js';
 import { renderer } from '../core/renderer.js';
 import { controls } from '../core/controls.js';
-import { state } from '../store/state.js';
+import { getStore } from '../store/useStore.js';
 import { hideAllManagedModels, setModelVisibility, showModel, hideModel } from '../features/visibility.js';
 import { collectionManager } from './ui-collection-export.js';
 
@@ -18,11 +18,7 @@ import { loadGroupByName } from '../features/modelLoader-core.js';
 import { extractModelData } from '../utils/modelData.js';
 import { renderStructureLabel } from '../utils/anatomyLabels.js';
 
-/**
- * 🎯 DEZENTES TOAST-SYSTEM (ersetzt störende Alerts)
- */
 function showToast(message, type = 'success', duration = 3000) {
-  // Entferne vorherige Toasts
   const existingToast = document.getElementById('collection-toast');
   if (existingToast) existingToast.remove();
 
@@ -59,13 +55,11 @@ function showToast(message, type = 'success', duration = 3000) {
 
   document.body.appendChild(toast);
 
-  // Slide in
   setTimeout(() => {
     toast.style.opacity = '1';
     toast.style.transform = 'translateX(0)';
   }, 10);
 
-  // Slide out
   setTimeout(() => {
     toast.style.opacity = '0';
     toast.style.transform = 'translateX(100%)';
@@ -75,14 +69,10 @@ function showToast(message, type = 'success', duration = 3000) {
   }, duration);
 }
 
-/**
- * 🎯 BUTTON-ANIMATION - Visuelles Feedback ohne Popup
- */
 function animateButtonSuccess(button, originalText, successText = '✅ Hinzugefügt!') {
   const originalColor = button.style.backgroundColor;
   const originalTextColor = button.style.color;
 
-  // Erfolgs-Animation
   button.style.backgroundColor = '#4caf50';
   button.style.color = 'white';
   button.textContent = successText;
@@ -96,12 +86,9 @@ function animateButtonSuccess(button, originalText, successText = '✅ Hinzugef�
   }, 2000);
 }
 
-
-// 2. O(n) findModelById – baut einmalig eine Lookup-Map aus allen geladenen Gruppen
 function buildModelIndex() {
-  // Map<id-string, THREE.Object3D>
   const index = new Map();
-  for (const models of Object.values(state.groups || {})) {
+  for (const models of Object.values(getStore().groups || {})) {
     for (const model of models) {
       const ids = [
         model.userData?.meta?.id,
@@ -124,12 +111,11 @@ function findModelById(searchId, _preferredGroup = null, index = null) {
   return map.get(String(searchId)) ?? null;
 }
 
-// 3. ROBUSTE synchronizeCollection Funktion – O(n) statt O(n³)
 async function synchronizeCollection() {
-  const index = buildModelIndex(); // einmal aufbauen
+  const index = buildModelIndex();
   let synced = 0, notFound = 0;
 
-  for (const item of state.collection) {
+  for (const item of getStore().collection) {
     const valid = item.model?.parent && !item.model.parent.userData?.disposed;
     if (valid) { synced++; continue; }
 
@@ -141,34 +127,26 @@ async function synchronizeCollection() {
   if (notFound > 0) console.warn(`synchronizeCollection: ${notFound} Modelle nicht gefunden`);
 }
 
-// 4. VERBESSERTE showCollection Funktion
 export async function showCollectionRobust() {
-
-  if (!state.collection || state.collection.length === 0) {
-    // 🎯 DEZENTES FEEDBACK statt Alert
+  if (!getStore().collection || getStore().collection.length === 0) {
     showToast('Die Sammlung ist leer', 'info');
     return;
   }
 
-  // SCHRITT 1: LOADING-OVERLAY ANZEIGEN
   showCollectionLoadingOverlay();
 
   try {
-    // Benötigte Gruppen ermitteln
-    const requiredGroups = [...new Set(state.collection.map(item => item.group).filter(Boolean))];
-    const currentGroups = Object.keys(state.groups || {}).filter(g =>
-      (state.groups[g] || []).length > 0
+    const requiredGroups = [...new Set(getStore().collection.map(item => item.group).filter(Boolean))];
+    const currentGroups = Object.keys(getStore().groups || {}).filter(g =>
+      (getStore().groups[g] || []).length > 0
     );
     const missingGroups = requiredGroups.filter(group => !currentGroups.includes(group));
 
-
-    // SCHRITT 2: SZENE VERSTECKEN (falls Gruppen geladen werden müssen)
     if (missingGroups.length > 0) {
       hideSceneForLoading();
       updateLoadingProgress(`Lade ${missingGroups.length} Gruppe(n)...`, 0);
     }
 
-    // SCHRITT 3: FEHLENDE GRUPPEN LADEN (versteckt)
     for (let i = 0; i < missingGroups.length; i++) {
       const group = missingGroups[i];
       updateLoadingProgress(`Lade ${group}...`, (i / missingGroups.length) * 80);
@@ -180,23 +158,18 @@ export async function showCollectionRobust() {
       }
     }
 
-    // SCHRITT 4: SAMMLUNG SYNCHRONISIEREN
     updateLoadingProgress('Bereite Sammlung vor...', 85);
     await synchronizeCollection();
 
-    // SCHRITT 5: SZENE AUFBAUEN (versteckt)
     updateLoadingProgress('Bereite Anzeige vor...', 90);
 
-    // Alle Modelle verstecken
-    Object.values(state.groups || {}).forEach(models => {
+    Object.values(getStore().groups || {}).forEach(models => {
       (models || []).forEach(model => hideModel(model));
     });
 
-    // Nur Sammlungs-Modelle vorbereiten
     let preparedCount = 0;
-    for (const item of state.collection) {
+    for (const item of getStore().collection) {
       if (item.model && item.model.parent) {
-        // Eigenschaften anwenden
         if (item.color !== undefined) setModelColor(item.model, item.color);
         if (item.opacity !== undefined && item.opacity < 1) setModelOpacity(item.model, item.opacity);
         showModel(item.model);
@@ -204,53 +177,40 @@ export async function showCollectionRobust() {
       }
     }
 
-    // SCHRITT 6: SZENE WIEDER ANZEIGEN
     updateLoadingProgress('Fertig!', 100);
-    await new Promise(resolve => setTimeout(resolve, 200)); // Kurze Pause für "Fertig!"
+    await new Promise(resolve => setTimeout(resolve, 200));
 
     showSceneAfterLoading();
-    state.modes = state.modes || {};
-    state.modes.collection = true;
     window.requestRender?.();
 
-
-    // 🎯 DEZENTES ERFOLGS-FEEDBACK
     showToast(`Sammlung angezeigt: ${preparedCount} Objekte`, 'success');
 
   } catch (err) {
     console.error('❌ Fehler beim Anzeigen der Sammlung:', err);
-    showSceneAfterLoading(); // Szene auch bei Fehler wieder zeigen
-
-    // 🎯 DEZENTES FEHLER-FEEDBACK
+    showSceneAfterLoading();
     showToast('Fehler beim Anzeigen der Sammlung', 'error');
   } finally {
     hideCollectionLoadingOverlay();
   }
 }
 
-// 5. ERWEITERTE setupSetUI (ersetzen Sie die ursprüngliche)
 export function setupSetUI() {
   const addBtn = document.getElementById('btn-add-to-set');
   const showBtn = document.getElementById('btn-show-set');
   const clearBtn = document.getElementById('btn-clear-set');
 
-  // Show-Button mit robuster Funktion verbinden
   if (showBtn) {
-    // Alle alten Listener entfernen
     const newShowBtn = showBtn.cloneNode(true);
     showBtn.parentNode.replaceChild(newShowBtn, showBtn);
-
     newShowBtn.addEventListener('click', showCollectionRobust);
   }
 
-  // Add-Button mit gefixter Version + DEZENTES FEEDBACK
   if (addBtn) {
     const originalButtonText = addBtn.textContent;
 
     addBtn.addEventListener('click', () => {
-      const selected = state.selected?.root || state.currentlySelected;
+      const selected = getStore().selected?.root;
       if (!selected) {
-        // 🎯 DEZENTES FEEDBACK statt Alert
         showToast('Bitte wählen Sie zuerst ein Modell aus!', 'warning');
         return;
       }
@@ -259,13 +219,10 @@ export function setupSetUI() {
 
       const { id: modelId, name: modelName, group: modelGroup } = extractModelData(selected);
 
-      // PRÜFEN OB BEREITS VORHANDEN
-      const exists = state.collection.some(item => item.id === modelId);
+      const exists = getStore().collection.some(item => item.id === modelId);
       if (exists) {
-        // 🎯 DEZENTES FEEDBACK statt Alert
         showToast(`"${modelName}" ist bereits in der Sammlung`, 'warning');
 
-        // Button kurz orange färben
         const originalColor = addBtn.style.backgroundColor;
         addBtn.style.backgroundColor = '#ff9800';
         addBtn.style.color = 'white';
@@ -280,25 +237,15 @@ export function setupSetUI() {
         return;
       }
 
-      // SAMMLUNG-ITEM ERSTELLEN
       const collectionItem = {
-        // Eindeutige Identifikation
         id: modelId,
         name: modelName,
         group: modelGroup,
-
-        // Vollständige Metadaten (für Nachladen)
         meta: selected.userData?.meta || selected.userData?.entry || {},
-
-        // Aktuelle visuelle Eigenschaften
         color: extractModelColor(selected),
         opacity: extractModelOpacity(selected),
         visible: selected.visible !== false,
-
-        // Modell-Referenz (kann ungültig werden)
         model: selected,
-
-        // Debug-Info
         addedAt: Date.now(),
         originalName: selected.name,
         hasUserData: !!selected.userData,
@@ -306,42 +253,30 @@ export function setupSetUI() {
         hasEntry: !!selected.userData?.entry
       };
 
-
-      // ZUR SAMMLUNG HINZUFÜGEN
-      state.collection.push(collectionItem);
+      getStore().addToCollection(collectionItem);
       updateSetList();
 
-
-      // 🎯 DEZENTES VISUELLES FEEDBACK (kein Alert!)
       showToast(`"${modelName}" zur Sammlung hinzugefügt`, 'success');
-
-      // 🎯 BUTTON-ANIMATION
       animateButtonSuccess(addBtn, originalButtonText);
-
-      // Visuelles Feedback am Modell
-      highlightModel(selected);
+      _highlightModelBriefly(selected);
     });
   }
 
-  // Clear-Button (mit dezentem Feedback)
   if (clearBtn) {
     clearBtn.addEventListener('click', () => {
-      if (state.collection.length === 0) {
+      if (getStore().collection.length === 0) {
         showToast('Die Sammlung ist bereits leer', 'info');
         return;
       }
 
-      // Bestätigung mit dezenter Nachricht
-      const confirmed = confirm(`🗑️ Möchten Sie wirklich ${state.collection.length} Objekte aus der Sammlung entfernen?`);
+      const confirmed = confirm(`🗑️ Möchten Sie wirklich ${getStore().collection.length} Objekte aus der Sammlung entfernen?`);
 
       if (confirmed) {
-        const removedCount = state.collection.length;
-        state.collection = [];
+        const removedCount = getStore().collection.length;
+        getStore().clearCollection();
         updateSetList();
 
-        if (state.modes) state.modes.collection = false;
-
-        Object.values(state.groups || {}).forEach(models => {
+        Object.values(getStore().groups || {}).forEach(models => {
           (models || []).forEach(root => setModelVisibility(root, true));
         });
 
@@ -351,7 +286,6 @@ export function setupSetUI() {
     });
   }
 
-  // Initialisierung beim Laden
   updateSetList();
 
   document.addEventListener('collectionUpdated', () => {
@@ -359,8 +293,6 @@ export function setupSetUI() {
   });
 }
 
-
-// Hilfsfunktionen (falls noch nicht vorhanden)
 function extractModelColor(model) {
   if (!model) return null;
   let color = null;
@@ -383,7 +315,7 @@ function extractModelOpacity(model) {
   return opacity;
 }
 
-function highlightModel(model) {
+function _highlightModelBriefly(model) {
   model.traverse(obj => {
     if (obj.isMesh && obj.material) {
       const originalEmissive = obj.material.emissive?.clone() || new THREE.Color(0x000000);
@@ -397,27 +329,21 @@ function highlightModel(model) {
   renderer.render(scene, camera);
 }
 
-/**
- * Aktualisiert die UI-Liste der Sammlung - VERBESSERT
- */
 export function updateSetList() {
   const setList = document.getElementById('set-list');
   if (!setList) return;
 
-  // Inhalt nur innerhalb eines Wrappers ändern, um andere Elemente nicht zu löschen
   let contentWrapper = document.getElementById('set-list-content');
   if (!contentWrapper) {
-    // Wrapper erstellen, falls nicht vorhanden
     contentWrapper = document.createElement('div');
     contentWrapper.id = 'set-list-content';
     setList.innerHTML = '';
     setList.appendChild(contentWrapper);
   }
 
-  // Inhalt des Wrappers aktualisieren
   contentWrapper.innerHTML = '<h4 style="margin: 0 0 10px 0;">Meine Sammlung:</h4>';
 
-  if (state.collection.length === 0) {
+  if (getStore().collection.length === 0) {
     contentWrapper.innerHTML += '<p style="color: #999; font-style: italic;">Leer - Klicken Sie Modelle an und fügen Sie sie hinzu</p>';
     return;
   }
@@ -429,11 +355,9 @@ export function updateSetList() {
   ul.style.maxHeight = '300px';
   ul.style.overflowY = 'auto';
 
-  // Sammlung nach Gruppen sortieren für bessere Übersicht
-  const groupedItems = groupCollectionByGroup(state.collection);
+  const groupedItems = groupCollectionByGroup(getStore().collection);
 
   Object.entries(groupedItems).forEach(([groupName, items]) => {
-    // Gruppen-Header
     const groupHeader = document.createElement('li');
     groupHeader.style.fontWeight = 'bold';
     groupHeader.style.color = '#4CAF50';
@@ -442,7 +366,6 @@ export function updateSetList() {
     groupHeader.textContent = `${groupName.toUpperCase()} (${items.length})`;
     ul.appendChild(groupHeader);
 
-    // Items in der Gruppe
     items.forEach((item, index) => {
       const li = document.createElement('li');
       li.style.cssText = `
@@ -461,11 +384,9 @@ export function updateSetList() {
       renderStructureLabel(nameSpan, item.name || `Objekt ${index + 1}`);
       nameSpan.style.fontSize = '14px';
 
-      // Visuelle Indikatoren für Eigenschaften
       const indicators = document.createElement('span');
       indicators.style.cssText = 'display: flex; gap: 5px; align-items: center;';
 
-      // Farb-Indikator
       if (item.color !== null && item.color !== undefined) {
         const colorDot = document.createElement('span');
         const hexColor = typeof item.color === 'number'
@@ -481,7 +402,6 @@ export function updateSetList() {
         indicators.appendChild(colorDot);
       }
 
-      // Transparenz-Indikator
       if (item.opacity !== undefined && item.opacity < 1) {
         const opacityBadge = document.createElement('span');
         opacityBadge.textContent = `${Math.round(item.opacity * 100)}%`;
@@ -510,21 +430,13 @@ export function updateSetList() {
 
       removeBtn.addEventListener('click', (e) => {
         e.stopPropagation();
-        const itemIndex = state.collection.findIndex(ci => ci.id === item.id);
-        if (itemIndex !== -1) {
-          state.collection.splice(itemIndex, 1);
-          updateSetList();
-          showToast(`"${item.name}" aus Sammlung entfernt`, 'info', 2000);
-        }
+        getStore().removeFromCollection(item.id);
+        updateSetList();
+        showToast(`"${item.name}" aus Sammlung entfernt`, 'info', 2000);
       });
 
-      // Hover-Effekte
-      li.addEventListener('mouseenter', () => {
-        li.style.backgroundColor = 'rgba(255,255,255,0.2)';
-      });
-      li.addEventListener('mouseleave', () => {
-        li.style.backgroundColor = 'rgba(255,255,255,0.1)';
-      });
+      li.addEventListener('mouseenter', () => { li.style.backgroundColor = 'rgba(255,255,255,0.2)'; });
+      li.addEventListener('mouseleave', () => { li.style.backgroundColor = 'rgba(255,255,255,0.1)'; });
 
       li.appendChild(nameSpan);
       li.appendChild(indicators);
@@ -535,7 +447,6 @@ export function updateSetList() {
 
   contentWrapper.appendChild(ul);
 
-  // Gesamtanzahl anzeigen
   const count = document.createElement('p');
   count.style.cssText = `
     margin-top: 10px;
@@ -545,13 +456,10 @@ export function updateSetList() {
     color: #999;
     text-align: center;
   `;
-  count.textContent = `${state.collection.length} Objekt(e) in Sammlung`;
+  count.textContent = `${getStore().collection.length} Objekt(e) in Sammlung`;
   contentWrapper.appendChild(count);
 }
 
-/**
- * Gruppiert die Sammlung nach anatomischen Gruppen für bessere Übersicht
- */
 function groupCollectionByGroup(collection) {
   const grouped = {};
 
@@ -561,7 +469,6 @@ function groupCollectionByGroup(collection) {
     grouped[group].push(item);
   });
 
-  // Sortiere Gruppen alphabetisch, aber 'bones' und 'teeth' zuerst
   const sortedGroups = {};
   const priority = ['bones', 'teeth'];
 
@@ -579,20 +486,15 @@ function groupCollectionByGroup(collection) {
   return sortedGroups;
 }
 
-/**
- * Legacy-Support für andere Module
- */
 export function updateCollectionUI() {
   updateSetList();
 }
 
 export function clearCollection() {
-  state.collection = [];
+  getStore().clearCollection();
   updateCollectionUI();
 
-  if (state.modes) state.modes.collection = false;
-
-  Object.values(state.groups || {}).forEach(models => {
+  Object.values(getStore().groups || {}).forEach(models => {
     (models || []).forEach(root => setModelVisibility(root, true));
   });
 
@@ -605,7 +507,6 @@ export function showCollectionInScene() {
 }
 
 function showCollectionLoadingOverlay() {
-  // Erstelle oder zeige Loading-Overlay
   let overlay = document.getElementById('collection-loading-overlay');
 
   if (!overlay) {
@@ -622,7 +523,6 @@ function showCollectionLoadingOverlay() {
             </div>
         `;
 
-    // CSS-Styles hinzufügen
     overlay.style.cssText = `
             position: fixed;
             top: 0;
@@ -639,53 +539,18 @@ function showCollectionLoadingOverlay() {
 
     const style = document.createElement('style');
     style.textContent = `
-            .loading-content {
-                text-align: center;
-                color: white;
-                max-width: 300px;
-            }
-            
+            .loading-content { text-align: center; color: white; max-width: 300px; }
             .loading-spinner {
-                width: 50px;
-                height: 50px;
-                border: 3px solid #333;
-                border-top: 3px solid #FF7A4A;
-                border-radius: 50%;
-                animation: spin 1s linear infinite;
+                width: 50px; height: 50px;
+                border: 3px solid #333; border-top: 3px solid #FF7A4A;
+                border-radius: 50%; animation: spin 1s linear infinite;
                 margin: 0 auto 20px;
             }
-            
-            @keyframes spin {
-                0% { transform: rotate(0deg); }
-                100% { transform: rotate(360deg); }
-            }
-            
-            .loading-bar {
-                width: 100%;
-                height: 8px;
-                background: #333;
-                border-radius: 4px;
-                overflow: hidden;
-                margin-top: 15px;
-            }
-            
-            .loading-bar-fill {
-                height: 100%;
-                background: linear-gradient(180deg, #4A9EFF, #FF7A4A);
-                transition: width 0.3s ease;
-                width: 0%;
-            }
-            
-            .loading-content h3 {
-                margin: 0 0 10px 0;
-                font-size: 24px;
-            }
-            
-            .loading-content p {
-                margin: 0;
-                font-size: 14px;
-                opacity: 0.8;
-            }
+            @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+            .loading-bar { width: 100%; height: 8px; background: #333; border-radius: 4px; overflow: hidden; margin-top: 15px; }
+            .loading-bar-fill { height: 100%; background: linear-gradient(180deg, #4A9EFF, #FF7A4A); transition: width 0.3s ease; width: 0%; }
+            .loading-content h3 { margin: 0 0 10px 0; font-size: 24px; }
+            .loading-content p { margin: 0; font-size: 14px; opacity: 0.8; }
         `;
     document.head.appendChild(style);
     document.body.appendChild(overlay);
@@ -704,9 +569,7 @@ function updateLoadingProgress(text, percent) {
 
 function hideCollectionLoadingOverlay() {
   const overlay = document.getElementById('collection-loading-overlay');
-  if (overlay) {
-    overlay.style.display = 'none';
-  }
+  if (overlay) overlay.style.display = 'none';
 }
 
 function hideSceneForLoading() {

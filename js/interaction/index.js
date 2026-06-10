@@ -8,7 +8,7 @@ import { highlightModel } from './highlightModel.js';
 import { toggleMultiSelect, clearMultiSelect, getMultiSelectedArray, addToMultiSelect } from './multiSelect.js';
 import { setupBoxSelect } from './boxSelect.js';
 import { setupToolbar, getActiveTool, TOOL } from '../ui/toolbar.js';
-import { state } from '../store/state.js';
+import { getStore } from '../store/useStore.js';
 import { showModel, hideModel, ghostModel } from '../features/visibility.js';
 
 function isTypingTarget(el) {
@@ -20,19 +20,19 @@ function setupHotkeys() {
         if (isTypingTarget(document.activeElement)) return;
 
         if (e.key === 'Escape') {
-            if (state.multiSelected.size > 0) {
+            if (getStore().multiSelected.size > 0) {
                 clearMultiSelect();
                 hideInfoPanel();
             }
             return;
         }
 
-        const root = state.selected?.root || null;
+        const root = getStore().selected?.root || null;
         if (!root) return;
         const k = e.key.toLowerCase();
         if (k === 'g') {
             let anyPickable = false;
-            root.traverse(n => { if (n.isMesh && state.pickableMeshes.has(n)) anyPickable = true; });
+            root.traverse(n => { if (n.isMesh && getStore().pickableObjects.has(n)) anyPickable = true; });
             anyPickable ? ghostModel(root, 0.15) : showModel(root);
         }
         if (k === 'h') hideModel(root);
@@ -67,7 +67,7 @@ export function setupInteractions() {
         }
 
         // Standard: Einzelauswahl
-        if (state.multiSelected.size > 0) clearMultiSelect();
+        if (getStore().multiSelected.size > 0) clearMultiSelect();
         highlightModel(model);
         showInfoPanel(meta, model);
     });

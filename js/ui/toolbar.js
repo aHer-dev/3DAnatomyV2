@@ -4,7 +4,7 @@
 import { camera } from '../core/camera.js';
 import { controls } from '../core/controls.js';
 import { focusOnObject, setCameraDirection } from '../core/cameraUtils.js';
-import { state } from '../store/state.js';
+import { getStore } from '../store/useStore.js';
 
 export const TOOL = {
     SELECT: 'select',
@@ -41,7 +41,7 @@ export function onToolChange(fn) {
 // ─── Fokus-Logik ─────────────────────────────────────────────────────────────
 
 function _triggerFocus() {
-    const model = state.selected?.root || state.currentlySelected || null;
+    const model = getStore().selected?.root || null;
     if (!model) {
         // Kein Modell ausgewählt → Panel trotzdem zeigen,
         // aktuelles Orbit-Zentrum und Abstand als Referenz nutzen
@@ -128,7 +128,7 @@ export function getLayerActive(system) {
 export function syncToolbarLayerButtons() {
     Object.keys(LAYER_GROUPS).forEach((system) => {
         const groups = LAYER_GROUPS[system] || [];
-        _layerState[system] = groups.some((group) => (state.groups[group]?.length ?? 0) > 0);
+        _layerState[system] = groups.some((group) => (getStore().groups[group]?.length ?? 0) > 0);
     });
 
     document.querySelectorAll('.toolbar-layer-btn').forEach((btn) => {

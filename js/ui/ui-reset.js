@@ -1,7 +1,5 @@
-// js/ui/ui-reset.js - VOLLSTÄNDIGE CARTILAGE-INTEGRATION
-
-import { state } from '../store/state.js';
-import { dispatch, StateActions } from '../store/state.js';
+// js/ui/ui-reset.js
+import useStore, { getStore, INITIAL_COLORS } from '../store/useStore.js';
 import { hideInfoPanel } from '../interaction/infoPanel.js';
 import { renderer } from '../core/renderer.js';
 import { scene } from '../core/scene.js';
@@ -11,7 +9,6 @@ import { updateModelColors } from '../modelLoader/color.js';
 import { loadGroupByName } from '../features/modelLoader-core.js';
 import { setModelOpacity } from '../features/appearance.js';
 import { setCameraToDefault } from '../core/cameraUtils.js';
-import { getConfig } from '../config/config.js';
 import { setModelVisibility, showModel } from '../features/visibility.js';
 import { registerPickables, unregisterPickables } from '../features/selection.js';
 import { clearMultiSelect } from '../interaction/multiSelect.js';
@@ -19,11 +16,10 @@ import { exitIsolatedView } from '../interaction/isolationView.js';
 import { disposeObject3D } from '../modelLoader/cleanup.js';
 import { syncToolbarLayerButtons } from './toolbar.js';
 
-// ✅ STANDARD-GRUPPEN ZENTRAL DEFINIERT
 const STANDARD_GROUPS = ['bones', 'teeth', 'cartilage'];
 
 // ---------------------------------------------------------------
-// 1) LEICHTER RESET: Kamera auf Config-Defaults (Button #btn-reset)
+// 1) LEICHTER RESET
 // ---------------------------------------------------------------
 export function setupResetUI() {
   const btn = document.getElementById('btn-reset');
@@ -32,7 +28,6 @@ export function setupResetUI() {
     return;
   }
 
-  // Tastenkürzel-Hilfe
   const shortcutsBtn = document.getElementById('btn-shortcuts');
   const shortcutsTip = document.getElementById('shortcuts-tip');
   if (shortcutsBtn && shortcutsTip) {
@@ -210,18 +205,14 @@ async function resetToDefaultView() {
   exitIsolatedView();
   hideInfoPanel?.();
   clearMultiSelect();
-  dispatch(StateActions.CLEAR_SELECTION, {});
+  getStore().clearSelection();
 
-  if (state.modes) {
-    state.modes.collection = false;
-  }
-
-  const loadedGroups = Object.keys(state.groups || {});
+  const loadedGroups = Object.keys(getStore().groups || {});
 
   for (const groupName of loadedGroups) {
     if (STANDARD_GROUPS.includes(groupName)) continue;
 
-    const models = state.groups[groupName] || [];
+    const models = getStore().groups[groupName] || [];
     if (!models.length) continue;
 
     for (const model of models) {
@@ -230,21 +221,18 @@ async function resetToDefaultView() {
       disposeObject3D(model);
     }
 
-    state.groups[groupName] = [];
-    state.groupStates[groupName] = false;
+    getStore().unloadGroup(groupName);
+    getStore().setGroupVisible(groupName, false);
   }
 
   for (const groupName of STANDARD_GROUPS) {
-    if (!state.groups[groupName]?.length) {
+    if (!getStore().groups[groupName]?.length) {
       await loadGroupByName(groupName, { centerCamera: false });
     }
 
-    dispatch(StateActions.SET_GROUP_VISIBILITY, {
-      group: groupName,
-      visible: true
-    });
+    getStore().setGroupVisible(groupName, true);
 
-    (state.groups[groupName] || []).forEach((model) => {
+    (getStore().groups[groupName] || []).forEach((model) => {
       setModelOpacity(model, 1);
       showModel(model);
     });
@@ -261,17 +249,12 @@ async function resetToDefaultView() {
 }
 
 function ensureOnlyBasicGroupsVisible() {
-  Object.keys(state.groups || {}).forEach(groupName => {
-    const models = state.groups[groupName] || [];
-
-    // ✅ ALLE STANDARD-GRUPPEN prüfen
+  Object.keys(getStore().groups || {}).forEach(groupName => {
+    const models = getStore().groups[groupName] || [];
     const shouldBeVisible = STANDARD_GROUPS.includes(groupName);
-
     models.forEach(model => {
-      if (model && model.parent) { // Nur wenn Modell noch in Szene
+      if (model && model.parent) {
         setModelVisibility(model, shouldBeVisible);
-
-        // Debug
         if (!shouldBeVisible && model.visible) {
           console.warn(`⚠️ Gruppe "${groupName}" sollte unsichtbar sein, ist aber sichtbar!`);
         }
@@ -284,7 +267,7 @@ function ensureOnlyBasicGroupsVisible() {
 }
 
 // ---------------------------------------------------------------
-// 2) VOLLSTÄNDIGER RESET: Alles neu laden
+// 2) VOLLSTÄNDIGER RESET
 // ---------------------------------------------------------------
 export async function resetApp() {
   console.log('🔄 Vollständiger Reset gestartet...');
@@ -295,15 +278,10 @@ export async function resetApp() {
   try {
     hideInfoPanel?.();
 
-    // SCHRITT 1: Sammlung KOMPLETT leeren
     updateResetProgress('Leere Sammlung...', 10);
-    state.collection = [];
+    getStore().clearCollection();
+    getStore().clearSelection();
 
-    // SCHRITT 2: Auswahl zurücksetzen
-    state.selected = { root: null, mesh: null, point: null, meta: null };
-    dispatch(StateActions.CLEAR_SELECTION, {});
-
-    // SCHRITT 3: ALLE Modelle aus Szene entfernen und entsorgen
     updateResetProgress('Räume Szene komplett auf...', 20);
     const toRemove = [];
     scene.traverse(child => {
@@ -312,46 +290,34 @@ export async function resetApp() {
       }
     });
 
-    // FIX: Modelle wirklich entsorgen, nicht nur aus Szene entfernen
     for (const obj of toRemove) {
       unregisterPickables(obj);
       scene.remove(obj);
-      disposeObject3D(obj); // Speicher freigeben
+      disposeObject3D(obj);
     }
 
     console.log(`🗑️ ${toRemove.length} Modelle entfernt`);
 
-    // SCHRITT 4: State VOLLSTÄNDIG zurücksetzen
     updateResetProgress('Setze Gruppenstatus zurück...', 30);
 
-    // FIX: Alle Gruppen-Arrays leeren
-    Object.keys(state.groups || {}).forEach(groupName => {
-      if (state.groups[groupName]) {
-        state.groups[groupName].length = 0;
-      }
-      state.groupStates[groupName] = false;
-    });
-
-    // Pickable-Set leeren
-    state.pickableMeshes?.clear?.();
-
-    // Sammlungsmodus definitiv aus
-    if (state.modes) {
-      state.modes.collection = false;
+    for (const groupName of Object.keys(getStore().groups || {})) {
+      getStore().unloadGroup(groupName);
+      getStore().setGroupVisible(groupName, false);
     }
 
-    // ✅ SCHRITT 5: ALLE STANDARD-GRUPPEN neu laden
+    useStore.setState({ pickableObjects: new Set() });
+
     console.log('📦 Lade Standard-Gruppen:', STANDARD_GROUPS);
 
     let progressStep = 40;
-    const stepSize = 40 / STANDARD_GROUPS.length; // 40% für das Laden verteilen
+    const stepSize = 40 / STANDARD_GROUPS.length;
 
     for (const groupName of STANDARD_GROUPS) {
       updateResetProgress(`Lade ${groupName}...`, progressStep);
 
       try {
         await loadGroupByName(groupName, { centerCamera: false });
-        state.groupStates[groupName] = true;
+        getStore().setGroupVisible(groupName, true);
         console.log(`✅ ${groupName} geladen`);
       } catch (err) {
         console.error(`❌ Fehler beim Laden von "${groupName}":`, err);
@@ -360,19 +326,15 @@ export async function resetApp() {
       progressStep += stepSize;
     }
 
-    // SCHRITT 6: UI-Buttons zurücksetzen
     updateResetProgress('Aktualisiere UI...', 85);
     resetAllButtonStates();
 
-    // SCHRITT 7: GroupToggle zurücksetzen
     resetGroupToggleStates();
 
-    // SCHRITT 8: Kamera zurücksetzen
     updateResetProgress('Setze Ansicht zurück...', 90);
     setCameraToDefault(camera, controls);
     if (typeof controls?.saveState === 'function') controls.saveState();
 
-    // SCHRITT 9: Sicherstellen dass NUR Standard-Gruppen sichtbar sind
     updateResetProgress('Finalisiere...', 95);
     ensureOnlyBasicGroupsVisible();
 
@@ -402,7 +364,6 @@ function resetAllButtonStates() {
     const btn = document.getElementById(`btn-load-${group}`);
     if (!btn) return;
 
-    // ✅ STANDARD-GRUPPEN-CHECK
     const isStandardGroup = STANDARD_GROUPS.includes(group);
 
     if (isStandardGroup) {
@@ -418,35 +379,24 @@ function resetAllButtonStates() {
 
 function resetGroupToggleStates() {
   try {
-  
-    // ✅ EVENT MIT ALLEN STANDARD-GRUPPEN senden
     const resetEvent = new CustomEvent('resetGroupStates', {
       detail: { loadedGroups: STANDARD_GROUPS }
     });
     document.dispatchEvent(resetEvent);
-
   } catch (err) {
     console.warn('⚠️ GroupToggle Reset fehlgeschlagen:', err);
   }
 }
 
 function resetColors() {
-  const defaults = state?.defaultSettings?.resetColors || state?.defaultSettings?.colors || {};
+  Object.entries(INITIAL_COLORS).forEach(([groupName, hex]) => {
+    getStore().setGroupColor(groupName, hex);
 
-  Object.keys(defaults).forEach(groupName => {
-    const hex = defaults[groupName] ?? 0xcccccc;
-     dispatch(StateActions.SET_GROUP_COLOR, { 
-group: groupName,
-color: hex
-});
-
-    // Nur wenn Gruppe geladen ist, Farbe anwenden
-    if (state.groups[groupName]?.length > 0) {
+    if (getStore().groups[groupName]?.length > 0) {
       updateModelColors(groupName, hex);
       console.log(`🎨 Farbe für ${groupName} zurückgesetzt: 0x${hex.toString(16)}`);
     }
 
-    // UI-Element aktualisieren
     const input = document.getElementById(`${groupName}-color`);
     if (input) {
       input.value = '#' + hex.toString(16).padStart(6, '0');
@@ -457,18 +407,16 @@ color: hex
 export function debugResetState() {
   console.log('\n=== RESET DEBUG ===');
 
-  // Geladene Gruppen
   const loadedGroups = {};
-  Object.entries(state.groups || {}).forEach(([group, models]) => {
+  Object.entries(getStore().groups || {}).forEach(([group, models]) => {
     if (models && models.length > 0) {
       loadedGroups[group] = models.length;
     }
   });
   console.log('📦 Geladene Gruppen:', loadedGroups);
 
-  // Sichtbare Gruppen
   const visibleGroups = {};
-  Object.entries(state.groups || {}).forEach(([group, models]) => {
+  Object.entries(getStore().groups || {}).forEach(([group, models]) => {
     let visibleCount = 0;
     (models || []).forEach(model => {
       if (model && model.visible) visibleCount++;
@@ -479,20 +427,16 @@ export function debugResetState() {
   });
   console.log('👁️ Sichtbare Modelle:', visibleGroups);
 
-  // State
-  console.log('🔧 GroupStates:', state.groupStates);
-  console.log('📋 Collection:', state.collection.length, 'Items');
-  console.log('🎯 Collection Mode:', state.modes?.collection);
+  console.log('🔧 GroupVisible:', getStore().groupVisible);
+  console.log('📋 Collection:', getStore().collection.length, 'Items');
 
-  // Standard-Gruppen Check
   console.log('📌 Standard-Gruppen sollten geladen sein:', STANDARD_GROUPS);
   STANDARD_GROUPS.forEach(group => {
-    const loaded = state.groups[group]?.length > 0;
-    const visible = visibleGroups[group] > 0;
+    const loaded = (getStore().groups[group]?.length ?? 0) > 0;
+    const visible = (visibleGroups[group] ?? 0) > 0;
     console.log(`  ${group}: geladen=${loaded}, sichtbar=${visible}`);
   });
 
-  // GroupToggle
   if (window.groupToggleLoadedGroups) {
     const toggleStates = [];
     window.groupToggleLoadedGroups.forEach((isLoaded, group) => {
@@ -504,7 +448,6 @@ export function debugResetState() {
   console.log('=== END DEBUG ===\n');
 }
 
-// Loading-Overlay Funktionen
 function showResetLoadingOverlay() {
   let overlay = document.getElementById('reset-loading-overlay');
 
@@ -536,56 +479,20 @@ function showResetLoadingOverlay() {
       font-family: Arial, sans-serif;
     `;
 
-    // CSS für Spinner hinzufügen
     const style = document.createElement('style');
     style.textContent = `
-      .loading-content {
-        text-align: center;
-        color: white;
-        max-width: 300px;
-      }
-      
+      .loading-content { text-align: center; color: white; max-width: 300px; }
       .loading-spinner {
-        width: 50px;
-        height: 50px;
-        border: 3px solid #333;
-        border-top: 3px solid #4CAF50;
-        border-radius: 50%;
-        animation: spin 1s linear infinite;
+        width: 50px; height: 50px;
+        border: 3px solid #333; border-top: 3px solid #4CAF50;
+        border-radius: 50%; animation: spin 1s linear infinite;
         margin: 0 auto 20px;
       }
-      
-      @keyframes spin {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
-      }
-      
-      .loading-bar {
-        width: 100%;
-        height: 8px;
-        background: #333;
-        border-radius: 4px;
-        overflow: hidden;
-        margin-top: 15px;
-      }
-      
-      .loading-bar-fill {
-        height: 100%;
-        background: linear-gradient(90deg, #4CAF50, #45a049);
-        transition: width 0.3s ease;
-        width: 0%;
-      }
-      
-      .loading-content h3 {
-        margin: 0 0 10px 0;
-        font-size: 24px;
-      }
-      
-      .loading-content p {
-        margin: 0;
-        font-size: 14px;
-        opacity: 0.8;
-      }
+      @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+      .loading-bar { width: 100%; height: 8px; background: #333; border-radius: 4px; overflow: hidden; margin-top: 15px; }
+      .loading-bar-fill { height: 100%; background: linear-gradient(90deg, #4CAF50, #45a049); transition: width 0.3s ease; width: 0%; }
+      .loading-content h3 { margin: 0 0 10px 0; font-size: 24px; }
+      .loading-content p { margin: 0; font-size: 14px; opacity: 0.8; }
     `;
 
     if (!document.querySelector('#reset-loading-styles')) {

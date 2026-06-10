@@ -1,10 +1,10 @@
 // infoPanel.js
 
-import { state } from '../store/state.js';
-import { dispatch, StateActions } from '../store/state.js';
+import { getStore } from '../store/useStore.js';
 import { getMuskelfinderDetailsForMeta } from '../integration/muskelfinderDetails.js';
 import { getModelName, removeFromMultiSelect, clearMultiSelect, getMultiSelectedArray } from './multiSelect.js';
 import { renderStructureLabel } from '../utils/anatomyLabels.js';
+import { clearHighlight } from './highlightModel.js';
 
 // ─── Hilfsfunktionen ────────────────────────────────────────────────────────
 
@@ -142,7 +142,6 @@ function _initSwipeToClose() {
         panel.style.transition = '';
         panel.style.transform = '';
 
-        // Schließen wenn > 80px nach unten oder schneller Swipe (>80px/s)
         if (dy > 80 || (dy > 30 && dy / dt > 0.4)) {
             hideInfoPanel();
         }
@@ -162,14 +161,12 @@ export function showInfoPanel(meta, selectedModel) {
     if (!infoContent) return;
     infoContent.innerHTML = '';
 
-    // Titel
     const title = document.createElement('h3');
     renderStructureLabel(title, meta);
     infoContent.appendChild(title);
 
     void appendMuskelfinderDetails(infoContent, meta);
 
-    // Beschreibung
     const descText = readDescription(meta, ['de', 'en']);
     if (descText) {
         const details = document.createElement('p');
@@ -177,7 +174,6 @@ export function showInfoPanel(meta, selectedModel) {
         infoContent.appendChild(details);
     }
 
-    // Edit-Controls
     const editDiv = document.createElement('div');
     editDiv.id = 'edit-controls';
     infoContent.appendChild(editDiv);
@@ -218,7 +214,6 @@ export function showMultiSelectPanel(models) {
 }
 
 function _showMultiSelectMobile(infoContent, models, rebuildPanel) {
-    // Nur Anzahl + 3 kompakte Buttons
     const header = document.createElement('div');
     header.className = 'multi-select-header';
     header.textContent = `${models.length} ausgewählt`;
@@ -230,7 +225,6 @@ function _showMultiSelectMobile(infoContent, models, rebuildPanel) {
 
     import('./editPanel.js').then(({ buildMultiEditPanel }) => {
         buildMultiEditPanel?.(editDiv, models, rebuildPanel);
-        // Farbe + Transparenz auf Mobile verstecken
         editDiv.querySelectorAll('.multi-edit-row').forEach(el => el.style.display = 'none');
     }).catch(() => {});
 }
@@ -283,21 +277,9 @@ function _showMultiSelectDesktop(infoContent, models, rebuildPanel) {
 
 export function hideInfoPanel() {
     const infoContent = _getContent();
-
     _hidePanel();
     if (infoContent) infoContent.innerHTML = '';
 
-    // Highlight Einzelauswahl zurücksetzen
-    const root = state.selected?.root ?? null;
-    if (root) {
-        root.traverse(child => {
-            if (child.isMesh && child.material?.emissive) {
-                child.material.emissive.setHex(0x000000);
-            }
-        });
-        dispatch(StateActions.CLEAR_SELECTION, {});
-    }
-
-    // currentlySelected zurücksetzen
-    if (state.selected) state.selected.root = null;
+    clearHighlight();
+    getStore().clearSelection();
 }

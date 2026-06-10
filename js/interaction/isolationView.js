@@ -2,7 +2,7 @@ import { renderer } from '../core/renderer.js';
 import { scene } from '../core/scene.js';
 import { camera } from '../core/camera.js';
 import { setModelVisibility } from '../features/visibility.js';
-import { state } from '../store/state.js';
+import { getStore } from '../store/useStore.js';
 
 const DEFAULT_STRUCTURAL_GROUPS = ['bones', 'teeth', 'cartilage', 'ligaments'];
 
@@ -11,18 +11,16 @@ let isolatedModel = null;
 
 function saveVisibilitySnapshot() {
   const snapshot = {};
-
-  for (const [group, models] of Object.entries(state.groups || {})) {
+  for (const [group, models] of Object.entries(getStore().groups || {})) {
     for (const model of models) {
       snapshot[`${group}::${model.uuid}`] = model.visible;
     }
   }
-
   return snapshot;
 }
 
 function restoreVisibilitySnapshot(snapshot) {
-  for (const [group, models] of Object.entries(state.groups || {})) {
+  for (const [group, models] of Object.entries(getStore().groups || {})) {
     for (const model of models) {
       const key = `${group}::${model.uuid}`;
       if (key in snapshot) {
@@ -67,9 +65,7 @@ function showIsolationActionBar(actionBar = {}) {
 }
 
 export function enterIsolatedView(model, options = {}) {
-  if (!model) {
-    return false;
-  }
+  if (!model) return false;
 
   const {
     structuralGroups = DEFAULT_STRUCTURAL_GROUPS,
@@ -84,14 +80,14 @@ export function enterIsolatedView(model, options = {}) {
 
   isolatedModel = model;
 
-  for (const models of Object.values(state.groups || {})) {
+  for (const models of Object.values(getStore().groups || {})) {
     for (const entry of models) {
       setModelVisibility(entry, false);
     }
   }
 
   for (const group of structuralGroups) {
-    for (const entry of state.groups?.[group] || []) {
+    for (const entry of getStore().groups?.[group] || []) {
       setModelVisibility(entry, true);
     }
   }

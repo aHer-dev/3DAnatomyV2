@@ -1,11 +1,9 @@
 // js/interaction/multiSelect.js
-// Mehrfachauswahl: Highlight, Toggle, Clear
-
 import * as THREE from 'three';
-import { state } from '../store/state.js';
+import { getStore } from '../store/useStore.js';
 import { getStructureDisplayLabel } from '../utils/anatomyLabels.js';
 
-const HIGHLIGHT_MULTI = 0x1a1a4a;   // dezentes Blau für Mehrfachauswahl
+const HIGHLIGHT_MULTI = 0x1a1a4a;
 
 function _getName(model) {
     return getStructureDisplayLabel(model) || model.name || '?';
@@ -34,38 +32,38 @@ function _clearHighlight(model) {
 }
 
 export function addToMultiSelect(model) {
-    if (!model || state.multiSelected.has(model)) return false;
-    state.multiSelected.add(model);
+    if (!model || getStore().multiSelected.has(model)) return false;
+    getStore().addToMultiSelected(model);
     _applyHighlight(model, HIGHLIGHT_MULTI);
     return true;
 }
 
 export function removeFromMultiSelect(model) {
-    if (!model || !state.multiSelected.has(model)) return false;
-    state.multiSelected.delete(model);
+    if (!model || !getStore().multiSelected.has(model)) return false;
+    getStore().removeFromMultiSelected(model);
     _clearHighlight(model);
     return true;
 }
 
 export function toggleMultiSelect(model) {
-    if (state.multiSelected.has(model)) {
+    if (getStore().multiSelected.has(model)) {
         removeFromMultiSelect(model);
-        return false; // entfernt
+        return false;
     } else {
         addToMultiSelect(model);
-        return true;  // hinzugefügt
+        return true;
     }
 }
 
 export function clearMultiSelect() {
-    for (const model of state.multiSelected) {
+    for (const model of getStore().multiSelected) {
         _clearHighlight(model);
     }
-    state.multiSelected.clear();
+    getStore().clearMultiSelected();
 }
 
 export function getMultiSelectedArray() {
-    return Array.from(state.multiSelected);
+    return Array.from(getStore().multiSelected);
 }
 
 export function getModelName(model) {

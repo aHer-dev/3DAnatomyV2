@@ -1,7 +1,7 @@
 // ui-export.js
 // 📤📥 Zuständig für den Export und Import des aktuellen Zustands (Sets & Farben) über JSON-Dateien
 
-import { state } from '../store/state.js'; // 🔁 Zugriff auf globale Zustände (Sets, Farben, Gruppen)
+import { getStore } from '../store/useStore.js';
 
 /**
  * Initialisiert die Export-/Import-Funktionen der Benutzeroberfläche.
@@ -21,7 +21,7 @@ export function setupExportUI() {
     const data = {
       version: '2.0',
       timestamp: Date.now(),
-      collection: state.collection.map(item => ({
+      collection: getStore().collection.map(item => ({
         id: item.model?.userData?.meta?.id || item.id,
         name: item.name || item.model?.name,
         group: item.model?.userData?.group,
@@ -31,7 +31,7 @@ export function setupExportUI() {
         visible: item.visible !== false,
         meta: item.meta
       })),
-      colors: state.colors // Aktuelle Farben
+      colors: getStore().colors
     };
 
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
@@ -41,7 +41,7 @@ export function setupExportUI() {
     a.download = `anatomie-sammlung-${Date.now()}.json`;
     a.click();
     URL.revokeObjectURL(url);
-    console.log('📤 Sammlung exportiert:', state.collection.length, 'Objekte');
+    console.log('📤 Sammlung exportiert:', getStore().collection.length, 'Objekte');
   });
 
   // IMPORT - VERBESSERT
@@ -55,21 +55,20 @@ export function setupExportUI() {
         const data = JSON.parse(e.target.result);
         console.log('📥 Importiere Sammlung...', data);
 
-        // Sammlung leeren
-        state.collection = [];
+        getStore().clearCollection();
 
         // Für jedes gespeicherte Objekt
         for (const savedItem of data.collection) {
           // Prüfen ob Gruppe geladen ist, sonst laden
           const groupName = savedItem.group;
-          if (groupName && (!state.groups[groupName] || state.groups[groupName].length === 0)) {
+          if (groupName && !(getStore().groups[groupName]?.length)) {
             console.log(`📦 Lade Gruppe "${groupName}" für Import...`);
             await loadGroupByName(groupName, { centerCamera: false });
           }
 
           // Modell in geladenen Gruppen finden
           let foundModel = null;
-          for (const group of Object.values(state.groups)) {
+          for (const group of Object.values(getStore().groups)) {
             for (const model of group) {
               const modelId = model.userData?.meta?.id || model.name;
               if (modelId === savedItem.id) {
@@ -90,8 +89,7 @@ export function setupExportUI() {
             }
             setModelVisibility(foundModel, savedItem.visible);
 
-            // Zur Sammlung hinzufügen mit allen Einstellungen
-            state.collection.push({
+            getStore().addToCollection({
               model: foundModel,
               id: savedItem.id,
               name: savedItem.name,
@@ -107,8 +105,8 @@ export function setupExportUI() {
 
         // UI aktualisieren
         updateCollectionUI();
-        console.log('✅ Import abgeschlossen:', state.collection.length, 'Objekte');
-        alert(`✅ ${state.collection.length} Objekte importiert!`);
+        console.log('✅ Import abgeschlossen:', getStore().collection.length, 'Objekte');
+        alert(`✅ ${getStore().collection.length} Objekte importiert!`);
 
       } catch (err) {
         console.error('❌ Import-Fehler:', err);
