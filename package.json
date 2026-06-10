@@ -7,6 +7,7 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
+    "test": "vitest run",
     "typecheck": "tsc --noEmit",
     "lint": "eslint js/ app.js",
     "format": "prettier --write \"js/**/*.js\" \"app.js\"",
@@ -14,17 +15,20 @@
   },
   "dependencies": {
     "p-limit": "^6.2.0",
-    "three": "^0.179.1"
+    "three": "^0.179.1",
+    "zustand": "^5.0.14"
   },
   "devDependencies": {
     "@eslint/js": "^9.0.0",
     "@types/node": "^25.9.2",
     "@types/three": "^0.179.0",
+    "@vitest/ui": "^4.1.8",
     "dependency-cruiser": "^16.10.4",
     "eslint": "^9.0.0",
     "globals": "^15.0.0",
     "madge": "^8.0.0",
     "prettier": "^3.0.0",
-    "vite": "^6.0.0"
+    "vite": "^6.0.0",
+    "vitest": "^4.1.8"
   }
 }
