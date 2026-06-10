@@ -4,13 +4,11 @@
   <meta charset="UTF-8">
 <meta http-equiv="Content-Security-Policy" content="
   default-src 'self';
-  script-src 'self' https://cdn.jsdelivr.net 'wasm-unsafe-eval'
-    'sha256-HjBqISQTtzuyI1/v7rG5H1RM8Ns8BmY5Tw9kc6RWH74='
-    'sha256-vvt4KWwuNr51XfE5m+hzeNEGhiOfZzG97ccfqGsPwvE=';
+  script-src 'self' 'wasm-unsafe-eval';
   style-src 'self' 'unsafe-inline';
   img-src 'self' data: blob:;
   font-src 'self';
-  connect-src 'self' https://cdn.jsdelivr.net;
+  connect-src 'self';
   media-src 'self' blob:;
   worker-src 'self' blob:;
   object-src 'none';
@@ -19,26 +17,12 @@
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>BlueBody 3D</title>
- 
-
-  <!-- Import-Map für lokale Three JSM-Module -->
-  <link rel="icon" href="./favicon.png" type="image/png">
-  
-  
-
-<script type="importmap">
-  {
-    "imports": {
-      "three": "https://cdn.jsdelivr.net/npm/three@0.179.1/build/three.module.js",
-      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.179.1/examples/jsm/"
-    }
-  }
-  </script>
+  <link rel="icon" href="/favicon.png" type="image/png">
+  <link rel="stylesheet" href="css/main.css">
 </head>
 
 
 <body>
-  <link rel="stylesheet" href="css/main.css">
   <!-- Container für Renderer -->
   <div id="canvas-container">
   <canvas id="canvas" aria-label="3D Anatomie-Ansicht"></canvas>
