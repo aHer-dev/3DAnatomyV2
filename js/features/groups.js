@@ -3,7 +3,7 @@
 
 import { scene } from '../core/scene.js';
 import { getMeta } from '../data/meta.js';
-import { state } from '../store/state.js';
+import { getStore } from '../store/useStore.js';
 import { setModelVisibility, setGroupVisibility } from '../features/visibility.js';
 import { loadEntry, disposeObject3D } from '../modelLoader/index.js';
 import { registerPickables, unregisterPickables } from './selection.js';
@@ -34,62 +34,48 @@ export async function loadGroupFromEntries(entries, groupName) {
     root.userData.isModelRoot = true;
     root.userData.entry = entry;
     scene.add(root);
-    (state.groups[groupName] ||= []).push(root);
+    getStore().addGroupModel(groupName, root);
     registerPickables(root);
   }
-  state.groupVisible[groupName] = true;
+  getStore().setGroupVisible(groupName, true);
 }
 
 
 // Utilities
 export function isGroupLoaded(groupName) {
-  return !!(state.groups[groupName]?.length > 0);
+  return (getStore().groups[groupName]?.length ?? 0) > 0;
 }
 
 export function getLoadedGroups() {
-  return Object.keys(state.groups).filter(g => state.groups[g]?.length > 0);
+  const { groups } = getStore();
+  return Object.keys(groups).filter(g => (groups[g]?.length ?? 0) > 0);
 }
 
 
 // Intern: komplette Gruppe hart entladen
 export function unloadWholeGroup(groupName) {
-  const arr = state.groups[groupName] || [];
+  const arr = getStore().groups[groupName] ?? [];
   for (const root of arr) {
     unregisterPickables(root);
     scene.remove(root);
     disposeObject3D(root);
   }
-  state.groups[groupName] = [];
-  state.groupVisible[groupName] = false;
+  getStore().unloadGroup(groupName);
 }
 
 // Gruppen-Zustand restaurieren (sichtbar/unsichtbar je Modell)
 export function restoreGroupState(groupName) {
-  if (!groupName || !(groupName in state.groups)) return;
-  const models = state.groups[groupName];
-  const saved = state.groupStates?.[groupName];
-
+  const { groups, groupStates } = getStore();
+  if (!groupName || !(groupName in groups)) return;
+  const models = groups[groupName];
   if (!models) return;
-
-  if (typeof saved === 'boolean') {
-    setGroupVisibility(groupName, saved);
-    return;
-  }
-
-  if (saved && typeof saved === 'object') {
-    models.forEach(model => {
-      const isVisible = saved[model.name] !== false;
-      setModelVisibility(model, isVisible);
-    });
-    return;
-  }
-
-  setGroupVisibility(groupName, true);
+  const saved = groupStates?.[groupName];
+  setGroupVisibility(groupName, saved !== false);
 }
 
 export function restoreAllGroupStates() {
-  const loaded = Object.keys(state.groups || {});
-  for (const g of loaded) {
+  const { groups } = getStore();
+  for (const g of Object.keys(groups)) {
     try { restoreGroupState(g); }
     catch (e) { console.warn(`restoreAllGroupStates: Fehler bei "${g}":`, e); }
   }
@@ -103,7 +89,6 @@ export function updateGroupVisibility(groupName, visible) {
 export async function unloadGroup(groupName, subgroup = null) {
   await removeModelsByGroupOrSubgroup(groupName, subgroup);
   if (!subgroup) {
-    state.groups[groupName] = [];
-    state.groupVisible[groupName] = false;
+    getStore().unloadGroup(groupName);
   }
 }

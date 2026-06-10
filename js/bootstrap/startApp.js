@@ -25,7 +25,7 @@ import {
     applyGroupMaterialTweaks
 } from '../features/appearance.js';
 
-import { state } from '../store/state.js';
+import { getStore, INITIAL_COLORS, DEFAULT_COLOR } from '../store/useStore.js';
 import { getConfig } from '../config/config.js';
 import { initializeGroupsFromMeta } from '../data/meta.js';
 import { restoreAllGroupStates } from '../features/groups.js';
@@ -232,24 +232,11 @@ export async function startApp() {
         await tryApplyEnvironment(renderer);
         updateLoadingCircle(35);
 
-        // 3) Farben aus Config in den State übernehmen (ohne Defaults zu überschreiben)
+        // 3) Farben aus Config in den State übernehmen (INITIAL_COLORS sind bereits gesetzt)
         const cfgColors = getConfig('ui.colors', null);
         if (cfgColors) {
-            state.defaultSettings = state.defaultSettings || {};
-            state.defaultSettings.colors = {
-                ...(state.defaultSettings.colors || {}),
-                ...cfgColors
-            };
-            state.colors = {
-                ...(state.colors || {}),
-                ...state.defaultSettings.colors
-            };
+            Object.entries(cfgColors).forEach(([g, hex]) => getStore().setGroupColor(g, hex));
         }
-
-        // Originalfarben für "Reset Farbe" einmalig festhalten.
-        state.defaultSettings.resetColors = {
-            ...(state.defaultSettings.colors || {})
-        };
 
         // 4) UI initialisieren
         if (!previewMode) {
@@ -265,22 +252,22 @@ export async function startApp() {
         // 5) Initiale Gruppen laden
 
         await loadGroupByName('bones', { centerCamera: true });
-        state.groupStates.bones = true;
+        getStore().setGroupVisible('bones', true);
         updateLoadingCircle(65);
 
         await loadGroupByName('teeth', { centerCamera: false });
-        state.groupStates.teeth = true;
+        getStore().setGroupVisible('teeth', true);
         updateLoadingCircle(80);
 
         await loadGroupByName('cartilage', { centerCamera: false });
-        state.groupStates.cartilage = true;
+        getStore().setGroupVisible('cartilage', true);
         updateLoadingCircle(95);
 
         // 6) Schatten & Material-Tweaks
         const rig = getLightRig?.();
         if (rig?.key) fitShadowFrustumToScene(rig.key, scene);
 
-        const cfg = state?.defaultSettings?.appearance || appearance;
+        const cfg = appearance;
         applyRendererAppearance(renderer, cfg);
         applyEnvIntensity(scene, cfg);
 
@@ -290,10 +277,7 @@ export async function startApp() {
 
         // 7) Farben anwenden
         ['bones', 'teeth', 'cartilage'].forEach(g => {
-            const hex =
-                (state.colors && state.colors[g]) ??
-                (state.defaultSettings?.colors && state.defaultSettings.colors[g]) ??
-                state.defaultSettings?.colors?.default;
+            const hex = getStore().colors[g] ?? INITIAL_COLORS[g] ?? DEFAULT_COLOR;
             if (hex != null) updateModelColors(g, hex);
         });
 

@@ -7,7 +7,7 @@ import { scene } from '../core/scene.js';
 import { camera } from '../core/camera.js';
 import { renderer } from '../core/renderer.js';
 import { controls } from '../core/controls.js';
-import { state } from '../store/state.js';
+import { getStore, INITIAL_COLORS, DEFAULT_COLOR } from '../store/useStore.js';
 import { disposeObject3D } from '../modelLoader/cleanup.js';
 import { unregisterPickables } from '../features/selection.js';
 
@@ -114,7 +114,7 @@ function hideToast() {
  * Gruppe entladen – ohne Button-Animation (für Toolbar)
  */
 export async function unloadGroupSilent(groupName) {
-    const models = state.groups[groupName] || [];
+    const models = getStore().groups[groupName] ?? [];
     if (!models.length) return;
 
     for (const model of models) {
@@ -122,8 +122,8 @@ export async function unloadGroupSilent(groupName) {
         scene.remove(model);
         disposeObject3D(model);
     }
-    state.groups[groupName] = [];
-    state.groupStates[groupName] = false;
+    getStore().unloadGroup(groupName);
+    getStore().setGroupVisible(groupName, false);
 }
 
 /**
@@ -137,7 +137,7 @@ async function unloadGroupWithAnimation(groupName, button) {
         return;
     }
 
-    const models = state.groups[groupName] || [];
+    const models = getStore().groups[groupName] ?? [];
     if (models.length === 0) {
         console.log(`ℹ️ Gruppe ${groupName} ist bereits entladen`);
         return;
@@ -146,23 +146,19 @@ async function unloadGroupWithAnimation(groupName, button) {
     console.log(`🗑️ Entlade ${models.length} Modelle für "${groupName}"`);
 
     try {
-        // ✅ ENTLADE-ANIMATION
         setButtonUnloading(button, groupName);
         showToast(`Entlade ${groupName} (${models.length} Modelle)...`, 'unloading');
 
-        // Kurze Pause für Animation
         await new Promise(resolve => setTimeout(resolve, 200));
 
-        // Modelle entladen
         for (const model of models) {
             unregisterPickables(model);
             scene.remove(model);
             disposeObject3D(model);
         }
 
-        // State zurücksetzen
-        state.groups[groupName] = [];
-        state.groupStates[groupName] = false;
+        getStore().unloadGroup(groupName);
+        getStore().setGroupVisible(groupName, false);
 
         console.log(`✅ "${groupName}" erfolgreich entladen`);
 
@@ -202,7 +198,7 @@ async function loadGroupWithAnimation(groupName, button) {
         return;
     }
 
-    const entries = state.groupedMeta?.[groupName] || [];
+    const entries = getStore().groupedMeta?.[groupName] ?? [];
     if (!entries.length) {
         console.warn(`⚠️ Keine Modelle für "${groupName}" gefunden`);
         alert(`Keine Modelle für "${groupName}" verfügbar.`);
@@ -233,12 +229,9 @@ async function loadGroupWithAnimation(groupName, button) {
             renderer
         );
 
-        state.groupStates[groupName] = true;
+        getStore().setGroupVisible(groupName, true);
 
-        // ✅ FARBE ANWENDEN (wichtig!)
-        const hex = state.colors?.[groupName] ??
-            state.defaultSettings?.colors?.[groupName] ??
-            state.defaultSettings?.colors?.default;
+        const hex = getStore().colors?.[groupName] ?? INITIAL_COLORS[groupName] ?? DEFAULT_COLOR;
 
         if (hex != null) {
             const { updateModelColors } = await import('../modelLoader/color.js');
@@ -283,8 +276,7 @@ async function loadGroupWithAnimation(groupName, button) {
 async function toggleGroupWithAnimation(groupName, button) {
     console.log(`🔄 toggleGroupWithAnimation: ${groupName}`);
 
-    // Prüfen ob Gruppe geladen ist
-    const isLoaded = state.groups[groupName]?.length > 0;
+    const isLoaded = (getStore().groups[groupName]?.length ?? 0) > 0;
 
     if (isLoaded) {
         console.log(`📤 Gruppe ${groupName} ist geladen → entladen`);
@@ -333,8 +325,7 @@ export function initDynamicGroupLoading() {
             await toggleGroupWithAnimation(groupName, newBtn);
         });
 
-        // ✅ INITIAL-STATUS setzen basierend auf bereits geladenen Gruppen
-        const isCurrentlyLoaded = state.groups[groupName]?.length > 0;
+        const isCurrentlyLoaded = (getStore().groups[groupName]?.length ?? 0) > 0;
         if (isCurrentlyLoaded) {
             setButtonLoading(newBtn, groupName, false); // Grün = geladen
             console.log(`📌 Button ${groupName} als bereits geladen markiert`);

@@ -1,6 +1,6 @@
 // cleanup.js
 import { scene } from '../core/scene.js';
-import { state } from '../store/state.js';
+import useStore, { getStore } from '../store/useStore.js';
 
 /**
  * Vollständige Entsorgung von Three.js Objekten und Ressourcen
@@ -49,29 +49,22 @@ export function disposeObject3D(root) {
  * @param {string|null} subgroupName - z. B. "arm-schulter", oder null für ganze Gruppe
  */
 export async function removeModelsByGroupOrSubgroup(groupName, subgroupName = null) {
-  const models = state.groups[groupName];
+  const models = getStore().groups[groupName];
   if (!models) return;
 
-  for (let i = models.length - 1; i >= 0; i--) {
-    const model = models[i];
-    const meta = model.userData.meta;
-    const subgroup = meta?.subgroup || null;
-
-    // Bedingung: gesamter Group- oder nur passender Subgroup-Eintrag
+  const remaining = [];
+  for (const model of models) {
+    const subgroup = model.userData.meta?.subgroup ?? null;
     if (subgroupName === null || subgroup === subgroupName) {
-      // Speicher vollständig freigeben
       disposeObject3D(model);
-
-      // Modell aus Szene & Speicher entfernen
       scene.remove(model);
-      models.splice(i, 1);
-
-      // Gruppenzustand aktualisieren
-      if (state.groupStates[groupName]) {
-        delete state.groupStates[groupName][model.name];
-      }
+    } else {
+      remaining.push(model);
     }
   }
+
+  const currentGroups = getStore().groups;
+  useStore.setState({ groups: { ...currentGroups, [groupName]: remaining } });
 
   console.log(`🧹 Modelle aus Gruppe "${groupName}"${subgroupName ? `, Subgruppe "${subgroupName}"` : ''} entfernt.`);
 }
@@ -83,32 +76,24 @@ export async function removeModelsByGroupOrSubgroup(groupName, subgroupName = nu
  * @param {string} groupName - z. B. "muscles"
  */
 export function removeModelByFilename(filename, groupName) {
-  const models = state.groups[groupName];
+  const models = getStore().groups[groupName];
   if (!models) {
-    console.warn(`⚠️ Gruppe "${groupName}" nicht in state.groups gefunden.`);
+    console.warn(`⚠️ Gruppe "${groupName}" nicht im Store gefunden.`);
     return;
   }
 
-  // Suche nach Modell anhand des .name (Dateiname)
   const index = models.findIndex(m => m.name === filename);
   if (index === -1) {
     console.warn(`⚠️ Modell "${filename}" nicht in Gruppe "${groupName}" gefunden.`);
     return;
   }
 
-  const model = models[index];
+  disposeObject3D(models[index]);
+  scene.remove(models[index]);
 
-  // Speicher vollständig freigeben
-  disposeObject3D(model);
-
-  // Aus Szene und Speicher entfernen
-  scene.remove(model);
-  models.splice(index, 1);
-
-  // Zustand aktualisieren, falls vorhanden
-  if (state.groupStates?.[groupName]) {
-    delete state.groupStates[groupName][filename];
-  }
+  const remaining = models.filter((_, i) => i !== index);
+  const currentGroups = getStore().groups;
+  useStore.setState({ groups: { ...currentGroups, [groupName]: remaining } });
 
   console.log(`🗑️ Modell "${filename}" erfolgreich aus Gruppe "${groupName}" entfernt.`);
 }

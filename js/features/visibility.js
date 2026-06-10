@@ -3,37 +3,9 @@
 // ============================================
 
 import * as THREE from 'three';
-import { dispatch, StateActions } from '../store/state.js';
+import { getStore } from '../store/useStore.js';
 import { markPickablesDirty } from '../core/raycaster.js';
-
-// WICHTIG: Lazy imports für zirkuläre Referenzen (BROWSER-KOMPATIBEL)
-let _state = null;
-let _setPickable = null;
-
-// Lazy Getter für State (async import statt require)
-function getState() {
-    if (!_state) {
-        // Asynchroner Import für Browser
-        import('../store/state.js').then(module => {
-            _state = module.state;
-        }).catch(err => {
-            console.warn('State import failed:', err);
-        });
-    }
-    return _state;
-}
-
-// Lazy Getter für setPickable
-function getSetPickable() {
-    if (!_setPickable) {
-        import('./selection.js').then(module => {
-            _setPickable = module.setPickable;
-        }).catch(err => {
-            console.warn('setPickable import failed:', err);
-        });
-    }
-    return _setPickable;
-}
+import { setPickable } from './selection.js';
 
 // === PRIVATE HELPER FUNCTIONS ===
 function _asArray(mat) {
@@ -90,93 +62,48 @@ export function setObjectOpacity(root, opacity = 1) {
 }
 
 export function setGroupOpacity(group, opacity = 1) {
-    const state = getState();
-    if (!state) return;
-    const roots = state.groups?.[group] || [];
+    const roots = getStore().groups?.[group] ?? [];
     roots.forEach(root => setObjectOpacity(root, opacity));
 }
 
 // === CORE VISIBILITY FUNCTIONS ===
 export function showModel(root) {
     if (!root) return;
-
-    const setPickable = getSetPickable();
-    const state = getState();
-
     root.traverse(n => {
         if (!n.isObject3D) return;
-        // Render-Layer (0) + Pick-Layer (1) für alle Nodes aktivieren,
-        // damit setModelVisibility(false) vollständig rückgängig gemacht wird
         n.visible = true;
         n.layers.enable(0);
         n.layers.enable(1);
-
         if (!n.isMesh) return;
         restoreOriginalMaterial(n);
-
-        if (setPickable && state?.pickableMeshes) {
-            setPickable(n, true, state.pickableMeshes);
-        } else {
-            state?.pickableMeshes?.add(n);
-        }
+        setPickable(n, true);
     });
 }
 
 export function hideModel(root) {
     if (!root) return;
-
-    const setPickable = getSetPickable();
-    const state = getState();
-
     root.traverse(n => {
         if (!n.isMesh) return;
         n.visible = false;
-
-        // Nur setPickable aufrufen wenn verfügbar
-        if (setPickable && state?.pickableMeshes) {
-            setPickable(n, false, state.pickableMeshes);
-        } else {
-            // Fallback: Nur Layer setzen
-            n.layers.disable(1);
-            state?.pickableMeshes?.delete(n);
-        }
+        setPickable(n, false);
     });
 }
 
 export function ghostModel(root, alpha = 0.15) {
     if (!root) return;
-
-    const setPickable = getSetPickable();
-    const state = getState();
-
     root.traverse(n => {
         if (!n.isMesh) return;
         n.visible = true;
         applyGhostMaterial(n, alpha);
-
-        // Nur setPickable aufrufen wenn verfügbar
-        if (setPickable && state?.pickableMeshes) {
-            setPickable(n, false, state.pickableMeshes); // Ghost ist NICHT klickbar
-        } else {
-            // Fallback: Nur Layer setzen
-            n.layers.disable(1);
-            state?.pickableMeshes?.delete(n);
-        }
+        setPickable(n, false); // Ghost ist NICHT klickbar
     });
 }
 
 // === GROUP VISIBILITY ===
 export function setGroupVisibility(groupName, visible) {
-    const state = getState();
-    if (!state) {
-        console.warn('⚠️ setGroupVisibility: State nicht verfügbar');
-        return;
-    }
     const v = !!visible;
-    // 1) State mutieren – zentral per Action
-    dispatch(StateActions.SET_GROUP_VISIBILITY, { group: groupName, visible: v });
-    // 2) Effekt anwenden – einzig hier werden Modelle sichtbar/unsichtbar gesetzt
-    const models = state.groups[groupName] || [];
+    getStore().setGroupVisible(groupName, v);
+    const models = getStore().groups[groupName] ?? [];
     for (const model of models) setModelVisibility(model, v);
 }
     
@@ -213,13 +140,9 @@ export function setModelVisibility(model, visible) {
         model.layers.disable(1);
     }
 
-    // Pickables konsequent über API (kein direkter Zugriff auf state.pickableMeshes)
-    const setPickable = typeof getSetPickable === 'function' ? getSetPickable() : null;
-    if (setPickable) {
-        model.traverse(n => {
-            if (n.isMesh) setPickable(n, v);
-        });
-    }
+    model.traverse(n => {
+        if (n.isMesh) setPickable(n, v);
+    });
 }
 
 export function toggleModelVisibility(model) {
@@ -241,23 +164,13 @@ export function showObject(obj) {
 }
 
 export function hideAllManagedModels() {
-    const state = getState();
-    if (!state) return;
-
-    Object.keys(state.groups).forEach(group => {
-        setGroupVisibility(group, false);
-    });
+    Object.keys(getStore().groups).forEach(group => setGroupVisibility(group, false));
 }
 
 export const hideAllModels = hideAllManagedModels;
 
 export function showAllManagedModels() {
-    const state = getState();
-    if (!state) return;
-
-    Object.keys(state.groups).forEach(group => {
-        setGroupVisibility(group, true);
-    });
+    Object.keys(getStore().groups).forEach(group => setGroupVisibility(group, true));
 }
 
 // === GHOST MODE HELPERS ===
@@ -345,61 +258,32 @@ export function clearObjectGhost(obj) {
 }
 
 export function setGroupGhost(group, opacity = 0.15) {
-    const state = getState();
-    if (!state) return;
-    const models = state.groups[group] || [];
-    models.forEach(model => setObjectGhost(model, opacity));
+    (getStore().groups[group] ?? []).forEach(model => setObjectGhost(model, opacity));
 }
 
 export function clearGroupGhost(group) {
-    const state = getState();
-    if (!state) return;
-    const models = state.groups[group] || [];
-    models.forEach(model => clearObjectGhost(model));
+    (getStore().groups[group] ?? []).forEach(model => clearObjectGhost(model));
 }
 
 // === UTILITY FUNCTIONS ===
 export function restoreGroupVisibility(groupName) {
     if (!groupName || typeof groupName !== 'string') return;
-
-    const state = getState();
-    if (!state) return;
-
-    const models = state.groups?.[groupName];
-    const saved = state.groupStates?.[groupName];
-
+    const { groups, groupStates } = getStore();
+    const models = groups?.[groupName];
     if (!models) return;
-
-    if (typeof saved === 'boolean') {
-        setGroupVisibility(groupName, saved);
-        return;
-    }
-
-    if (saved && typeof saved === 'object') {
-        models.forEach(model => {
-            const isVisible = saved[model.name] !== false;
-            setModelVisibility(model, isVisible);
-        });
-        return;
-    }
-
-    setGroupVisibility(groupName, true);
+    const saved = groupStates?.[groupName];
+    setGroupVisibility(groupName, saved !== false);
 }
 
 export function countVisibleInGroup(group) {
-    const state = getState();
-    if (!state) return 0;
-    const models = state.groups[group] || [];
-    return models.filter(model => isModelVisible(model)).length;
+    return (getStore().groups[group] ?? []).filter(model => isModelVisible(model)).length;
 }
 
 export function getVisibleGroups() {
-    const state = getState();
-    if (!state) return [];
-    return Object.keys(state.groups).filter(group => {
-        const models = state.groups[group] || [];
-        return models.some(model => isModelVisible(model));
-    });
+    const { groups } = getStore();
+    return Object.keys(groups).filter(group =>
+        (groups[group] ?? []).some(model => isModelVisible(model))
+    );
 }
 
 export function applyDefaultVisibility(model) {
@@ -411,16 +295,3 @@ export function applyDefaultVisibility(model) {
 // Legacy-Alias
 export const setGroupVisible = setGroupVisibility;
 
-// State und Dependencies beim Laden initialisieren
-if (typeof window !== 'undefined') {
-    // Async loading für Browser
-    Promise.all([
-        import('../store/state.js'),
-        import('./selection.js')
-    ]).then(([stateModule, selectionModule]) => {
-        _state = stateModule.state;
-        _setPickable = selectionModule.setPickable;
-    }).catch(err => {
-        console.warn('⚠️ Visibility: Dependencies konnten nicht geladen werden:', err);
-    });
-}

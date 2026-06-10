@@ -2,7 +2,7 @@
 // meta.js - Bereinigte Version
 // ============================================
 import { dataPath } from '../core/path.js';
-import { state } from '../store/state.js';
+import { getStore, INITIAL_COLORS, DEFAULT_COLOR } from '../store/useStore.js';
 import { decorateStructureEntry } from '../utils/anatomyLabels.js';
 
 let cachedMeta = null;
@@ -43,81 +43,61 @@ export async function initializeGroupsFromMeta() {
         return;
     }
 
+    const basename = (s) => { try { return s.split('/').pop(); } catch { return s; } };
+    const stripExt = (s) => s.replace(/\.[^/.]+$/, '');
+
     // 1) Gruppieren nach classification.group
-    state.groupedMeta = meta.reduce((acc, entry) => {
+    const groupedMeta = meta.reduce((acc, entry) => {
         const g = entry?.classification?.group || 'other';
         (acc[g] ||= []).push(entry);
         return acc;
     }, {});
+    const availableGroups = Object.keys(groupedMeta);
 
-    // 2) Liste aller Gruppen
-    state.availableGroups = Object.keys(state.groupedMeta);
+    // 2) Lookup-Indizes erstellen
+    const metaById = Object.create(null);
+    const metaByFile = Object.create(null);
 
-    // 3) State initialisieren - WICHTIG: state.colors muss existieren!
-    if (!state.colors) {
-        state.colors = {};
-    }
-
-    for (const g of state.availableGroups) {
-        // Leere Arrays für geladene Modelle
-        state.groups[g] ||= [];
-
-        // Sichtbarkeitszustände
-        if (typeof state.groupStates[g] !== 'boolean' && typeof state.groupStates[g] !== 'object') {
-            state.groupStates[g] = false;
-        }
-
-        // Farben von defaultSettings kopieren
-        if (!(g in state.colors)) {
-            state.colors[g] = state.defaultSettings.colors[g] ?? state.defaultSettings.defaultColor;
-        }
-    }
-
-    // 4) Lookup-Indizes erstellen
-    state.metaById = Object.create(null);
-    state.metaByFile = Object.create(null);
-
-    const basename = (s) => {
-        try { return s.split('/').pop(); } catch { return s; }
-    };
-    const stripExt = (s) => s.replace(/\.[^/.]+$/, '');
-
-    for (const entries of Object.values(state.groupedMeta)) {
+    for (const entries of Object.values(groupedMeta)) {
         for (const entry of entries) {
-            // ID-Index
             const id = (entry?.id || entry?.fma || '').toString().trim();
             if (id) {
-                state.metaById[id] = entry;
-
-                // FMA-ID auch indexieren falls anders
+                metaById[id] = entry;
                 const fmaId = (entry?.info?.links?.fma || '').toString().trim();
-                if (fmaId && fmaId !== id) {
-                    state.metaById[fmaId] = entry;
-                }
+                if (fmaId && fmaId !== id) metaById[fmaId] = entry;
             }
 
-            // Filename-Index
             const current = entry?.model?.current || 'draco';
             const variant = entry?.model?.variants?.[current];
-
-            const candidates = [
-                variant?.filename,
-                entry?.filename,
-            ].filter(v => typeof v === 'string' && v.length > 0);
-
+            const candidates = [variant?.filename, entry?.filename]
+                .filter(v => typeof v === 'string' && v.length > 0);
             if (candidates.length) {
                 const file = basename(candidates[0]);
-                const base = stripExt(file);
-                state.metaByFile[file] = entry;
-                state.metaByFile[base] = entry;
+                metaByFile[file] = entry;
+                metaByFile[stripExt(file)] = entry;
             }
         }
     }
 
-    console.log('✅ Gruppen initialisiert:', state.availableGroups);
+    // 3) Alles auf einmal in den Store schreiben
+    getStore().setMetaData({ groupedMeta, availableGroups, metaById, metaByFile });
+
+    // 4) Gruppenfarben initialisieren (nur wo noch nicht gesetzt)
+    const { colors } = getStore();
+    for (const g of availableGroups) {
+        if (!(g in colors)) {
+            getStore().setGroupColor(g, INITIAL_COLORS[g] ?? DEFAULT_COLOR);
+        }
+        // Sichtbarkeit auf false (wird beim Laden aktiviert)
+        if (!(g in getStore().groupStates)) {
+            getStore().setGroupVisible(g, false);
+        }
+    }
+
+    console.log('✅ Gruppen initialisiert:', availableGroups);
     console.log('🧭 Meta-Index:',
-        Object.keys(state.metaById).length, 'IDs,',
-        Object.keys(state.metaByFile).length, 'Dateinamen'
+        Object.keys(metaById).length, 'IDs,',
+        Object.keys(metaByFile).length, 'Dateinamen'
     );
 }
 
@@ -126,23 +106,19 @@ export async function initializeGroupsFromMeta() {
  */
 export function getMetaById(id) {
     if (!id) return null;
-    return state.metaById?.[id] || null;
+    return getStore().metaById?.[id] ?? null;
 }
 
 export function getMetaByFile(filename) {
     if (!filename) return null;
-
-    const basename = (s) => s.split('/').pop();
-    const stripExt = (s) => s.replace(/\.[^/.]+$/, '');
-
-    const file = basename(filename);
-    const base = stripExt(file);
-
-    return state.metaByFile?.[file] || state.metaByFile?.[base] || null;
+    const file = filename.split('/').pop();
+    const base = file.replace(/\.[^/.]+$/, '');
+    const { metaByFile } = getStore();
+    return metaByFile?.[file] ?? metaByFile?.[base] ?? null;
 }
 
 export function getMetaByGroup(group) {
-    return state.groupedMeta?.[group] || [];
+    return getStore().groupedMeta?.[group] ?? [];
 }
 
 export function getSubgroupsForGroup(group) {

@@ -1,35 +1,21 @@
-import { state } from '../store/state.js';
+import { getStore, INITIAL_COLORS, DEFAULT_COLOR } from '../store/useStore.js';
 
-/**
- * Setzt die Farbe aller Modelle einer Gruppe neu.
- * @param {string} group - Gruppenname (z. B. 'bones')
- * @param {number} hexColor - Neue Farbe als Hexwert (z. B. 0xff0000)
- */
 export function updateModelColors(group, hexColor) {
-  if (!state.groups[group]) {
-    console.warn(`⚠️ Gruppe "${group}" nicht gefunden im State.`);
+  const { groups, colors } = getStore();
+  if (!groups[group]) {
+    console.warn(`⚠️ Gruppe "${group}" nicht im Store gefunden.`);
     return;
   }
-  const resolved = (hexColor ?? state.colors?.[group] ?? state.defaultSettings?.colors?.[group] ?? state.defaultSettings?.defaultColor ?? 0xcccccc);
-  state.groups[group].forEach(model => {
+  const resolved = hexColor ?? colors?.[group] ?? INITIAL_COLORS[group] ?? DEFAULT_COLOR;
+  groups[group].forEach(model => {
     model.traverse(child => {
       if (child.isMesh && child.material) child.material.color.setHex(resolved);
     });
   });
-  state.colors[group] = resolved;
+  getStore().setGroupColor(group, resolved);
   console.log(`🎨 Farbe für Gruppe "${group}" gesetzt: 0x${resolved.toString(16).padStart(6, '0')}`);
 }
 
-
-/**
- * Setzt die Farbe einer Gruppe auf den gespeicherten Standardwert zurück.
- * @param {string} group
- */
 export function resetGroupColor(group) {
-  const defaultColor = state.defaultSettings.resetColors?.[group] ?? state.defaultSettings.colors[group];
-  if (defaultColor === undefined) {
-    console.warn(`⚠️ Keine Standardfarbe für Gruppe "${group}" definiert.`);
-    return;
-  }
-  updateModelColors(group, defaultColor);
+  updateModelColors(group, INITIAL_COLORS[group] ?? DEFAULT_COLOR);
 }
