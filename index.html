@@ -198,6 +198,9 @@
 <!-- License-Info außerhalb des Footers, damit backdrop-filter kein containing block bildet -->
 <div id="license-info" class="hidden" aria-hidden="true"></div>
 
+<!-- React Overlay (Phase 3) — pointer-events: none am Root, Kinder schalten selektiv ein -->
+<div id="ui-root" style="position:fixed;inset:0;pointer-events:none;z-index:20;"></div>
+
 <!-- Script -->
   <script type="module" src="app.js"></script>
 </body>

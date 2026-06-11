@@ -9,6 +9,9 @@
     "allowJs": true,
     "checkJs": false,
 
+    // React
+    "jsx": "react-jsx",
+
     // Typen
     "strict": false,
     "noImplicitAny": false,

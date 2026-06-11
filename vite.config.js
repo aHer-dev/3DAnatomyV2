@@ -1,6 +1,8 @@
 import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react'
 
 export default defineConfig({
+  plugins: [react()],
   // './' = relative Pfade → funktioniert auf GitHub Pages egal unter welchem Pfad
   base: './',
 

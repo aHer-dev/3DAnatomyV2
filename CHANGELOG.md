@@ -7,6 +7,17 @@ Format: [Keep a Changelog](https://keepachangelog.com/de/1.0.0/)
 
 ## [Unreleased]
 
+### Added (Phase 3a — React Shell + StructureBrowser)
+- React 19 + `@vitejs/plugin-react` installiert; Vite-Config und `tsconfig.json` (jsx: react-jsx) erweitert
+- `<div id="ui-root">` Overlay-Mount in `index.html` (pointer-events: none am Root, Kinder schalten selektiv ein)
+- `js/ui/react/main.tsx` — `mountReactUI()` Einstiegspunkt, aus `app.js` nach DOM-Ready aufgerufen
+- `js/ui/react/useReactStore.ts` — Zustand Vanilla-Store via `useStore`-Hook an React gebunden
+- `js/ui/react/groupLabels.ts` — Deutsche Labels + kanonische Sortierung für Anatomie-Gruppen
+- `js/ui/react/App.tsx` — Root-Komponent (Shell für alle Panel-Komponenten)
+- `js/ui/react/components/StructureBrowser.tsx` — erste React-Komponente: Gruppen laden/entladen, Sichtbarkeit, Farbindikator, Modell-Anzahl, `useTransition` für non-blocking Lade-Ops
+- `css/components/structure-browser.css` — Glassmorphism-Stil passend zum bestehenden Design-System
+- 6 neue Tests für `groupLabels` (Labels, Sortierung, Immutabilität)
+
 ### Changed (Phase 2c-4)
 - Alle custom `window.*`-Globals eliminiert — keine globale Verschmutzung mehr
   - `window.requestRender` → neues Modul `js/core/renderScheduler.js` (Late-init-Singleton)
