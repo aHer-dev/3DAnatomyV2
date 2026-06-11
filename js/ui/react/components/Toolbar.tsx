@@ -9,6 +9,7 @@ import { loadGroupByName } from '../../../features/modelLoader-core.js'
 import { unloadGroupSilent } from '../../../bootstrap/initGroupLoader.js'
 import { resetApp } from '../../ui-reset.js'
 import { enterPhotoMode } from '../../photoMode.js'
+import { toggleLabels, isLabelsActive } from '../../../features/labels.js'
 
 // ─── Hook ─────────────────────────────────────────────────────────────────
 
@@ -74,6 +75,7 @@ export function Toolbar() {
   const activeTool = useActiveTool()
   const [expanded, setExpanded] = useState(false)
   const [loadingLayer, setLoadingLayer] = useState<string | null>(null)
+  const [labelsOn, setLabelsOn] = useState(false)
   const groups = useReactStore(s => s.groups)
 
   async function handleLayerToggle(system: string) {
@@ -232,6 +234,20 @@ export function Toolbar() {
             <circle cx="12" cy="13" r="4"/>
           </svg>
           <span className="toolbar-label">Foto</span>
+        </button>
+
+        <button
+          className={`toolbar-btn${labelsOn ? ' active' : ''}`}
+          title="Strukturbeschriftungen ein-/ausblenden"
+          aria-label="Beschriftungen"
+          aria-pressed={labelsOn}
+          onClick={() => setLabelsOn(toggleLabels())}
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/>
+            <line x1="7" y1="7" x2="7.01" y2="7"/>
+          </svg>
+          <span className="toolbar-label">Labels</span>
         </button>
       </div>
     </>
