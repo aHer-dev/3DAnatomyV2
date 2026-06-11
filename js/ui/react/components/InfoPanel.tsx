@@ -74,6 +74,14 @@ function ModelActions({ model, meta }: ModelActionsProps) {
   const [visible, setVisible] = useState(() => isModelVisible(model))
   const [ghostActive, setGhostActive] = useState(false)
   const [recentColors, setRecentColors] = useState<string[]>(getRecentColors)
+  const [toast, setToast] = useState<string | null>(null)
+  const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  const showToast = useCallback((msg: string) => {
+    if (toastTimer.current) clearTimeout(toastTimer.current)
+    setToast(msg)
+    toastTimer.current = setTimeout(() => setToast(null), 2000)
+  }, [])
 
   useEffect(() => {
     initialColor.current = readModelColor(model)
@@ -140,7 +148,8 @@ function ModelActions({ model, meta }: ModelActionsProps) {
       })
     }
     document.dispatchEvent(new CustomEvent('collectionUpdated'))
-  }, [model, meta, inCollection])
+    showToast(inCollection ? 'Aus Sammlung entfernt' : 'Zur Sammlung hinzugefügt')
+  }, [model, meta, inCollection, showToast])
 
   return (
     <div className="ip-actions">
@@ -192,6 +201,7 @@ function ModelActions({ model, meta }: ModelActionsProps) {
       >
         {inCollection ? 'Aus Sammlung entfernen' : 'Zur Sammlung hinzufügen'}
       </button>
+      {toast && <div className="ip-toast">{toast}</div>}
     </div>
   )
 }

@@ -169,6 +169,23 @@
 .ip-btn--active { background: rgba(74,158,255,0.15); border-color: rgba(74,158,255,0.5); color: #4A9EFF; }
 .ip-btn--full { width: 100%; margin-top: 6px; justify-content: center; }
 
+/* ── Toast-Feedback ────────────────────────────────────────────── */
+.ip-toast {
+  margin-top: 6px;
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 0.78rem;
+  text-align: center;
+  background: rgba(74, 158, 255, 0.15);
+  border: 1px solid rgba(74, 158, 255, 0.35);
+  color: #4A9EFF;
+  animation: ip-toast-in 0.15s ease both;
+}
+@keyframes ip-toast-in {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
 /* ── Recent Colors ─────────────────────────────────────────────── */
 .ip-recent-colors {
   display: flex;
