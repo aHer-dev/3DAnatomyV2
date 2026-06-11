@@ -130,7 +130,7 @@ function ModelActions({ model, meta }: ModelActionsProps) {
         id: meta.id,
         name: getStructureDisplayLabel(meta),
         group: meta.classification?.group ?? 'other',
-        meta,
+        meta: meta as any,
         color,
         opacity,
         visible: isModelVisible(model),
@@ -139,6 +139,7 @@ function ModelActions({ model, meta }: ModelActionsProps) {
         source: 'infoPanel',
       })
     }
+    document.dispatchEvent(new CustomEvent('collectionUpdated'))
   }, [model, meta, inCollection])
 
   return (
