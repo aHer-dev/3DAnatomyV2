@@ -169,6 +169,27 @@
 .ip-btn--active { background: rgba(74,158,255,0.15); border-color: rgba(74,158,255,0.5); color: #4A9EFF; }
 .ip-btn--full { width: 100%; margin-top: 6px; justify-content: center; }
 
+/* ── Recent Colors ─────────────────────────────────────────────── */
+.ip-recent-colors {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  padding: 2px 0;
+}
+.ip-recent-color {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 2px solid rgba(255,255,255,0.15);
+  cursor: pointer;
+  padding: 0;
+  transition: transform 0.15s, border-color 0.15s;
+}
+.ip-recent-color:hover {
+  transform: scale(1.2);
+  border-color: rgba(255,255,255,0.5);
+}
+
 /* ── MultiSelectPanel ───────────────────────────────────────────── */
 .msp-panel {
   position: fixed;

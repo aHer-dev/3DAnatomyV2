@@ -12,6 +12,15 @@ import { clearHighlight } from '../../../interaction/highlightModel.js'
 import { requestRender } from '../../../core/renderScheduler.js'
 import type { MetaEntry } from '../../../types/index.js'
 
+// In-memory recent colors (session-only, no localStorage)
+const MAX_RECENT = 5
+let _recentColors: string[] = []
+function addRecentColor(hex: string) {
+  const norm = hex.toLowerCase()
+  _recentColors = [norm, ..._recentColors.filter(c => c !== norm)].slice(0, MAX_RECENT)
+}
+function getRecentColors() { return _recentColors }
+
 interface MfSection {
   label: string
   items: { label: string; text: string }[]
@@ -64,6 +73,7 @@ function ModelActions({ model, meta }: ModelActionsProps) {
   const inCollection = collection.some((c: any) => c.id === meta.id)
   const [visible, setVisible] = useState(() => isModelVisible(model))
   const [ghostActive, setGhostActive] = useState(false)
+  const [recentColors, setRecentColors] = useState<string[]>(getRecentColors)
 
   useEffect(() => {
     initialColor.current = readModelColor(model)
@@ -75,7 +85,10 @@ function ModelActions({ model, meta }: ModelActionsProps) {
   }, [model])
 
   const handleColor = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    setModelColor(model, e.target.value)
+    const hex = e.target.value
+    setModelColor(model, hex)
+    addRecentColor(hex)
+    setRecentColors(getRecentColors())
     requestRender()
   }, [model])
 
@@ -134,6 +147,20 @@ function ModelActions({ model, meta }: ModelActionsProps) {
         <span>Farbe</span>
         <input type="color" className="ip-color-input" defaultValue={initialColor.current} onChange={handleColor} aria-label="Modellfarbe" />
       </label>
+      {recentColors.length > 0 && (
+        <div className="ip-recent-colors">
+          {recentColors.map(hex => (
+            <button
+              key={hex}
+              className="ip-recent-color"
+              style={{ background: hex }}
+              title={hex}
+              aria-label={`Farbe ${hex}`}
+              onClick={() => { setModelColor(model, hex); requestRender() }}
+            />
+          ))}
+        </div>
+      )}
       <label className="ip-action-row" title="Transparenz">
         <span>Opazität</span>
         <input
