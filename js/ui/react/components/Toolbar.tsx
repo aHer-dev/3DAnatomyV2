@@ -71,7 +71,12 @@ const LAYER_CONFIG = [
 
 // ─── Hauptkomponente ──────────────────────────────────────────────────────
 
-export function Toolbar() {
+interface ToolbarProps {
+  browserOpen: boolean
+  onToggleBrowser: () => void
+}
+
+export function Toolbar({ browserOpen, onToggleBrowser }: ToolbarProps) {
   const activeTool = useActiveTool()
   const [expanded, setExpanded] = useState(false)
   const [loadingLayer, setLoadingLayer] = useState<string | null>(null)
@@ -206,6 +211,27 @@ export function Toolbar() {
             </button>
           )
         })}
+
+        <div className="toolbar-sep" />
+
+        {/* ── Struktur-Browser ── */}
+        <button
+          className={`toolbar-btn${browserOpen ? ' active' : ''}`}
+          title="Alle Strukturen ein-/ausblenden"
+          aria-label="Strukturen"
+          aria-pressed={browserOpen}
+          onClick={onToggleBrowser}
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+            <line x1="8" y1="6" x2="21" y2="6"/>
+            <line x1="8" y1="12" x2="21" y2="12"/>
+            <line x1="8" y1="18" x2="21" y2="18"/>
+            <circle cx="3" cy="6" r="1" fill="currentColor" stroke="none"/>
+            <circle cx="3" cy="12" r="1" fill="currentColor" stroke="none"/>
+            <circle cx="3" cy="18" r="1" fill="currentColor" stroke="none"/>
+          </svg>
+          <span className="toolbar-label">Strukturen</span>
+        </button>
 
         <div className="toolbar-sep" />
 

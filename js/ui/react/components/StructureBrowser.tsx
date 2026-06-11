@@ -75,9 +75,11 @@ function GroupRow({ group, isLoaded, isVisible, modelCount, color }: GroupRowPro
   )
 }
 
-export function StructureBrowser() {
-  const [open, setOpen] = useState(true)
+interface StructureBrowserProps {
+  onClose: () => void
+}
 
+export function StructureBrowser({ onClose }: StructureBrowserProps) {
   const availableGroups = useReactStore(s => s.availableGroups)
   const groups          = useReactStore(s => s.groups)
   const groupStates     = useReactStore(s => s.groupStates)
@@ -87,32 +89,26 @@ export function StructureBrowser() {
 
   return (
     <aside className="sb-panel" aria-label="Strukturen">
-      <button
-        className="sb-header"
-        onClick={() => setOpen(o => !o)}
-        aria-expanded={open}
-      >
+      <div className="sb-header">
         <span>Strukturen</span>
-        <span className="sb-chevron">{open ? '▲' : '▼'}</span>
-      </button>
+        <button className="sb-close" onClick={onClose} aria-label="Schließen">✕</button>
+      </div>
 
-      {open && (
-        <div className="sb-list" role="list">
-          {sorted.map(group => (
-            <GroupRow
-              key={group}
-              group={group}
-              isLoaded={!!groups[group as keyof typeof groups]?.length}
-              isVisible={groupStates[group] ?? false}
-              modelCount={groups[group as keyof typeof groups]?.length ?? 0}
-              color={colors[group]}
-            />
-          ))}
-          {sorted.length === 0 && (
-            <p className="sb-empty">Keine Gruppen verfügbar</p>
-          )}
-        </div>
-      )}
+      <div className="sb-list" role="list">
+        {sorted.map(group => (
+          <GroupRow
+            key={group}
+            group={group}
+            isLoaded={!!groups[group as keyof typeof groups]?.length}
+            isVisible={groupStates[group] ?? false}
+            modelCount={groups[group as keyof typeof groups]?.length ?? 0}
+            color={colors[group]}
+          />
+        ))}
+        {sorted.length === 0 && (
+          <p className="sb-empty">Keine Gruppen verfügbar</p>
+        )}
+      </div>
     </aside>
   )
 }

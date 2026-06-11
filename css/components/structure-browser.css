@@ -19,25 +19,32 @@
   overflow: hidden;
 }
 
-/* ── Header / toggle ─────────────────────────────────────────────── */
+/* ── Header ───────────────────────────────────────────────────────── */
 .sb-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  width: 100%;
   padding: 14px var(--spacing-md);
-  background: none;
-  border: none;
-  cursor: pointer;
   color: var(--text-primary);
   font-size: 0.85rem;
   font-weight: 600;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   border-bottom: 1px solid var(--glass-border);
-  transition: background 0.2s;
 }
-.sb-header:hover { background: var(--glass-bg-hover); }
+
+.sb-close {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-secondary);
+  font-size: 1rem;
+  padding: 2px 4px;
+  line-height: 1;
+  border-radius: 4px;
+  transition: color 0.15s, background 0.15s;
+}
+.sb-close:hover { color: var(--text-primary); background: var(--glass-bg-hover); }
 .sb-chevron { font-size: 0.7em; opacity: 0.7; }
 
 /* ── Scrollable list ─────────────────────────────────────────────── */
