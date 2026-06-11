@@ -6,10 +6,9 @@ import { camera } from '../core/camera.js';
 import { controls } from '../core/controls.js';
 import { setupRaycastOnClick } from './raycastOnClick.js';
 import { pickAt } from '../core/raycaster.js';
-import { hideInfoPanel } from './infoPanel.js';
 import { highlightModel } from './highlightModel.js';
 import { enterIsolatedView } from './isolationView.js';
-import { toggleMultiSelect, clearMultiSelect, getMultiSelectedArray, addToMultiSelect } from './multiSelect.js';
+import { toggleMultiSelect, clearMultiSelect, addToMultiSelect } from './multiSelect.js';
 import { setupBoxSelect } from './boxSelect.js';
 import { getActiveTool, TOOL } from '../ui/toolbar.js';
 import { getStore } from '../store/useStore.js';
@@ -27,7 +26,6 @@ function setupHotkeys() {
         if (e.key === 'Escape') {
             if (getStore().multiSelected.size > 0) {
                 clearMultiSelect();
-                hideInfoPanel();
             }
             return;
         }
@@ -46,10 +44,7 @@ function setupHotkeys() {
 }
 
 function refreshMultiPanel() {
-    // React MultiSelectPanel reacts to store changes — nothing to do here
-    // hideInfoPanel still called when multi-select is cleared (clears old DOM panel too)
-    const sel = getMultiSelectedArray();
-    if (sel.length === 0) hideInfoPanel();
+    // React MultiSelectPanel reagiert direkt auf Store-Änderungen — nichts zu tun
 }
 
 export function setupInteractions() {

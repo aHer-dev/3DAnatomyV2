@@ -114,8 +114,4 @@ button[id^="btn-load-"]::after {
       border-radius: 10px;
       padding: 6px;
    }
-
-   /* Set-Liste */
-   #set-list { padding: 12px; max-height: 160px; }
-   #set-list li { padding: 10px 14px; font-size: 14px; }
 }

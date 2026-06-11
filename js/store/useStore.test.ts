@@ -1,4 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest'
+import type * as THREE from 'three'
 import store from './useStore.js'
 import type { CollectionItem, MetaEntry } from '../types/index.js'
 

@@ -21,7 +21,6 @@
 @import 'components/dropdowns.css';
 @import 'components/panels.css';
 @import 'components/toolbar.css';
-@import 'components/set-list.css';
 @import 'components/loading.css';
 @import 'components/photo-mode.css';
 @import 'components/presets.css';
@@ -30,4 +29,5 @@
 @import 'components/structure-browser.css';
 @import 'components/search-bar.css';
 @import 'components/info-panel-react.css';
+@import 'components/collection-panel.css';
 @import 'components/labels.css';

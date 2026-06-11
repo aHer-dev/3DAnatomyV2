@@ -10,7 +10,6 @@ import { applyGroupMaterialTweaks } from '../features/appearance.js';
 import { loadGroupByName, loadSingleModel } from '../features/modelLoader-core.js';
 import { setModelVisibility } from '../features/visibility.js';
 import { highlightModel } from '../interaction/highlightModel.js';
-import { showInfoPanel } from '../interaction/infoPanel.js';
 import { enterIsolatedView, exitIsolatedView } from '../interaction/isolationView.js';
 import { isMuskelfinderPreviewMode } from './muskelfinderPreview.js';
 import { createGLTFLoader } from '../loaders/gltfLoaderFactory.js';
@@ -440,7 +439,11 @@ export async function handleMuskelfinderDeeplink() {
 
     if (!previewMode) {
       highlightModel(models[0]);
-      showInfoPanel(models[0]?.userData?.meta || resolution.entries[0], models[0]);
+      // React InfoPanel reagiert auf die Store-Auswahl
+      getStore().setSelection({
+        meta: models[0]?.userData?.meta || resolution.entries[0],
+        root: models[0],
+      });
     }
 
     const focus = focusOnModels(models);

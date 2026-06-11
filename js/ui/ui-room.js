@@ -4,7 +4,6 @@ import { scene } from '../core/scene.js';
 import { setLightIntensity } from '../lights.js';
 import { renderer } from '../core/renderer.js';
 import { camera } from '../core/camera.js';
-import { attachRecentColors } from './recentColors.js';
 
 export function setupRoomUI() {
   const lightingSlider = document.getElementById('slider-lighting');
@@ -96,10 +95,6 @@ export function setupRoomUI() {
   }
 
   colorInput.addEventListener('input', updateRoomColor);
-  attachRecentColors(colorInput, (hex) => {
-    colorInput.value = hex;
-    updateRoomColor();
-  });
   brightnessSlider.addEventListener('input', (e) => {
     setBrightnessFromSlider(e.target.value);
   });

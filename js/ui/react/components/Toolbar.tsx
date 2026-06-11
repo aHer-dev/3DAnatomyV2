@@ -15,7 +15,10 @@ import { toggleLabels, isLabelsActive } from '../../../features/labels.js'
 
 function useActiveTool() {
   const [activeTool, setActiveToolState] = useState(getActiveTool)
-  useEffect(() => onToolChange(setActiveToolState), [])
+  useEffect(() => {
+    const unsubscribe = onToolChange(setActiveToolState)
+    return () => { unsubscribe() }
+  }, [])
   return activeTool
 }
 
@@ -74,14 +77,17 @@ const LAYER_CONFIG = [
 interface ToolbarProps {
   browserOpen: boolean
   onToggleBrowser: () => void
+  collectionOpen: boolean
+  onToggleCollection: () => void
 }
 
-export function Toolbar({ browserOpen, onToggleBrowser }: ToolbarProps) {
+export function Toolbar({ browserOpen, onToggleBrowser, collectionOpen, onToggleCollection }: ToolbarProps) {
   const activeTool = useActiveTool()
   const [expanded, setExpanded] = useState(false)
   const [loadingLayer, setLoadingLayer] = useState<string | null>(null)
   const [labelsOn, setLabelsOn] = useState(false)
   const groups = useReactStore(s => s.groups)
+  const collectionCount = useReactStore(s => s.collection.length)
 
   async function handleLayerToggle(system: string) {
     if (loadingLayer) return
@@ -231,6 +237,22 @@ export function Toolbar({ browserOpen, onToggleBrowser }: ToolbarProps) {
             <circle cx="3" cy="18" r="1" fill="currentColor" stroke="none"/>
           </svg>
           <span className="toolbar-label">Strukturen</span>
+        </button>
+
+        {/* ── Sammlung ── */}
+        <button
+          className={`toolbar-btn${collectionOpen ? ' active' : ''}`}
+          title="Sammlung öffnen"
+          aria-label="Sammlung"
+          aria-pressed={collectionOpen}
+          onClick={onToggleCollection}
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M5 8h14l-1 11a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2z"/>
+            <path d="M9 8V6a3 3 0 0 1 6 0v2"/>
+          </svg>
+          <span className="toolbar-label">Sammlung</span>
+          {collectionCount > 0 && <span className="toolbar-badge">{collectionCount}</span>}
         </button>
 
         <div className="toolbar-sep" />

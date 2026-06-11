@@ -42,7 +42,6 @@ import { initResizeHandler } from './initResizeHandler.js';
 import { initCameraView } from './initCameraView.js';
 import { handleMuskelfinderDeeplink } from '../integration/muskelfinderDeeplink.js';
 import { processDeeplink, setupDeeplinkSync } from '../integration/deeplink.js';
-import { hideInfoPanel } from '../interaction/infoPanel.js';
 
 // ✅ FEHLENDER IMPORT HINZUGEFÜGT
 import { initDynamicGroupLoading } from './initGroupLoader.js';
@@ -245,13 +244,6 @@ export async function startApp() {
         // 8) Interaktionen & Resize
         if (!previewMode) {
             setupInteractions();
-
-            lifecycle.on(controls, 'change', () => {
-                const panel = document.getElementById('info-panel');
-                if (panel?.classList.contains('visible')) {
-                    hideInfoPanel();
-                }
-            });
         }
 
         initResizeHandler();

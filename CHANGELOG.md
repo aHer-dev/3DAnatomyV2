@@ -7,6 +7,27 @@ Format: [Keep a Changelog](https://keepachangelog.com/de/1.0.0/)
 
 ## [Unreleased]
 
+### Changed (Phase 3g — Sammlung in React + Legacy-DOM-Aufräumen)
+- **React `CollectionPanel`** (`js/ui/react/components/CollectionPanel.tsx`) ersetzt die DOM-basierte Sammlung:
+  - Liest `collection` direkt aus dem Store (reaktiv) — behebt den Bug, dass hinzugefügte Strukturen nicht in der Liste erschienen
+  - Gruppierte Liste mit Einzeln-Entfernen, Klick-zum-Fokussieren, Anzahl-Badge in der Toolbar
+  - „Nur Sammlung anzeigen", „Leeren", „Export"/„Import" (`.bluebody` via `collectionManager`)
+  - Toolbar-Button „Sammlung" (gegenseitig ausschließend mit „Strukturen")
+- **`js/features/collectionView.js`** (neu) — DOM-freie Kernlogik: `showCollectionInScene()`, `clearCollectionAndRestore()`
+- **Tote Legacy-DOM-Dateien gelöscht** (vollständig durch React ersetzt):
+  - `js/interaction/infoPanel.js` → React `InfoPanel`
+  - `js/interaction/editPanel.js` → React `InfoPanel`/`ModelActions`
+  - `js/ui/submenu/` (7 Dateien) → React `StructureBrowser`
+  - `js/ui/recentColors.js` → In-Memory-Farben im `InfoPanel` (kein localStorage)
+  - `js/ui/ui-set.js` → React `CollectionPanel` + `collectionView.js`
+  - `js/ui/ui-color.js` → Container `#color-controls` existierte nicht mehr (tot)
+  - `js/utils/modelData.js` → einziger Consumer (`ui-set.js`) entfernt
+- **`js/ui/ui-collection-export.js`** vom DOM entkoppelt: kein Auto-Init/Button-Injection mehr, `setupUI`/`createAndInsertButtons` entfernt; React ruft `showSaveModal()`/`importCollection()` direkt auf
+- **Verkabelung gesäubert**: `startApp.js`, `core/controls.js`, `interaction/index.js`, `ui-init.js`, `ui-reset.js`, `ui-presets.js`, `muskelfinderDeeplink.js` — tote `hideInfoPanel`/`showInfoPanel`-Aufrufe und der `#info-panel`-`controls.change`-Listener entfernt (React reagiert auf Store)
+- **Tote HTML/CSS entfernt**: `#submenu-container`, `#set-list`, `#btn-show-set`/`#btn-clear-set`; `set-list.css` gelöscht, `#btn-*-set`-Styles aus `buttons.css`, `#set-list`/`#submenu-container`-Regeln bereinigt
+- Typecheck bereinigt: `Toolbar.tsx` useEffect-Cleanup gibt jetzt `void` zurück; `useStore.test.ts` THREE-Typ-Import ergänzt
+- Module: 125 → 112 (Build)
+
 ### Added (Phase 4d-f — Ghost-Kontext, Labels/Pins, Touch)
 - `js/features/ghostContext.js` — Ghost-Kontext-Modus: Kontext-Button im InfoPanel macht alle anderen Strukturen transparent (0.08), ausgewählte bleibt opak; zweiter Klick stellt Ausgangszustand wieder her
 - `js/features/labels.js` — Struktur-Beschriftungen via `CSS2DRenderer`: lazy init, eigene rAF-Schleife solange aktiv, Labels-Button im Toolbar

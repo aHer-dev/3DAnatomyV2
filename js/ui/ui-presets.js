@@ -11,7 +11,7 @@
 import { getStore }                       from '../store/useStore.js';
 import { loadGroupByName }                from '../features/modelLoader-core.js';
 import { setModelColor, setModelOpacity } from '../features/appearance.js';
-import { updateSetList, showCollectionRobust } from './ui-set.js';
+import { showCollectionInScene } from '../features/collectionView.js';
 
 const MANIFEST_PATH = 'data/presets/index.json';
 
@@ -95,9 +95,9 @@ async function applyPreset(preset) {
       });
     }
 
-    updateSetList();
+    document.dispatchEvent(new CustomEvent('collectionUpdated'));
     _hideOverlay();
-    await showCollectionRobust();
+    await showCollectionInScene();
 
   } catch (err) {
     _hideOverlay();

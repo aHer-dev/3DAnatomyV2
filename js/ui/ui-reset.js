@@ -1,6 +1,5 @@
 // js/ui/ui-reset.js
 import useStore, { getStore, INITIAL_COLORS } from '../store/useStore.js';
-import { hideInfoPanel } from '../interaction/infoPanel.js';
 import { renderer } from '../core/renderer.js';
 import { scene } from '../core/scene.js';
 import { camera } from '../core/camera.js';
@@ -203,7 +202,6 @@ function clearMuskelfinderDeeplinkParams() {
 
 async function resetToDefaultView() {
   exitIsolatedView();
-  hideInfoPanel?.();
   clearMultiSelect();
   getStore().clearSelection();
 
@@ -276,8 +274,6 @@ export async function resetApp() {
   showResetLoadingOverlay();
 
   try {
-    hideInfoPanel?.();
-
     updateResetProgress('Leere Sammlung...', 10);
     getStore().clearCollection();
     getStore().clearSelection();

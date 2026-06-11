@@ -20,6 +20,7 @@
 }
 
 .toolbar-btn {
+   position: relative;
    display: flex;
    flex-direction: column;
    align-items: center;
@@ -34,6 +35,23 @@
    min-width: 52px;
    user-select: none;
    -webkit-user-select: none;
+}
+
+.toolbar-badge {
+   position: absolute;
+   top: 2px;
+   right: 4px;
+   min-width: 16px;
+   height: 16px;
+   padding: 0 4px;
+   border-radius: 8px;
+   background: #4A9EFF;
+   color: #fff;
+   font-size: 10px;
+   font-weight: 700;
+   line-height: 16px;
+   text-align: center;
+   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
 }
 
 .toolbar-btn svg {
