@@ -1,0 +1,137 @@
+/* Structure Browser — React overlay panel (Phase 3) */
+
+.sb-panel {
+  position: fixed;
+  top: 60px;
+  right: 20px;
+  width: 260px;
+  max-height: calc(100vh - 100px);
+  display: flex;
+  flex-direction: column;
+  pointer-events: all;           /* enable interaction inside the overlay */
+
+  background: var(--glass-bg-controls);
+  backdrop-filter: var(--glass-blur-strong);
+  -webkit-backdrop-filter: var(--glass-blur-strong);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--glass-shadow);
+  overflow: hidden;
+}
+
+/* ── Header / toggle ─────────────────────────────────────────────── */
+.sb-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 14px var(--spacing-md);
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-primary);
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  border-bottom: 1px solid var(--glass-border);
+  transition: background 0.2s;
+}
+.sb-header:hover { background: var(--glass-bg-hover); }
+.sb-chevron { font-size: 0.7em; opacity: 0.7; }
+
+/* ── Scrollable list ─────────────────────────────────────────────── */
+.sb-list {
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 6px 0;
+}
+.sb-list::-webkit-scrollbar { width: 4px; }
+.sb-list::-webkit-scrollbar-track { background: transparent; }
+.sb-list::-webkit-scrollbar-thumb { background: var(--glass-border); border-radius: 4px; }
+
+/* ── Single group row ────────────────────────────────────────────── */
+.sb-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px var(--spacing-md);
+  transition: background 0.15s;
+}
+.sb-row:hover { background: var(--glass-bg-hover); }
+.sb-row[data-pending="true"] { opacity: 0.6; }
+.sb-row[data-loaded="true"] .sb-label { color: var(--text-primary); }
+.sb-row[data-loaded="false"] .sb-label { color: var(--text-muted); }
+
+.sb-swatch {
+  flex-shrink: 0;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  border: 1px solid rgba(255,255,255,0.15);
+}
+
+.sb-label {
+  flex: 1;
+  font-size: 0.82rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: color 0.2s;
+}
+
+.sb-count {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  background: rgba(255,255,255,0.06);
+  border-radius: 10px;
+  padding: 1px 6px;
+}
+
+/* ── Icon buttons ────────────────────────────────────────────────── */
+.sb-btn {
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.75rem;
+  background: rgba(255,255,255,0.06);
+  color: var(--text-secondary);
+  transition: background 0.15s, opacity 0.15s;
+}
+.sb-btn:hover:not(:disabled) { background: rgba(255,255,255,0.12); }
+.sb-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.sb-btn--load.is-loaded {
+  color: var(--accent-orange);
+  background: rgba(255,122,74,0.12);
+}
+.sb-btn--load:not(.is-loaded) {
+  color: var(--accent-blue);
+  background: var(--accent-blue-dim);
+}
+
+.sb-btn--vis.is-hidden { opacity: 0.4; }
+
+.sb-empty {
+  padding: var(--spacing-md);
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  text-align: center;
+}
+
+/* ── Mobile: panel goes to top, narrower ────────────────────────── */
+@media (max-width: 768px) {
+  .sb-panel {
+    top: auto;
+    bottom: 80px;
+    right: 12px;
+    width: 220px;
+    max-height: 50vh;
+  }
+}
