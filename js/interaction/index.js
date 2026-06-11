@@ -3,7 +3,7 @@
 
 import { renderer } from '../core/renderer.js';
 import { setupRaycastOnClick } from './raycastOnClick.js';
-import { hideInfoPanel, showMultiSelectPanel } from './infoPanel.js';
+import { hideInfoPanel } from './infoPanel.js';
 import { highlightModel } from './highlightModel.js';
 import { toggleMultiSelect, clearMultiSelect, getMultiSelectedArray, addToMultiSelect } from './multiSelect.js';
 import { setupBoxSelect } from './boxSelect.js';
@@ -41,9 +41,10 @@ function setupHotkeys() {
 }
 
 function refreshMultiPanel() {
+    // React MultiSelectPanel reacts to store changes — nothing to do here
+    // hideInfoPanel still called when multi-select is cleared (clears old DOM panel too)
     const sel = getMultiSelectedArray();
     if (sel.length === 0) hideInfoPanel();
-    else showMultiSelectPanel(sel);
 }
 
 export function setupInteractions() {

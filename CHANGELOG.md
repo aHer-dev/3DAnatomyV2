@@ -7,6 +7,20 @@ Format: [Keep a Changelog](https://keepachangelog.com/de/1.0.0/)
 
 ## [Unreleased]
 
+### Added (Phase 3d — MultiSelectPanel React + HTML-Cleanup)
+- `js/ui/react/components/MultiSelectPanel.tsx` — React-Panel für Mehrfachauswahl:
+  - Liest `multiSelected` Set direkt aus dem Zustand-Store (reaktiv)
+  - Liste aller ausgewählten Modelle mit Einzeln-Entfernen-Button
+  - Batch-Farb-Picker und Opazitäts-Slider für alle ausgewählten Modelle gleichzeitig
+  - Gibt `null` zurück wenn die Auswahl leer ist (kein leeres DOM-Element)
+- `css/components/info-panel-react.css`: `.msp-panel` und zugehörige Klassen ergänzt
+- `js/ui/react/App.tsx`: `MultiSelectPanel` eingebunden
+- **HTML-Cleanup** — ersetzte Elemente entfernt:
+  - 14 `<div class="dropdown"><button id="btn-load-*">` Blöcke aus `#controls` entfernt (React `StructureBrowser` übernimmt)
+  - `<div id="info-panel">` entfernt (React `InfoPanel` übernimmt)
+- `js/interaction/index.js`: `refreshMultiPanel` ruft nicht mehr `showMultiSelectPanel` auf; React-Panel reagiert direkt auf Store
+- `js/ui/ui-init.js`: `setupSearchUI`-Import und -Aufruf entfernt (React `SearchBar` übernimmt)
+
 ### Changed (Phase 3c — InfoPanel Actions + kein Doppel-Panel)
 - `InfoPanel` erhält Aktions-Controls: Farb-Picker, Opazitäts-Slider, Ausblenden, Isolieren
 - `interaction/index.js`: ruft bei Einzelauswahl nicht mehr `showInfoPanel` auf — React InfoPanel übernimmt vollständig; `showMultiSelectPanel` / `hideInfoPanel` bleiben für Mehrfachauswahl
