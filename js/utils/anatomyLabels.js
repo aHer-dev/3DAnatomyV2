@@ -55,9 +55,11 @@ function normalizeText(value = '') {
 
 function unwrapEntry(source) {
     if (!source || typeof source !== 'object') return null;
-    if (source.labels || source.classification || source.id || source.latinLabel) return source;
+    // Three.js Object3D: resolve via userData first
     if (source.userData?.meta) return source.userData.meta;
     if (source.userData?.entry) return source.userData.entry;
+    // Plain meta entry: Three.js .id is numeric, so only match string IDs
+    if (source.labels || source.classification || typeof source.id === 'string' || source.latinLabel) return source;
     if (source.entry && typeof source.entry === 'object') return source.entry;
     if (source.meta && typeof source.meta === 'object' && (source.meta.labels || source.meta.classification || source.meta.id)) {
         return source.meta;
