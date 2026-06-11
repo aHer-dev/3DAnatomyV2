@@ -91,44 +91,6 @@ function renderFrame() {
     renderer.render(scene, camera);
 }
 
-function placeExtrasIntoDropdown(essentials = ['bones', 'muscles', 'cartilage']) {
-    const controls = document.getElementById('controls');
-    if (!controls) return;
-
-    // Dropdown-Container anlegen, falls nicht vorhanden
-    let dd = document.getElementById('dropdown-extra');
-    if (!dd) {
-        dd = document.createElement('div');
-        dd.className = 'dropdown';
-        dd.id = 'dropdown-extra';
-
-        const toggle = document.createElement('button');
-        toggle.id = 'btn-load-extra';          // behält dein "btn-load-" Präfix
-        toggle.textContent = 'Weitere Strukturen';
-        toggle.addEventListener('click', () => dd.classList.toggle('active'));
-
-        const menu = document.createElement('div');
-        menu.className = 'dropdown-menu';      // nutzt deine vorhandene CSS
-
-        dd.appendChild(toggle);
-        dd.appendChild(menu);
-        controls.appendChild(dd);              // ans Ende von #controls
-    }
-
-    const menu = dd.querySelector('.dropdown-menu');
-
-    // Alle vorhandenen Load-Buttons einsammeln und „Nicht-Essentials“ ins Dropdown schieben
-    const all = Array.from(controls.querySelectorAll('button[id^="btn-load-"]'));
-    for (const btn of all) {
-        const id = btn.id || '';
-        if (id === 'btn-load-extra') continue; // der Dropdown-Button selbst
-        const group = id.replace('btn-load-', '');
-        if (!essentials.includes(group)) {
-            menu.appendChild(btn);               // verschieben = Event-Handler bleiben erhalten
-        }
-    }
-}
-
 // --- Demand-Rendering: nur rendern wenn sich etwas geändert hat ---
 let _needsRender = true;
 let _loopKeepAliveFrames = 0;
@@ -243,11 +205,6 @@ export async function startApp() {
             setupUI?.();
         }
         updateLoadingCircle(45);
-
-        // Nur die drei Essentials oben lassen – Rest ins Dropdown
-        if (!previewMode) {
-            placeExtrasIntoDropdown(['bones', 'muscles']);
-        }
 
         // 5) Initiale Gruppen laden
 

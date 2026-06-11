@@ -49,7 +49,7 @@ export function initPhotoMode() {
 
 // ─── Aktivieren / Deaktivieren ───────────────────────────────────────────────
 
-function enterPhotoMode() {
+export function enterPhotoMode() {
   if (_active) return;
   _active = true;
 

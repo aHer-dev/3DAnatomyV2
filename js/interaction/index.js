@@ -3,11 +3,11 @@
 
 import { renderer } from '../core/renderer.js';
 import { setupRaycastOnClick } from './raycastOnClick.js';
-import { showInfoPanel, hideInfoPanel, showMultiSelectPanel } from './infoPanel.js';
+import { hideInfoPanel } from './infoPanel.js';
 import { highlightModel } from './highlightModel.js';
 import { toggleMultiSelect, clearMultiSelect, getMultiSelectedArray, addToMultiSelect } from './multiSelect.js';
 import { setupBoxSelect } from './boxSelect.js';
-import { setupToolbar, getActiveTool, TOOL } from '../ui/toolbar.js';
+import { getActiveTool, TOOL } from '../ui/toolbar.js';
 import { getStore } from '../store/useStore.js';
 import { showModel, hideModel, ghostModel } from '../features/visibility.js';
 
@@ -41,14 +41,13 @@ function setupHotkeys() {
 }
 
 function refreshMultiPanel() {
+    // React MultiSelectPanel reacts to store changes — nothing to do here
+    // hideInfoPanel still called when multi-select is cleared (clears old DOM panel too)
     const sel = getMultiSelectedArray();
     if (sel.length === 0) hideInfoPanel();
-    else showMultiSelectPanel(sel);
 }
 
 export function setupInteractions() {
-    setupToolbar();
-
     setupRaycastOnClick(renderer.domElement, ({ meta, model, event }) => {
         const tool = getActiveTool();
 
@@ -66,10 +65,10 @@ export function setupInteractions() {
             return;
         }
 
-        // Standard: Einzelauswahl
+        // Standard: Einzelauswahl — React InfoPanel reagiert auf Store-Änderung
         if (getStore().multiSelected.size > 0) clearMultiSelect();
         highlightModel(model);
-        showInfoPanel(meta, model);
+        getStore().setSelection({ meta });
     });
 
     setupBoxSelect(renderer.domElement, refreshMultiPanel);

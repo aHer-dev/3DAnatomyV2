@@ -7,6 +7,50 @@ Format: [Keep a Changelog](https://keepachangelog.com/de/1.0.0/)
 
 ## [Unreleased]
 
+### Added (Phase 3f — React Toolbar + Totes Code entfernt)
+- `js/ui/react/components/Toolbar.tsx` — Toolbar vollständig in React:
+  - Tool-Buttons (Auswählen / Mehrfach / Rechteck / Fokus) mit Expand-Toggle
+  - Layer-Buttons (Knochen / Muskeln) mit reaktivem Ladezustand aus dem Store
+  - Kamera-Richtungs-Panel (Ant / Post / Li / Re / Kran / Kaud) — immer sichtbar
+  - Reset- und Foto-Buttons; renutzt bestehende `toolbar.css` Klassen
+- `js/ui/toolbar.js` — auf reine JS-Logik reduziert (kein DOM mehr): 328 → 40 Zeilen
+- `js/ui/photoMode.js` — `enterPhotoMode` jetzt exportiert
+- `js/ui/ui-search.js` — gelöscht (durch React SearchBar ersetzt)
+- `js/ui/ui-setupGroupLoadEvents.js` — gelöscht (btn-load-* Buttons entfernt)
+- `js/bootstrap/startApp.js` — `placeExtrasIntoDropdown` entfernt
+
+### Added (Phase 3d — MultiSelectPanel React + HTML-Cleanup)
+- `js/ui/react/components/MultiSelectPanel.tsx` — React-Panel für Mehrfachauswahl:
+  - Liest `multiSelected` Set direkt aus dem Zustand-Store (reaktiv)
+  - Liste aller ausgewählten Modelle mit Einzeln-Entfernen-Button
+  - Batch-Farb-Picker und Opazitäts-Slider für alle ausgewählten Modelle gleichzeitig
+  - Gibt `null` zurück wenn die Auswahl leer ist (kein leeres DOM-Element)
+- `css/components/info-panel-react.css`: `.msp-panel` und zugehörige Klassen ergänzt
+- `js/ui/react/App.tsx`: `MultiSelectPanel` eingebunden
+- **HTML-Cleanup** — ersetzte Elemente entfernt:
+  - 14 `<div class="dropdown"><button id="btn-load-*">` Blöcke aus `#controls` entfernt (React `StructureBrowser` übernimmt)
+  - `<div id="info-panel">` entfernt (React `InfoPanel` übernimmt)
+- `js/interaction/index.js`: `refreshMultiPanel` ruft nicht mehr `showMultiSelectPanel` auf; React-Panel reagiert direkt auf Store
+- `js/ui/ui-init.js`: `setupSearchUI`-Import und -Aufruf entfernt (React `SearchBar` übernimmt)
+
+### Changed (Phase 3c — InfoPanel Actions + kein Doppel-Panel)
+- `InfoPanel` erhält Aktions-Controls: Farb-Picker, Opazitäts-Slider, Ausblenden, Isolieren
+- `interaction/index.js`: ruft bei Einzelauswahl nicht mehr `showInfoPanel` auf — React InfoPanel übernimmt vollständig; `showMultiSelectPanel` / `hideInfoPanel` bleiben für Mehrfachauswahl
+
+### Added (Phase 3b — SearchBar + InfoPanel)
+- `fuse.js` installiert für Fuzzy-Suche
+- `js/ui/react/components/SearchBar.tsx` — floating Suche (Top-Center):
+  - Fuse.js-Index über alle `metaById`-Einträge (Latein × 3, Deutsch × 2, Englisch × 1)
+  - Tastaturnavigation (↑/↓/Enter) + `/`-Shortcut zum Fokussieren
+  - Bei Auswahl: Gruppe laden → Modell suchen → `highlightModel` + `setSelection`
+- `js/ui/react/components/InfoPanel.tsx` — React-Panel ersetzt DOM-basiertes `#info-panel` (Einzelauswahl):
+  - Liest `selected.meta` aus dem Zustand-Store (reagiert auf Store-Änderungen)
+  - Zeigt Latein/Deutsch-Label, Gruppen-Badge, Beschreibung
+  - Für Muskeln: lädt Muskelfinder-Details async (Ursprung, Ansatz, Innervation, Funktion)
+  - Slide-in-Animation; Swipe-down zum Schließen auf Mobile
+- `interaction/index.js`: schreibt `meta` in den Store bei Einzelauswahl (war vorher null)
+- `css/components/search-bar.css`, `css/components/info-panel-react.css` — Glassmorphism-Stil
+
 ### Added (Phase 3a — React Shell + StructureBrowser)
 - React 19 + `@vitejs/plugin-react` installiert; Vite-Config und `tsconfig.json` (jsx: react-jsx) erweitert
 - `<div id="ui-root">` Overlay-Mount in `index.html` (pointer-events: none am Root, Kinder schalten selektiv ein)

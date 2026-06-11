@@ -1,4 +1,3 @@
-import { setupSearchUI } from './ui-search.js';
 import { setupColorUI } from './ui-color.js';
 import { setupSetUI } from './ui-set.js';
 import { setupResetUI } from './ui-reset.js';
@@ -14,7 +13,6 @@ import { setupPresetsUI } from './ui-presets.js';
 
 export function setupUI() {
   try {
-    setupSearchUI();
     setupColorUI();
     setupSetUI();
     setupResetUI();
