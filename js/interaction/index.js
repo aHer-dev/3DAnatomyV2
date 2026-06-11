@@ -7,7 +7,7 @@ import { hideInfoPanel } from './infoPanel.js';
 import { highlightModel } from './highlightModel.js';
 import { toggleMultiSelect, clearMultiSelect, getMultiSelectedArray, addToMultiSelect } from './multiSelect.js';
 import { setupBoxSelect } from './boxSelect.js';
-import { setupToolbar, getActiveTool, TOOL } from '../ui/toolbar.js';
+import { getActiveTool, TOOL } from '../ui/toolbar.js';
 import { getStore } from '../store/useStore.js';
 import { showModel, hideModel, ghostModel } from '../features/visibility.js';
 
@@ -48,8 +48,6 @@ function refreshMultiPanel() {
 }
 
 export function setupInteractions() {
-    setupToolbar();
-
     setupRaycastOnClick(renderer.domElement, ({ meta, model, event }) => {
         const tool = getActiveTool();
 
