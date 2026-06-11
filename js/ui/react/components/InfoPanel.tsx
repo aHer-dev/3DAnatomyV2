@@ -150,7 +150,6 @@ export function InfoPanel() {
   if (!meta) return null
 
   const displayLabel = getStructureDisplayLabel(meta)
-  const deLabel      = meta.labels?.de
   const group        = meta.classification?.group ?? 'other'
   const description  = (meta.info?.description?.de || meta.info?.description?.en || '').trim()
 
@@ -165,9 +164,6 @@ export function InfoPanel() {
       <header className="ip-header">
         <div className="ip-title">
           <span className="ip-title__primary">{displayLabel}</span>
-          {deLabel && deLabel !== displayLabel && (
-            <span className="ip-title__secondary">{deLabel}</span>
-          )}
           <span className="ip-title__group">{getGroupLabel(group)}</span>
         </div>
         <button className="ip-close" onClick={close} aria-label="Info-Panel schließen">✕</button>

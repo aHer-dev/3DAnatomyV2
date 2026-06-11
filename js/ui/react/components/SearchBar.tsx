@@ -153,7 +153,6 @@ export function SearchBar() {
         >
           {results.map(({ item }, i) => {
             const displayLabel = getStructureDisplayLabel(item)
-            const deLabel = item.labels?.de
             const group = item.classification?.group ?? 'other'
             return (
               <li
@@ -166,9 +165,6 @@ export function SearchBar() {
                 onMouseEnter={() => setActive(i)}
               >
                 <span className="sb-search__item-primary">{displayLabel}</span>
-                {deLabel && deLabel !== displayLabel && (
-                  <span className="sb-search__item-secondary">{deLabel}</span>
-                )}
                 <span className="sb-search__item-group">{getGroupLabel(group)}</span>
               </li>
             )
