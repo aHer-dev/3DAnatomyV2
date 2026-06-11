@@ -3,7 +3,7 @@
 
 import { renderer } from '../core/renderer.js';
 import { setupRaycastOnClick } from './raycastOnClick.js';
-import { showInfoPanel, hideInfoPanel, showMultiSelectPanel } from './infoPanel.js';
+import { hideInfoPanel, showMultiSelectPanel } from './infoPanel.js';
 import { highlightModel } from './highlightModel.js';
 import { toggleMultiSelect, clearMultiSelect, getMultiSelectedArray, addToMultiSelect } from './multiSelect.js';
 import { setupBoxSelect } from './boxSelect.js';
@@ -66,11 +66,10 @@ export function setupInteractions() {
             return;
         }
 
-        // Standard: Einzelauswahl
+        // Standard: Einzelauswahl — React InfoPanel reagiert auf Store-Änderung
         if (getStore().multiSelected.size > 0) clearMultiSelect();
         highlightModel(model);
-        getStore().setSelection({ meta });   // React InfoPanel liest meta aus dem Store
-        showInfoPanel(meta, model);
+        getStore().setSelection({ meta });
     });
 
     setupBoxSelect(renderer.domElement, refreshMultiPanel);

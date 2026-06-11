@@ -7,6 +7,10 @@ Format: [Keep a Changelog](https://keepachangelog.com/de/1.0.0/)
 
 ## [Unreleased]
 
+### Changed (Phase 3c — InfoPanel Actions + kein Doppel-Panel)
+- `InfoPanel` erhält Aktions-Controls: Farb-Picker, Opazitäts-Slider, Ausblenden, Isolieren
+- `interaction/index.js`: ruft bei Einzelauswahl nicht mehr `showInfoPanel` auf — React InfoPanel übernimmt vollständig; `showMultiSelectPanel` / `hideInfoPanel` bleiben für Mehrfachauswahl
+
 ### Added (Phase 3b — SearchBar + InfoPanel)
 - `fuse.js` installiert für Fuzzy-Suche
 - `js/ui/react/components/SearchBar.tsx` — floating Suche (Top-Center):

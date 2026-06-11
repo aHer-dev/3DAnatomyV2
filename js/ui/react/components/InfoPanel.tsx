@@ -1,17 +1,20 @@
-import React, { useEffect, useState, useCallback } from 'react'
+import React, { useEffect, useState, useCallback, useRef } from 'react'
 import { useReactStore } from '../useReactStore.js'
 import { getGroupLabel } from '../groupLabels.js'
 import { getStructureDisplayLabel } from '../../../utils/anatomyLabels.js'
 import { getMuskelfinderDetailsForMeta } from '../../../integration/muskelfinderDetails.js'
+import { setModelColor, setModelOpacity } from '../../../features/appearance.js'
+import { setModelVisibility } from '../../../features/visibility.js'
+import { enterIsolatedView } from '../../../interaction/isolationView.js'
 import { getStore } from '../../../store/useStore.js'
 import { clearHighlight } from '../../../interaction/highlightModel.js'
+import { requestRender } from '../../../core/renderScheduler.js'
 import type { MetaEntry } from '../../../types/index.js'
 
 interface MfSection {
   label: string
   items: { label: string; text: string }[]
 }
-
 interface MfDetails {
   sections: MfSection[]
 }
@@ -38,13 +41,70 @@ function MuscleSections({ details }: { details: MfDetails }) {
   )
 }
 
+function ModelActions({ model }: { model: NonNullable<ReturnType<typeof getStore>['selected']['root']> }) {
+  const initialOpacity = useRef(1)
+
+  // Read initial opacity from first mesh material
+  useEffect(() => {
+    model.traverse((child: any) => {
+      if (child.isMesh && child.material && initialOpacity.current === 1) {
+        initialOpacity.current = child.material.opacity ?? 1
+      }
+    })
+  }, [model])
+
+  const handleColor = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    setModelColor(model, e.target.value)
+    requestRender()
+  }, [model])
+
+  const handleOpacity = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const v = parseFloat(e.target.value)
+    setModelOpacity(model, v)
+    requestRender()
+  }, [model])
+
+  const handleHide = useCallback(() => {
+    setModelVisibility(model, false)
+    requestRender()
+  }, [model])
+
+  const handleIsolate = useCallback(() => {
+    enterIsolatedView(model)
+  }, [model])
+
+  return (
+    <div className="ip-actions">
+      <label className="ip-action-row" title="Farbe ändern">
+        <span>Farbe</span>
+        <input type="color" className="ip-color-input" onChange={handleColor} aria-label="Modellfarbe" />
+      </label>
+      <label className="ip-action-row" title="Transparenz">
+        <span>Opazität</span>
+        <input
+          type="range"
+          className="ip-opacity-slider"
+          min="0" max="1" step="0.01"
+          defaultValue={String(initialOpacity.current)}
+          onChange={handleOpacity}
+          aria-label="Transparenz"
+        />
+      </label>
+      <div className="ip-action-btns">
+        <button className="ip-btn" onClick={handleHide}>Ausblenden</button>
+        <button className="ip-btn" onClick={handleIsolate}>Isolieren</button>
+      </div>
+    </div>
+  )
+}
+
 export function InfoPanel() {
   const selected = useReactStore(s => s.selected)
-  const meta = selected.meta as MetaEntry | null
+  const meta  = selected.meta  as MetaEntry | null
+  const model = selected.root  as any | null
 
   const [mfDetails, setMfDetails] = useState<MfDetails | null>(null)
 
-  // Load Muskelfinder details when a muscle is selected
   useEffect(() => {
     setMfDetails(null)
     if (!meta || meta.classification?.group !== 'muscles') return
@@ -61,35 +121,28 @@ export function InfoPanel() {
   }, [])
 
   // Swipe-down to close on mobile
+  const panelRef = useRef<HTMLElement>(null)
   useEffect(() => {
-    if (!meta) return
+    if (!meta || !panelRef.current) return
     let startY = 0
-    const panel = document.getElementById('ip-panel')
-    if (!panel) return
-
-    const onTouchStart = (e: TouchEvent) => { startY = e.touches[0].clientY }
-    const onTouchEnd   = (e: TouchEvent) => {
-      const dy = e.changedTouches[0].clientY - startY
-      if (dy > 80) close()
-    }
-    panel.addEventListener('touchstart', onTouchStart, { passive: true })
-    panel.addEventListener('touchend',   onTouchEnd,   { passive: true })
-    return () => {
-      panel.removeEventListener('touchstart', onTouchStart)
-      panel.removeEventListener('touchend',   onTouchEnd)
-    }
+    const el = panelRef.current
+    const onStart = (e: TouchEvent) => { startY = e.touches[0].clientY }
+    const onEnd   = (e: TouchEvent) => { if (e.changedTouches[0].clientY - startY > 80) close() }
+    el.addEventListener('touchstart', onStart, { passive: true })
+    el.addEventListener('touchend',   onEnd,   { passive: true })
+    return () => { el.removeEventListener('touchstart', onStart); el.removeEventListener('touchend', onEnd) }
   }, [meta, close])
 
   if (!meta) return null
 
   const displayLabel = getStructureDisplayLabel(meta)
-  const deLabel = meta.labels?.de
-  const group = meta.classification?.group ?? 'other'
-  const description = (meta.info?.description?.de || meta.info?.description?.en || '').trim()
+  const deLabel      = meta.labels?.de
+  const group        = meta.classification?.group ?? 'other'
+  const description  = (meta.info?.description?.de || meta.info?.description?.en || '').trim()
 
   return (
     <aside
-      id="ip-panel"
+      ref={panelRef}
       className="ip-panel"
       role="dialog"
       aria-modal="false"
@@ -109,6 +162,7 @@ export function InfoPanel() {
       <div className="ip-body">
         {description && <p className="ip-description">{description}</p>}
         {mfDetails && <MuscleSections details={mfDetails} />}
+        {model && <ModelActions model={model} />}
       </div>
     </aside>
   )
