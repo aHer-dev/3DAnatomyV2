@@ -296,8 +296,7 @@ body.muskelfinder-preview-mode #legal-menu,
 body.muskelfinder-preview-mode #license-info,
 body.muskelfinder-preview-mode #submenu-container,
 body.muskelfinder-preview-mode #room-dropdown-content,
-body.muskelfinder-preview-mode #shortcuts-tip,
-body.muskelfinder-preview-mode #tooltip {
+body.muskelfinder-preview-mode #shortcuts-tip {
    display: none !important;
 }
 

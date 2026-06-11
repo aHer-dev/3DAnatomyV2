@@ -99,11 +99,6 @@
         font-size: 12px;
     }
 
-    /* Tooltip: Kleinere Schrift für Mobilgeräte */
-    #tooltip {
-        font-size: 12px;
-        padding: 3px 8px;
-    }
 }
 
 /* --- Desktop-Optimierung --- */

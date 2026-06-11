@@ -15,7 +15,6 @@ import { getActiveTool, TOOL } from '../ui/toolbar.js';
 import { getStore } from '../store/useStore.js';
 import { showModel, hideModel, ghostModel } from '../features/visibility.js';
 import { focusOnObject } from '../core/cameraUtils.js';
-import { setupHoverTooltip } from './hoverTooltip.js';
 
 function isTypingTarget(el) {
     return el && (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.isContentEditable);
@@ -85,7 +84,6 @@ export function setupInteractions() {
     });
 
     setupBoxSelect(renderer.domElement, refreshMultiPanel);
-    setupHoverTooltip(renderer.domElement);
 
     setupHotkeys();
 }
