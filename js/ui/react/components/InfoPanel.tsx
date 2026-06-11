@@ -47,14 +47,26 @@ interface ModelActionsProps {
   meta: MetaEntry
 }
 
+function readModelColor(model: any): string {
+  let hex = '#ffffff'
+  model.traverse((child: any) => {
+    if (child.isMesh && child.material?.color) {
+      hex = '#' + child.material.color.getHexString()
+    }
+  })
+  return hex
+}
+
 function ModelActions({ model, meta }: ModelActionsProps) {
   const initialOpacity = useRef(1)
+  const initialColor   = useRef('#ffffff')
   const collection = useReactStore(s => s.collection)
   const inCollection = collection.some((c: any) => c.id === meta.id)
   const [visible, setVisible] = useState(() => isModelVisible(model))
   const [ghostActive, setGhostActive] = useState(false)
 
   useEffect(() => {
+    initialColor.current = readModelColor(model)
     model.traverse((child: any) => {
       if (child.isMesh && child.material && initialOpacity.current === 1) {
         initialOpacity.current = child.material.opacity ?? 1
@@ -120,7 +132,7 @@ function ModelActions({ model, meta }: ModelActionsProps) {
     <div className="ip-actions">
       <label className="ip-action-row" title="Farbe ändern">
         <span>Farbe</span>
-        <input type="color" className="ip-color-input" onChange={handleColor} aria-label="Modellfarbe" />
+        <input type="color" className="ip-color-input" defaultValue={initialColor.current} onChange={handleColor} aria-label="Modellfarbe" />
       </label>
       <label className="ip-action-row" title="Transparenz">
         <span>Opazität</span>
