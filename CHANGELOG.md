@@ -7,6 +7,28 @@ Format: [Keep a Changelog](https://keepachangelog.com/de/1.0.0/)
 
 ## [Unreleased]
 
+### Added (Phase 4d-f — Ghost-Kontext, Labels/Pins, Touch)
+- `js/features/ghostContext.js` — Ghost-Kontext-Modus: Kontext-Button im InfoPanel macht alle anderen Strukturen transparent (0.08), ausgewählte bleibt opak; zweiter Klick stellt Ausgangszustand wieder her
+- `js/features/labels.js` — Struktur-Beschriftungen via `CSS2DRenderer`: lazy init, eigene rAF-Schleife solange aktiv, Labels-Button im Toolbar
+- `css/components/labels.css` — `.structure-label` Glassmorphism-Stil für Pins
+- `css/layout/canvas.css` — `touch-action: none` am Canvas (verhindert Browser-Scroll-Interferenz mit OrbitControls)
+- `css/components/info-panel-react.css` — `.ip-btn--active` Stil für aktive Buttons
+
+### Added (Phase 4c — Deep-Links + Hover-Tooltip)
+- `js/integration/deeplink.js` — URL-Deep-Links:
+  - `?s=femur` → Struktur laden, hervorheben, Kamera fokussieren (ID / Latein / Deutsch)
+  - `?view=anterior` → Kameraansicht direkt beim Start setzen
+  - URL wird bei jeder Auswahl automatisch per `history.replaceState` aktualisiert (teilbare Links)
+- `js/interaction/hoverTooltip.js` — Strukturname als Tooltip bei Hover:
+  - RAF-throttled `pointermove` → `pickAt` → `getStructureDisplayLabel`
+  - Verschwindet bei `pointerleave` und `pointerdown`
+- `css/components/tooltip.css` — `position: fixed` für korrekte Koordinaten
+
+### Added (Phase 4a — Kamera-Fokus-Animation + Doppelklick-Isolierung)
+- Klick auf Struktur → sanfter Kameraflug zur Struktur (`focusOnObject` → `animateCameraTo`, 600 ms Ease-In-Out)
+- Suchauswahl → Kamera fliegt ebenfalls zur gefundenen Struktur
+- Doppelklick auf Struktur → `enterIsolatedView` (Rest ausblenden)
+
 ### Added (Phase 3f — React Toolbar + Totes Code entfernt)
 - `js/ui/react/components/Toolbar.tsx` — Toolbar vollständig in React:
   - Tool-Buttons (Auswählen / Mehrfach / Rechteck / Fokus) mit Expand-Toggle

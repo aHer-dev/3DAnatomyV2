@@ -167,6 +167,7 @@
   transition: background 0.15s;
 }
 .ip-btn:hover { background: var(--glass-bg-hover); color: var(--text-primary); }
+.ip-btn--active { background: rgba(74,158,255,0.15); border-color: rgba(74,158,255,0.5); color: #4A9EFF; }
 
 /* ── MultiSelectPanel ───────────────────────────────────────────── */
 .msp-panel {

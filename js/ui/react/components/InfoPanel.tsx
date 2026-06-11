@@ -6,6 +6,7 @@ import { getMuskelfinderDetailsForMeta } from '../../../integration/muskelfinder
 import { setModelColor, setModelOpacity } from '../../../features/appearance.js'
 import { setModelVisibility } from '../../../features/visibility.js'
 import { enterIsolatedView } from '../../../interaction/isolationView.js'
+import { enterGhostContext, isGhostContextActive } from '../../../features/ghostContext.js'
 import { getStore } from '../../../store/useStore.js'
 import { clearHighlight } from '../../../interaction/highlightModel.js'
 import { requestRender } from '../../../core/renderScheduler.js'
@@ -73,6 +74,12 @@ function ModelActions({ model }: { model: NonNullable<ReturnType<typeof getStore
     enterIsolatedView(model)
   }, [model])
 
+  const [ghostActive, setGhostActive] = useState(false)
+  const handleGhost = useCallback(() => {
+    enterGhostContext(model)
+    setGhostActive(isGhostContextActive())
+  }, [model])
+
   return (
     <div className="ip-actions">
       <label className="ip-action-row" title="Farbe ändern">
@@ -93,6 +100,13 @@ function ModelActions({ model }: { model: NonNullable<ReturnType<typeof getStore
       <div className="ip-action-btns">
         <button className="ip-btn" onClick={handleHide}>Ausblenden</button>
         <button className="ip-btn" onClick={handleIsolate}>Isolieren</button>
+        <button
+          className={`ip-btn${ghostActive ? ' ip-btn--active' : ''}`}
+          onClick={handleGhost}
+          title="Kontext-Ansicht: Rest transparent"
+        >
+          Kontext
+        </button>
       </div>
     </div>
   )

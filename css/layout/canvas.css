@@ -16,6 +16,7 @@
     height: 100%;
     display: block;
     pointer-events: auto;
+    touch-action: none; /* OrbitControls braucht volle Touch-Kontrolle */
 }
 
 .hidden {
