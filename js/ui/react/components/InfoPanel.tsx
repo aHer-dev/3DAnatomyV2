@@ -4,7 +4,7 @@ import { getGroupLabel } from '../groupLabels.js'
 import { getStructureDisplayLabel } from '../../../utils/anatomyLabels.js'
 import { getMuskelfinderDetailsForMeta } from '../../../integration/muskelfinderDetails.js'
 import { setModelColor, setModelOpacity } from '../../../features/appearance.js'
-import { setModelVisibility } from '../../../features/visibility.js'
+import { setModelVisibility, isModelVisible } from '../../../features/visibility.js'
 import { enterIsolatedView } from '../../../interaction/isolationView.js'
 import { enterGhostContext, isGhostContextActive } from '../../../features/ghostContext.js'
 import { getStore } from '../../../store/useStore.js'
@@ -42,10 +42,18 @@ function MuscleSections({ details }: { details: MfDetails }) {
   )
 }
 
-function ModelActions({ model }: { model: NonNullable<ReturnType<typeof getStore>['selected']['root']> }) {
-  const initialOpacity = useRef(1)
+interface ModelActionsProps {
+  model: NonNullable<ReturnType<typeof getStore>['selected']['root']>
+  meta: MetaEntry
+}
 
-  // Read initial opacity from first mesh material
+function ModelActions({ model, meta }: ModelActionsProps) {
+  const initialOpacity = useRef(1)
+  const collection = useReactStore(s => s.collection)
+  const inCollection = collection.some((c: any) => c.id === meta.id)
+  const [visible, setVisible] = useState(() => isModelVisible(model))
+  const [ghostActive, setGhostActive] = useState(false)
+
   useEffect(() => {
     model.traverse((child: any) => {
       if (child.isMesh && child.material && initialOpacity.current === 1) {
@@ -60,13 +68,14 @@ function ModelActions({ model }: { model: NonNullable<ReturnType<typeof getStore
   }, [model])
 
   const handleOpacity = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const v = parseFloat(e.target.value)
-    setModelOpacity(model, v)
+    setModelOpacity(model, parseFloat(e.target.value))
     requestRender()
   }, [model])
 
-  const handleHide = useCallback(() => {
-    setModelVisibility(model, false)
+  const handleVisibility = useCallback(() => {
+    const next = !isModelVisible(model)
+    setModelVisibility(model, next)
+    setVisible(next)
     requestRender()
   }, [model])
 
@@ -74,11 +83,38 @@ function ModelActions({ model }: { model: NonNullable<ReturnType<typeof getStore
     enterIsolatedView(model)
   }, [model])
 
-  const [ghostActive, setGhostActive] = useState(false)
   const handleGhost = useCallback(() => {
     enterGhostContext(model)
     setGhostActive(isGhostContextActive())
   }, [model])
+
+  const handleCollection = useCallback(() => {
+    const store = getStore()
+    if (inCollection) {
+      store.removeFromCollection(meta.id)
+    } else {
+      let color = 0xffffff
+      let opacity = 1
+      model.traverse((child: any) => {
+        if (child.isMesh && child.material) {
+          color = child.material.color?.getHex?.() ?? color
+          opacity = child.material.opacity ?? opacity
+        }
+      })
+      store.addToCollection({
+        id: meta.id,
+        name: getStructureDisplayLabel(meta),
+        group: meta.classification?.group ?? 'other',
+        meta,
+        color,
+        opacity,
+        visible: isModelVisible(model),
+        model,
+        addedAt: Date.now(),
+        source: 'infoPanel',
+      })
+    }
+  }, [model, meta, inCollection])
 
   return (
     <div className="ip-actions">
@@ -98,7 +134,9 @@ function ModelActions({ model }: { model: NonNullable<ReturnType<typeof getStore
         />
       </label>
       <div className="ip-action-btns">
-        <button className="ip-btn" onClick={handleHide}>Ausblenden</button>
+        <button className="ip-btn" onClick={handleVisibility}>
+          {visible ? 'Ausblenden' : 'Anzeigen'}
+        </button>
         <button className="ip-btn" onClick={handleIsolate}>Isolieren</button>
         <button
           className={`ip-btn${ghostActive ? ' ip-btn--active' : ''}`}
@@ -108,6 +146,12 @@ function ModelActions({ model }: { model: NonNullable<ReturnType<typeof getStore
           Kontext
         </button>
       </div>
+      <button
+        className={`ip-btn ip-btn--full${inCollection ? ' ip-btn--active' : ''}`}
+        onClick={handleCollection}
+      >
+        {inCollection ? 'Aus Sammlung entfernen' : 'Zur Sammlung hinzufügen'}
+      </button>
     </div>
   )
 }
@@ -172,7 +216,7 @@ export function InfoPanel() {
       <div className="ip-body">
         {description && <p className="ip-description">{description}</p>}
         {mfDetails && <MuscleSections details={mfDetails} />}
-        {model && <ModelActions model={model} />}
+        {model && <ModelActions model={model} meta={meta} />}
       </div>
     </aside>
   )
