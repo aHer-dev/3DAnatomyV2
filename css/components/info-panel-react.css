@@ -1,12 +1,11 @@
-/* InfoPanel React — replaces DOM-based #info-panel (Phase 3b)
-   Positioned bottom-right on desktop, bottom-sheet on mobile.           */
+/* InfoPanel React — replaces DOM-based #info-panel (Phase 3b) */
 
 .ip-panel {
   position: fixed;
-  bottom: 24px;
+  top: 60px;
   right: 20px;
   width: 300px;
-  max-height: calc(100vh - 120px);
+  max-height: calc(100vh - 160px);
   display: flex;
   flex-direction: column;
   pointer-events: all;
@@ -249,6 +248,7 @@
 /* Mobile: bottom-sheet */
 @media (max-width: 768px) {
   .ip-panel {
+    top: auto;
     bottom: 0;
     right: 0;
     left: 0;
