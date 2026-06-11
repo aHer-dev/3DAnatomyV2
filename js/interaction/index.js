@@ -2,14 +2,19 @@
 // Werkzeug-basierte Interaktion: Select | Multi | Box
 
 import { renderer } from '../core/renderer.js';
+import { camera } from '../core/camera.js';
+import { controls } from '../core/controls.js';
 import { setupRaycastOnClick } from './raycastOnClick.js';
+import { pickAt } from '../core/raycaster.js';
 import { hideInfoPanel } from './infoPanel.js';
 import { highlightModel } from './highlightModel.js';
+import { enterIsolatedView } from './isolationView.js';
 import { toggleMultiSelect, clearMultiSelect, getMultiSelectedArray, addToMultiSelect } from './multiSelect.js';
 import { setupBoxSelect } from './boxSelect.js';
 import { getActiveTool, TOOL } from '../ui/toolbar.js';
 import { getStore } from '../store/useStore.js';
 import { showModel, hideModel, ghostModel } from '../features/visibility.js';
+import { focusOnObject } from '../core/cameraUtils.js';
 
 function isTypingTarget(el) {
     return el && (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.isContentEditable);
@@ -69,6 +74,13 @@ export function setupInteractions() {
         if (getStore().multiSelected.size > 0) clearMultiSelect();
         highlightModel(model);
         getStore().setSelection({ meta });
+        focusOnObject(camera, controls, model);
+    });
+
+    // Doppelklick → Struktur isolieren
+    renderer.domElement.addEventListener('dblclick', (e) => {
+        const sel = pickAt(e.clientX, e.clientY);
+        if (sel?.root) enterIsolatedView(sel.root);
     });
 
     setupBoxSelect(renderer.domElement, refreshMultiPanel);

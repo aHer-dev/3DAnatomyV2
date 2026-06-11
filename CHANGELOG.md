@@ -7,6 +7,11 @@ Format: [Keep a Changelog](https://keepachangelog.com/de/1.0.0/)
 
 ## [Unreleased]
 
+### Added (Phase 4a — Kamera-Fokus-Animation + Doppelklick-Isolierung)
+- Klick auf Struktur → sanfter Kameraflug zur Struktur (`focusOnObject` → `animateCameraTo`, 600 ms Ease-In-Out)
+- Suchauswahl → Kamera fliegt ebenfalls zur gefundenen Struktur
+- Doppelklick auf Struktur → `enterIsolatedView` (Rest ausblenden)
+
 ### Added (Phase 3f — React Toolbar + Totes Code entfernt)
 - `js/ui/react/components/Toolbar.tsx` — Toolbar vollständig in React:
   - Tool-Buttons (Auswählen / Mehrfach / Rechteck / Fokus) mit Expand-Toggle

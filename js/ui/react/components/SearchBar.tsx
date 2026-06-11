@@ -5,6 +5,9 @@ import { getGroupLabel } from '../groupLabels.js'
 import { getStructureDisplayLabel } from '../../../utils/anatomyLabels.js'
 import { loadGroupByName } from '../../../features/modelLoader-core.js'
 import { highlightModel } from '../../../interaction/highlightModel.js'
+import { focusOnObject } from '../../../core/cameraUtils.js'
+import { camera } from '../../../core/camera.js'
+import { controls } from '../../../core/controls.js'
 import { getStore } from '../../../store/useStore.js'
 import type { MetaEntry } from '../../../types/index.js'
 
@@ -91,6 +94,7 @@ export function SearchBar() {
       if (model) {
         highlightModel(model)
         getStore().setSelection({ root: model, meta: entry })
+        focusOnObject(camera, controls, model)
       }
     } finally {
       setLoading(false)
