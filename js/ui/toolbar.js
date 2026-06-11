@@ -34,9 +34,3 @@ function _triggerFocus() {
     const model = getStore().selected?.root || null;
     if (model) focusOnObject(camera, controls, model);
 }
-
-// No-op: React Toolbar liest Layer-State direkt aus dem Store
-export function syncToolbarLayerButtons() {}
-
-// setupToolbar wurde entfernt — React übernimmt (Toolbar.tsx)
-export function setupToolbar() {}

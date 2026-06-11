@@ -1,8 +1,6 @@
 import { setupResetUI } from './ui-reset.js';
-import { setupExportUI } from './ui-export.js';
 import { setupControlsUI } from './ui-controls.js';
 import { setupRoomUI } from './ui-room.js';
-import { setupLoadingUI } from './ui-loading.js';
 import { toggleLicense } from './license.js';
 import { licenseHTML } from './licenseContent.js';
 import { initPhotoMode } from './photoMode.js';
@@ -11,10 +9,8 @@ import { setupPresetsUI } from './ui-presets.js';
 export function setupUI() {
   try {
     setupResetUI();
-    setupExportUI();
     setupControlsUI();
     setupRoomUI();
-    setupLoadingUI();
     initPhotoMode();
     setupPresetsUI();
 

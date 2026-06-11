@@ -7,6 +7,28 @@ Format: [Keep a Changelog](https://keepachangelog.com/de/1.0.0/)
 
 ## [Unreleased]
 
+### Removed (Phase 3h — Hamburger-Menü-Legacy & toter Code endgültig raus)
+- **Tote UI-Dateien gelöscht** (zielten auf nicht mehr existierende DOM-Elemente):
+  - `js/ui/ui-export.js` — `#btn-export-set`/`#input-import-set` gab es nicht mehr; der `.bluebody`-Export im `CollectionPanel` ersetzt es
+  - `js/ui/ui-loading.js` — Ladefarbe-Picker zielte auf entferntes `#initial-loading-screen`
+- **`js/ui/ui-reset.js` entkernt** (toter Code entfernt):
+  - `resetAllButtonStates()` (manipulierte entfernte `#btn-load-*`-Buttons)
+  - `resetGroupToggleStates()` (`resetGroupStates`-Event hatte keinen Listener)
+  - `debugResetState()` (Debug-Logging + verbotenes `window.groupToggleLoadedGroups`-Global)
+  - `syncToolbarLayerButtons()`-Aufruf (No-op) + `${groupName}-color`-DOM-Reset (Elemente entfernt)
+  - veraltete „Anleitung"/App-Guide-Modal (verwies auf längst entfernte Menü-Buttons) — kommt als echtes Onboarding in Phase 5 wieder
+  - ungenutzter Import `registerPickables`
+- **`js/ui/toolbar.js`**: No-op-Exports `syncToolbarLayerButtons()` und `setupToolbar()` entfernt (kein Consumer)
+- **`js/utils/anatomyLabels.js`**: totes `renderStructureLabel()` + `splitStructureLabel()` + `LATIN_SIDE_SUFFIX_PATTERN` entfernt (kein Aufrufer mehr)
+- **Tote CSS entkernt**:
+  - `css/components/panels.css`: 621 → 165 Zeilen (app-guide, `#info-panel`, `.mf-detail-*`, `#edit-controls`, `.edit-btn-*`, `.multi-select-*`, `#multi-edit-*` — alles aus gelöschtem DOM)
+  - verwaiste Dateien gelöscht: `css/components/info-panel.css`, `css/controls/edit-controls.css`, `css/controls/controls-panel.css` (nirgends importiert)
+  - `css/controls/buttons.css`: `#btn-app-guide`-Styles raus
+  - `css/layout/responsive.css`: toter `#info-panel`-Mobile-Block raus
+- **`js/ui/ui-init.js`**: `setupExportUI`/`setupLoadingUI` aus dem Setup-Chain entfernt
+- **`index.html`**: leeres `#room-dropdown-content` entfernt
+- Module: 112 → 110, Typecheck sauber, 29 Tests grün
+
 ### Changed (Phase 3g — Sammlung in React + Legacy-DOM-Aufräumen)
 - **React `CollectionPanel`** (`js/ui/react/components/CollectionPanel.tsx`) ersetzt die DOM-basierte Sammlung:
   - Liest `collection` direkt aus dem Store (reaktiv) — behebt den Bug, dass hinzugefügte Strukturen nicht in der Liste erschienen

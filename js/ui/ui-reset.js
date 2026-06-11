@@ -9,11 +9,10 @@ import { loadGroupByName } from '../features/modelLoader-core.js';
 import { setModelOpacity } from '../features/appearance.js';
 import { setCameraToDefault } from '../core/cameraUtils.js';
 import { setModelVisibility, showModel } from '../features/visibility.js';
-import { registerPickables, unregisterPickables } from '../features/selection.js';
+import { unregisterPickables } from '../features/selection.js';
 import { clearMultiSelect } from '../interaction/multiSelect.js';
 import { exitIsolatedView } from '../interaction/isolationView.js';
 import { disposeObject3D } from '../modelLoader/cleanup.js';
-import { syncToolbarLayerButtons } from './toolbar.js';
 
 const STANDARD_GROUPS = ['bones', 'teeth', 'cartilage'];
 
@@ -56,8 +55,6 @@ export function setupResetUI() {
     }, { passive: true });
   }
 
-  setupAppGuideUI(colorBtn, shortcutsTip);
-
   btn.addEventListener('click', async () => {
     try {
       console.log('🔄 Schneller Reset gestartet...');
@@ -70,110 +67,6 @@ export function setupResetUI() {
       console.error('❌ Schneller Reset fehlgeschlagen:', error);
     }
   }, { passive: true });
-}
-
-function setupAppGuideUI(anchorBtn, shortcutsTip) {
-  if (!anchorBtn) return;
-
-  let guideBtn = document.getElementById('btn-app-guide');
-  if (!guideBtn) {
-    guideBtn = document.createElement('button');
-    guideBtn.id = 'btn-app-guide';
-    guideBtn.type = 'button';
-    guideBtn.setAttribute('aria-label', 'App-Anleitung anzeigen');
-    guideBtn.textContent = 'Anleitung';
-    anchorBtn.insertAdjacentElement('afterend', guideBtn);
-  }
-
-  let modal = document.getElementById('app-guide-modal');
-  if (!modal) {
-    modal = document.createElement('div');
-    modal.id = 'app-guide-modal';
-    modal.setAttribute('aria-hidden', 'true');
-    modal.innerHTML = `
-      <div id="app-guide-box" role="dialog" aria-modal="true" aria-labelledby="app-guide-title">
-        <button id="app-guide-close" type="button" aria-label="Schließen">✕</button>
-        <h2 id="app-guide-title">🫀 So nutzt du 3D Anatomy</h2>
-
-        <div class="app-guide-step">
-          <div class="app-guide-icon">1</div>
-          <div>
-            <strong>Strukturen laden</strong>
-            <p>Über die Buttons im Menü lädst du Knochen, Muskeln, Organe und weitere Ebenen in die Szene.</p>
-          </div>
-        </div>
-
-        <div class="app-guide-step">
-          <div class="app-guide-icon">2</div>
-          <div>
-            <strong>Modelle antippen</strong>
-            <p>Tippe oder klicke auf eine Struktur, um sie auszuwählen und das Bearbeitungs- oder Info-Panel zu öffnen.</p>
-          </div>
-        </div>
-
-        <div class="app-guide-step">
-          <div class="app-guide-icon">3</div>
-          <div>
-            <strong>Isolieren, verstecken, einfärben</strong>
-            <p>Im Panel kannst du einzelne Modelle ausblenden, in Einzelansicht zeigen, transparent machen oder farblich hervorheben.</p>
-          </div>
-        </div>
-
-        <div class="app-guide-step">
-          <div class="app-guide-icon">4</div>
-          <div>
-            <strong>Kamera bewegen</strong>
-            <p>Mit Maus oder Finger kannst du drehen, zoomen und verschieben, um dir die Anatomie aus jedem Winkel anzusehen.</p>
-          </div>
-        </div>
-
-        <div class="app-guide-step">
-          <div class="app-guide-icon">5</div>
-          <div>
-            <strong>Reset richtig nutzen</strong>
-            <p><em>Reset</em> bringt dich zurück zur Startansicht. <em>Reset Farbe</em> setzt nur die Farben wieder auf den Ausgangszustand.</p>
-          </div>
-        </div>
-
-        <div class="app-guide-step">
-          <div class="app-guide-icon">💡</div>
-          <div>
-            <strong>Tipp</strong>
-            <p>Lade zuerst nur wenige Ebenen und arbeite dich dann schrittweise tiefer hinein. So bleibt die Szene übersichtlich.</p>
-          </div>
-        </div>
-      </div>
-    `;
-    document.body.appendChild(modal);
-  }
-
-  if (guideBtn.dataset.bound === 'true') return;
-  guideBtn.dataset.bound = 'true';
-
-  const closeBtn = modal.querySelector('#app-guide-close');
-
-  const openGuide = () => {
-    shortcutsTip?.classList.remove('visible');
-    shortcutsTip?.setAttribute('aria-hidden', 'true');
-    modal.classList.add('open');
-    modal.setAttribute('aria-hidden', 'false');
-  };
-
-  const closeGuide = () => {
-    modal.classList.remove('open');
-    modal.setAttribute('aria-hidden', 'true');
-  };
-
-  guideBtn.addEventListener('click', openGuide);
-  closeBtn?.addEventListener('click', closeGuide);
-  modal.addEventListener('click', (event) => {
-    if (event.target === modal) closeGuide();
-  });
-  document.addEventListener('keydown', (event) => {
-    if (event.key === 'Escape' && modal.classList.contains('open')) {
-      closeGuide();
-    }
-  });
 }
 
 function isMuskelfinderDeeplinkActive() {
@@ -235,9 +128,6 @@ async function resetToDefaultView() {
       showModel(model);
     });
   }
-
-  resetAllButtonStates();
-  syncToolbarLayerButtons();
 
   if (isMuskelfinderDeeplinkActive()) {
     clearMuskelfinderDeeplinkParams();
@@ -322,11 +212,6 @@ export async function resetApp() {
       progressStep += stepSize;
     }
 
-    updateResetProgress('Aktualisiere UI...', 85);
-    resetAllButtonStates();
-
-    resetGroupToggleStates();
-
     updateResetProgress('Setze Ansicht zurück...', 90);
     setCameraToDefault(camera, controls);
     if (typeof controls?.saveState === 'function') controls.saveState();
@@ -340,47 +225,11 @@ export async function resetApp() {
     renderer.render(scene, camera);
 
     console.log('✅ Reset abgeschlossen - Standard-Gruppen:', STANDARD_GROUPS);
-    debugResetState();
 
   } catch (err) {
     console.error('❌ Fehler beim Reset:', err);
   } finally {
     hideResetLoadingOverlay();
-  }
-}
-
-function resetAllButtonStates() {
-  const allGroups = [
-    'bones', 'teeth', 'muscles', 'tendons', 'arteries', 'brain',
-    'cartilage', 'ear', 'eyes', 'glands', 'heart', 'ligaments',
-    'lungs', 'nerves', 'organs', 'skin_hair', 'veins'
-  ];
-
-  allGroups.forEach(group => {
-    const btn = document.getElementById(`btn-load-${group}`);
-    if (!btn) return;
-
-    const isStandardGroup = STANDARD_GROUPS.includes(group);
-
-    if (isStandardGroup) {
-      btn.style.backgroundColor = '#2a5a2a';
-      btn.textContent = '✓ ' + group.charAt(0).toUpperCase() + group.slice(1) + ' ▼';
-      console.log(`🟢 Button "${group}" als geladen markiert`);
-    } else {
-      btn.style.backgroundColor = '';
-      btn.textContent = group.charAt(0).toUpperCase() + group.slice(1) + ' ▼';
-    }
-  });
-}
-
-function resetGroupToggleStates() {
-  try {
-    const resetEvent = new CustomEvent('resetGroupStates', {
-      detail: { loadedGroups: STANDARD_GROUPS }
-    });
-    document.dispatchEvent(resetEvent);
-  } catch (err) {
-    console.warn('⚠️ GroupToggle Reset fehlgeschlagen:', err);
   }
 }
 
@@ -390,58 +239,8 @@ function resetColors() {
 
     if (getStore().groups[groupName]?.length > 0) {
       updateModelColors(groupName, hex);
-      console.log(`🎨 Farbe für ${groupName} zurückgesetzt: 0x${hex.toString(16)}`);
-    }
-
-    const input = document.getElementById(`${groupName}-color`);
-    if (input) {
-      input.value = '#' + hex.toString(16).padStart(6, '0');
     }
   });
-}
-
-export function debugResetState() {
-  console.log('\n=== RESET DEBUG ===');
-
-  const loadedGroups = {};
-  Object.entries(getStore().groups || {}).forEach(([group, models]) => {
-    if (models && models.length > 0) {
-      loadedGroups[group] = models.length;
-    }
-  });
-  console.log('📦 Geladene Gruppen:', loadedGroups);
-
-  const visibleGroups = {};
-  Object.entries(getStore().groups || {}).forEach(([group, models]) => {
-    let visibleCount = 0;
-    (models || []).forEach(model => {
-      if (model && model.visible) visibleCount++;
-    });
-    if (visibleCount > 0) {
-      visibleGroups[group] = visibleCount;
-    }
-  });
-  console.log('👁️ Sichtbare Modelle:', visibleGroups);
-
-  console.log('🔧 GroupVisible:', getStore().groupVisible);
-  console.log('📋 Collection:', getStore().collection.length, 'Items');
-
-  console.log('📌 Standard-Gruppen sollten geladen sein:', STANDARD_GROUPS);
-  STANDARD_GROUPS.forEach(group => {
-    const loaded = (getStore().groups[group]?.length ?? 0) > 0;
-    const visible = (visibleGroups[group] ?? 0) > 0;
-    console.log(`  ${group}: geladen=${loaded}, sichtbar=${visible}`);
-  });
-
-  if (window.groupToggleLoadedGroups) {
-    const toggleStates = [];
-    window.groupToggleLoadedGroups.forEach((isLoaded, group) => {
-      if (isLoaded) toggleStates.push(group);
-    });
-    console.log('🔄 GroupToggle Loaded:', toggleStates);
-  }
-
-  console.log('=== END DEBUG ===\n');
 }
 
 function showResetLoadingOverlay() {
