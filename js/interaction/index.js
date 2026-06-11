@@ -69,6 +69,7 @@ export function setupInteractions() {
         // Standard: Einzelauswahl
         if (getStore().multiSelected.size > 0) clearMultiSelect();
         highlightModel(model);
+        getStore().setSelection({ meta });   // React InfoPanel liest meta aus dem Store
         showInfoPanel(meta, model);
     });
 

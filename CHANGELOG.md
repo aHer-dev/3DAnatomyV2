@@ -7,6 +7,20 @@ Format: [Keep a Changelog](https://keepachangelog.com/de/1.0.0/)
 
 ## [Unreleased]
 
+### Added (Phase 3b — SearchBar + InfoPanel)
+- `fuse.js` installiert für Fuzzy-Suche
+- `js/ui/react/components/SearchBar.tsx` — floating Suche (Top-Center):
+  - Fuse.js-Index über alle `metaById`-Einträge (Latein × 3, Deutsch × 2, Englisch × 1)
+  - Tastaturnavigation (↑/↓/Enter) + `/`-Shortcut zum Fokussieren
+  - Bei Auswahl: Gruppe laden → Modell suchen → `highlightModel` + `setSelection`
+- `js/ui/react/components/InfoPanel.tsx` — React-Panel ersetzt DOM-basiertes `#info-panel` (Einzelauswahl):
+  - Liest `selected.meta` aus dem Zustand-Store (reagiert auf Store-Änderungen)
+  - Zeigt Latein/Deutsch-Label, Gruppen-Badge, Beschreibung
+  - Für Muskeln: lädt Muskelfinder-Details async (Ursprung, Ansatz, Innervation, Funktion)
+  - Slide-in-Animation; Swipe-down zum Schließen auf Mobile
+- `interaction/index.js`: schreibt `meta` in den Store bei Einzelauswahl (war vorher null)
+- `css/components/search-bar.css`, `css/components/info-panel-react.css` — Glassmorphism-Stil
+
 ### Added (Phase 3a — React Shell + StructureBrowser)
 - React 19 + `@vitejs/plugin-react` installiert; Vite-Config und `tsconfig.json` (jsx: react-jsx) erweitert
 - `<div id="ui-root">` Overlay-Mount in `index.html` (pointer-events: none am Root, Kinder schalten selektiv ein)
