@@ -41,6 +41,7 @@ import { initStaticAssets } from './initStaticAssets.js';
 import { initResizeHandler } from './initResizeHandler.js';
 import { initCameraView } from './initCameraView.js';
 import { handleMuskelfinderDeeplink } from '../integration/muskelfinderDeeplink.js';
+import { processDeeplink, setupDeeplinkSync } from '../integration/deeplink.js';
 import { hideInfoPanel } from '../interaction/infoPanel.js';
 
 // ✅ FEHLENDER IMPORT HINZUGEFÜGT
@@ -259,6 +260,8 @@ export async function startApp() {
         // Deeplink erst nach dem Standard-Kamera-Setup anwenden, damit
         // der Fokus nicht direkt wieder vom Default-View ueberschrieben wird.
         await handleMuskelfinderDeeplink();
+        setupDeeplinkSync();
+        await processDeeplink();
 
         // 9) Button-Animationen erst ganz am Ende
         if (!previewMode) {

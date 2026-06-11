@@ -7,6 +7,16 @@ Format: [Keep a Changelog](https://keepachangelog.com/de/1.0.0/)
 
 ## [Unreleased]
 
+### Added (Phase 4c — Deep-Links + Hover-Tooltip)
+- `js/integration/deeplink.js` — URL-Deep-Links:
+  - `?s=femur` → Struktur laden, hervorheben, Kamera fokussieren (ID / Latein / Deutsch)
+  - `?view=anterior` → Kameraansicht direkt beim Start setzen
+  - URL wird bei jeder Auswahl automatisch per `history.replaceState` aktualisiert (teilbare Links)
+- `js/interaction/hoverTooltip.js` — Strukturname als Tooltip bei Hover:
+  - RAF-throttled `pointermove` → `pickAt` → `getStructureDisplayLabel`
+  - Verschwindet bei `pointerleave` und `pointerdown`
+- `css/components/tooltip.css` — `position: fixed` für korrekte Koordinaten
+
 ### Added (Phase 4a — Kamera-Fokus-Animation + Doppelklick-Isolierung)
 - Klick auf Struktur → sanfter Kameraflug zur Struktur (`focusOnObject` → `animateCameraTo`, 600 ms Ease-In-Out)
 - Suchauswahl → Kamera fliegt ebenfalls zur gefundenen Struktur

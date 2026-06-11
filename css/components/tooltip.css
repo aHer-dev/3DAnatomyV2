@@ -1,7 +1,7 @@
 /* css/components/tooltip.css – Hover Tooltip */
 
 #tooltip {
-   position: absolute;
+   position: fixed;
    background: rgba(0, 0, 0, 0.9);
    backdrop-filter: blur(10px);
    color: white;
