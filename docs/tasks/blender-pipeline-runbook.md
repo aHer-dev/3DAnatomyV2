@@ -58,3 +58,13 @@ node scripts/draco-compress.mjs "NEW MODELS/processed/draco"
 - [ ] Voller Lauf ohne Fehler; `_process-report.json` vollständig.
 - [ ] Draco-Tier komprimiert (Größen ~ App-Niveau).
 - [ ] QC grün; `npm run test` + `npm run build` ok; App lädt korrekt.
+
+## Bekannte offene Punkte (später nachschärfen)
+- **Mimische Muskulatur (3.0-Set) Feinjustierung:** Der Kaudal-Versatz `−18.8 mm` wurde am
+  Brustkorb (Pectoralis) gemessen und gleichmäßig angewandt. Im Gesicht bleiben **minimale**
+  Abweichungen (Versatz evtl. regional leicht unterschiedlich). Akzeptiert als „gut genug".
+  Nachschärfen: per-Region-Versatz fürs Gesicht messen oder die `−18.8` in
+  `--translate-mm` anpassen und die 50 Teile (`_set30-fj.txt`) neu rechnen.
+- **Komplett-Tausch der 2.494 Bestandsteile** auf die neuen Meshes (mit `SCALE 0.0010844`),
+  inkl. der 129 Ordner-Konflikte (`NEW MODELS/sorted/_conflicts.json`).
+- **Echte lateinische Namen** für die 766 neuen Teile (aktuell App-Synthese aus dem Englischen).

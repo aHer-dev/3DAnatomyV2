@@ -41,7 +41,9 @@ SORTED = REPO / "NEW MODELS" / "sorted"
 OUT = REPO / "NEW MODELS" / "processed"
 META = REPO / "public" / "data" / "meta.json"
 
-SCALE = 0.001  # mm -> m
+SCALE = 0.0010844  # an die bestehende App angeglichen (Roh-mm * 0.001 * 1.08443).
+                   # Die Legacy-App skaliert ~1.0844x größer als echte Meter; damit die
+                   # neuen Teile NAHTLOS zu den vorhandenen passen, denselben Maßstab nutzen.
 
 # ---- Parameter pro Gruppe (am Pilot kalibrieren!) ---------------------------
 # remesh  = Voxel-Remesh anwenden? (False für röhrenförmige Strukturen)
@@ -156,13 +158,21 @@ def apply_modifier(obj, mod):
     bpy.ops.object.modifier_apply(modifier=mod.name)
 
 # ---- Verarbeitung eines Teils ----------------------------------------------
-def process_one(obj_path, group, params, tiers, fj):
+def process_one(obj_path, group, params, tiers, fj, translate_mm=None):
     clear_scene()
     objs = import_obj(obj_path)
     if not objs:
         print(f"  ! kein Mesh in {obj_path.name}")
         return None
     obj = join_objects(objs)
+
+    # Optionaler Roh-Versatz in mm VOR der Skalierung (z. B. 3.0-Set an Hauptset angleichen)
+    if translate_mm:
+        obj.location = (obj.location.x + translate_mm[0],
+                        obj.location.y + translate_mm[1],
+                        obj.location.z + translate_mm[2])
+        bpy.context.view_layer.objects.active = obj
+        bpy.ops.object.transform_apply(location=True, rotation=False, scale=False)
 
     # Scale mm -> m
     obj.scale = (SCALE, SCALE, SCALE)
@@ -245,7 +255,7 @@ def process_one(obj_path, group, params, tiers, fj):
 def get_args():
     argv = sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv else []
     a = {"group": None, "all": False, "pilot": False, "limit": None,
-         "tiers": ["hifi", "draco"]}
+         "tiers": ["hifi", "draco"], "only_fj_file": None, "translate_mm": None}
     i = 0
     while i < len(argv):
         t = argv[i]
@@ -254,6 +264,9 @@ def get_args():
         elif t == "--pilot": a["pilot"] = True; i += 1
         elif t == "--limit": a["limit"] = int(argv[i+1]); i += 2
         elif t == "--tier": a["tiers"] = argv[i+1].split(","); i += 2
+        elif t == "--only-fj-file": a["only_fj_file"] = argv[i+1]; i += 2  # nur diese FJ (1/Zeile)
+        elif t == "--translate-mm":  # Roh-Versatz in mm "dx,dy,dz" VOR Skalierung (z.B. 3.0-Set-Korrektur)
+            a["translate_mm"] = [float(x) for x in argv[i+1].split(",")]; i += 2
         else: i += 1
     return a
 
@@ -291,6 +304,15 @@ def collect_jobs(args):
     elif args["all"]:
         for group in sorted(p.name for p in SORTED.iterdir() if p.is_dir() and not p.name.startswith("_")):
             add_group(group, args["limit"])
+
+    # Filter: nur bestimmte FJ (z. B. nur die neuen Teile neu rechnen)
+    if args["only_fj_file"]:
+        wanted = set(l.strip().upper() for l in Path(args["only_fj_file"]).read_text().splitlines() if l.strip())
+        # wenn weder --group noch --all gesetzt: aus allen Gruppen die gewünschten ziehen
+        if not jobs:
+            for group in sorted(p.name for p in SORTED.iterdir() if p.is_dir() and not p.name.startswith("_")):
+                add_group(group)
+        jobs = [j for j in jobs if j[2].upper() in wanted]
     return jobs
 
 # ---- Main -------------------------------------------------------------------
@@ -305,7 +327,7 @@ def main():
     for n, (group, path, fj) in enumerate(jobs, 1):
         params = GROUP_PARAMS.get(group, DEFAULT_PARAMS)
         try:
-            s = process_one(path, group, params, args["tiers"], fj)
+            s = process_one(path, group, params, args["tiers"], fj, args["translate_mm"])
         except Exception as ex:
             print(f"  [{n}/{len(jobs)}] FEHLER {fj} ({group}): {ex}")
             continue
