@@ -7,6 +7,21 @@ Format: [Keep a Changelog](https://keepachangelog.com/de/1.0.0/)
 
 ## [Unreleased]
 
+### Added (Modell-Pipeline — BodyParts3D-Neuaufbereitung, Vorbereitung)
+- **`scripts/sort-new-models.mjs`**: sortiert 3.260 Roh-OBJ (`NEW MODELS/`) in Gruppen-Ordner
+  (`NEW MODELS/sorted/<gruppe>/`), Zuordnung über meta.json (FMA/FJ) vor Ordnerlage; volle
+  Dateinamen behalten. Reports: `_manifest.json`, `REVIEW.md` (766 heuristisch), `_conflicts.json`
+  (129 im aktuellen App-Bestand fehlsortierte Modelle).
+- **`scripts/blender/process-models.py`**: headless Aufbereitung Voxel-Remesh→Smooth→Decimate→
+  1 Material→GLB-Export (Tiers `hifi`+`draco`). Verifizierter Transform `(x,z,−y)·0.001`,
+  röhrenförmige Gruppen ohne Remesh, Voxelgröße relativ zur Objektgröße.
+- **`scripts/draco-compress.mjs`** + devDep `@gltf-transform/cli`: Draco-Nachschritt für den
+  `draco/`-Tier (Blender hier ohne Draco-Lib).
+- **`scripts/blender/import_group.py`**: eine Gruppe zur Sichtprüfung in Blender laden.
+- **Docs**: docs/tasks/model-pipeline-bp3d.md (Briefing),
+  docs/tasks/blender-pipeline-runbook.md (Runbook).
+- `.gitignore`: `NEW MODELS/` (Rohdaten, groß + CC BY-SA-Quelle).
+
 ### Removed (Phase 3h — Hamburger-Menü-Legacy & toter Code endgültig raus)
 - **Tote UI-Dateien gelöscht** (zielten auf nicht mehr existierende DOM-Elemente):
   - `js/ui/ui-export.js` — `#btn-export-set`/`#input-import-set` gab es nicht mehr; der `.bluebody`-Export im `CollectionPanel` ersetzt es
