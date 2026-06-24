@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback, useId } from 'react'
 import Fuse from 'fuse.js'
 import { useReactStore } from '../useReactStore.js'
-import { getGroupLabel } from '../groupLabels.js'
+import { getGroupLabel, ENABLED_GROUPS } from '../groupLabels.js'
 import { getStructureDisplayLabel } from '../../../utils/anatomyLabels.js'
 import { loadGroupByName } from '../../../features/modelLoader-core.js'
 import { highlightModel } from '../../../interaction/highlightModel.js'
@@ -40,6 +40,7 @@ export function SearchBar() {
   const [results, setResults]   = useState<SearchResult[]>([])
   const [active, setActive]     = useState(-1)
   const [loading, setLoading]   = useState(false)
+  const [expanded, setExpanded] = useState(false)
 
   const metaById = useReactStore(s => s.metaById)
   const fuseRef  = useRef<Fuse<MetaEntry> | null>(null)
@@ -52,30 +53,41 @@ export function SearchBar() {
     setQuery('')
   }, [metaById])
 
-  // Keyboard shortcut: / focuses search
+  // Focus input when expanded
+  useEffect(() => {
+    if (expanded) inputRef.current?.focus()
+  }, [expanded])
+
+  const collapse = useCallback(() => {
+    setExpanded(false)
+    setQuery('')
+    setResults([])
+  }, [])
+
+  // Keyboard shortcut: / opens search
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
       const tag = (document.activeElement as HTMLElement)?.tagName
       if (tag === 'INPUT' || tag === 'TEXTAREA') return
       if (e.key === '/') {
         e.preventDefault()
-        inputRef.current?.focus()
+        setExpanded(true)
       }
       if (e.key === 'Escape') {
-        setQuery('')
-        setResults([])
-        inputRef.current?.blur()
+        collapse()
       }
     }
     window.addEventListener('keydown', handler)
     return () => window.removeEventListener('keydown', handler)
-  }, [])
+  }, [collapse])
 
   const search = useCallback((q: string) => {
     setQuery(q)
     setActive(-1)
     if (!q.trim() || !fuseRef.current) { setResults([]); return }
-    const raw = fuseRef.current.search(q, { limit: MAX_RESULTS })
+    const raw = fuseRef.current.search(q, { limit: MAX_RESULTS * 3 })
+      .filter(r => ENABLED_GROUPS.has(r.item.classification?.group ?? ''))
+      .slice(0, MAX_RESULTS)
     setResults(raw as SearchResult[])
   }, [])
 
@@ -86,7 +98,8 @@ export function SearchBar() {
     setLoading(true)
     try {
       const group = entry.classification?.group ?? 'other'
-      await loadGroupByName(group, { centerCamera: false })
+      const alreadyLoaded = (getStore().groups[group]?.length ?? 0) > 0
+      if (!alreadyLoaded) await loadGroupByName(group, { centerCamera: false })
 
       const model = getStore().groups[group as keyof typeof getStore['prototype']]?.find(
         (m: any) => (m.userData?.meta?.id ?? m.userData?.entry?.id ?? m.name) === entry.id
@@ -113,17 +126,45 @@ export function SearchBar() {
       e.preventDefault()
       selectEntry(results[active].item)
     } else if (e.key === 'Escape') {
-      setQuery('')
-      setResults([])
+      collapse()
     }
-  }, [results, active, selectEntry])
+  }, [results, active, selectEntry, collapse])
+
+  const handleBlur = useCallback(() => {
+    setTimeout(() => {
+      if (!listRef.current?.contains(document.activeElement)) {
+        collapse()
+      }
+    }, 150)
+  }, [collapse])
 
   const open = results.length > 0
+
+  if (!expanded) {
+    return (
+      <button
+        className="sb-search__toggle"
+        title="Struktur suchen (/ zum Öffnen)"
+        aria-label="Suche öffnen"
+        onClick={() => setExpanded(true)}
+      >
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round">
+          <circle cx="11" cy="11" r="7"/>
+          <line x1="16.5" y1="16.5" x2="22" y2="22"/>
+        </svg>
+      </button>
+    )
+  }
 
   return (
     <div className="sb-search" role="search" aria-label="Anatomische Strukturen durchsuchen">
       <div className="sb-search__wrap">
-        <span className="sb-search__icon" aria-hidden="true">🔍</span>
+        <span className="sb-search__icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round">
+            <circle cx="11" cy="11" r="7"/>
+            <line x1="16.5" y1="16.5" x2="22" y2="22"/>
+          </svg>
+        </span>
         <input
           ref={inputRef}
           className="sb-search__input"
@@ -131,7 +172,8 @@ export function SearchBar() {
           value={query}
           onChange={e => search(e.target.value)}
           onKeyDown={onKeyDown}
-          placeholder="Struktur suchen… (/ zum Fokussieren)"
+          onBlur={handleBlur}
+          placeholder="Struktur suchen…"
           aria-label="Struktur suchen"
           aria-autocomplete="list"
           aria-controls={open ? listboxId : undefined}

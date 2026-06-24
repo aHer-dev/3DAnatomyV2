@@ -182,6 +182,32 @@
    color: #4A9EFF;
 }
 
+.dir-toggle-btn {
+   padding: 1px 18px;
+   background: rgba(255, 255, 255, 0.04);
+   border: 1px solid rgba(255, 255, 255, 0.07);
+   border-radius: 7px;
+   color: rgba(255, 255, 255, 0.45);
+   cursor: pointer;
+   transition: var(--transition-smooth);
+   display: flex;
+   align-items: center;
+   justify-content: center;
+}
+.dir-toggle-btn svg {
+   width: 10px;
+   height: 10px;
+   transition: transform 0.25s ease;
+}
+.dir-toggle-btn--open svg {
+   transform: rotate(180deg);
+}
+.dir-toggle-btn:hover {
+   background: rgba(74, 158, 255, 0.15);
+   border-color: rgba(74, 158, 255, 0.4);
+   color: #4A9EFF;
+}
+
 /* ─── Help Button & Shortcuts Tooltip ───────────────────────────────────── */
 .toolbar-help-btn {
     color: rgba(255, 255, 255, 0.35);

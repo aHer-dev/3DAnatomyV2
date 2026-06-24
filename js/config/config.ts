@@ -134,6 +134,7 @@ export const APP_CONFIG: AppConfig = {
       teeth: 0xe8e6dd,
       muscles: 0xe85861,
       nerves: 0xffd166,
+      cartilage: 0x9FC6E5,
     },
   },
 }

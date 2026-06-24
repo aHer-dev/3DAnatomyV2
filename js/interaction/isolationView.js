@@ -74,7 +74,7 @@ export function enterIsolatedView(model, options = {}) {
     actionBar = null
   } = options;
 
-  if (storeSnapshot) {
+  if (storeSnapshot && !isolationSnapshot) {
     isolationSnapshot = saveVisibilitySnapshot();
   }
 

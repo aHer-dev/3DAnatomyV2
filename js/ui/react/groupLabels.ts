@@ -1,6 +1,11 @@
 // German display labels and load-order for anatomy groups.
 // Single source of truth — used by StructureBrowser and wherever else labels are needed.
 
+// Only these groups are active in the current release. All others are hidden.
+export const ENABLED_GROUPS = new Set([
+  'bones', 'muscles', 'cartilage', 'ligaments', 'teeth',
+])
+
 export const GROUP_LABELS: Record<string, string> = {
   bones:     'Knochen',
   muscles:   'Muskeln',

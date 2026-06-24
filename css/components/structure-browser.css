@@ -2,10 +2,10 @@
 
 .sb-panel {
   position: fixed;
-  top: 60px;
+  bottom: 64px;
   right: 20px;
   width: 260px;
-  max-height: calc(100vh - 100px);
+  max-height: calc(100vh - 140px);
   display: flex;
   flex-direction: column;
   pointer-events: all;           /* enable interaction inside the overlay */
@@ -135,7 +135,6 @@
 /* ── Mobile: panel goes to top, narrower ────────────────────────── */
 @media (max-width: 768px) {
   .sb-panel {
-    top: auto;
     bottom: 80px;
     right: 12px;
     width: 220px;

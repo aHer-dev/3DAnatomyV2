@@ -47,6 +47,12 @@
   color: var(--text-primary);
   line-height: 1.25;
 }
+.ip-title__side {
+  font-size: 0.72em;
+  font-style: italic;
+  font-weight: 400;
+  color: var(--text-secondary);
+}
 .ip-title__secondary {
   font-size: 0.78rem;
   color: var(--text-secondary);

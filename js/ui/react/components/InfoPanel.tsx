@@ -5,7 +5,7 @@ import { getStructureDisplayLabel } from '../../../utils/anatomyLabels.js'
 import { getMuskelfinderDetailsForMeta } from '../../../integration/muskelfinderDetails.js'
 import { setModelColor, setModelOpacity } from '../../../features/appearance.js'
 import { setModelVisibility, isModelVisible } from '../../../features/visibility.js'
-import { enterIsolatedView } from '../../../interaction/isolationView.js'
+import { enterIsolatedView, exitIsolatedView, getIsolatedModel } from '../../../interaction/isolationView.js'
 import { enterGhostContext, isGhostContextActive } from '../../../features/ghostContext.js'
 import { getStore } from '../../../store/useStore.js'
 import { clearHighlight } from '../../../interaction/highlightModel.js'
@@ -27,6 +27,15 @@ interface MfSection {
 }
 interface MfDetails {
   sections: MfSection[]
+}
+
+const SIDE_RE = /\s+(dexter|sinister|dextra|sinistra|dextrum|sinistrum)$/i
+
+function StructureLabel({ label }: { label: string }) {
+  const match = label.match(SIDE_RE)
+  if (!match) return <>{label}</>
+  const main = label.slice(0, label.length - match[0].length)
+  return <>{main}<span className="ip-title__side"> {match[1]}</span></>
 }
 
 function MuscleSections({ details }: { details: MfDetails }) {
@@ -72,6 +81,7 @@ function ModelActions({ model, meta }: ModelActionsProps) {
   const collection = useReactStore(s => s.collection)
   const inCollection = collection.some((c: any) => c.id === meta.id)
   const [visible, setVisible] = useState(() => isModelVisible(model))
+  const [isolated, setIsolated] = useState(() => getIsolatedModel() === model)
   const [ghostActive, setGhostActive] = useState(false)
   const [recentColors, setRecentColors] = useState<string[]>(getRecentColors)
   const [toast, setToast] = useState<string | null>(null)
@@ -93,12 +103,14 @@ function ModelActions({ model, meta }: ModelActionsProps) {
   }, [model])
 
   const handleColor = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const hex = e.target.value
-    setModelColor(model, hex)
-    addRecentColor(hex)
-    setRecentColors(getRecentColors())
+    setModelColor(model, e.target.value)
     requestRender()
   }, [model])
+
+  const handleColorCommit = useCallback((e: React.FocusEvent<HTMLInputElement>) => {
+    addRecentColor(e.target.value)
+    setRecentColors(getRecentColors())
+  }, [])
 
   const handleOpacity = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     setModelOpacity(model, parseFloat(e.target.value))
@@ -113,7 +125,13 @@ function ModelActions({ model, meta }: ModelActionsProps) {
   }, [model])
 
   const handleIsolate = useCallback(() => {
-    enterIsolatedView(model)
+    if (getIsolatedModel() === model) {
+      exitIsolatedView()
+      setIsolated(false)
+    } else {
+      enterIsolatedView(model)
+      setIsolated(true)
+    }
   }, [model])
 
   const handleGhost = useCallback(() => {
@@ -155,7 +173,7 @@ function ModelActions({ model, meta }: ModelActionsProps) {
     <div className="ip-actions">
       <label className="ip-action-row" title="Farbe ändern">
         <span>Farbe</span>
-        <input type="color" className="ip-color-input" defaultValue={initialColor.current} onChange={handleColor} aria-label="Modellfarbe" />
+        <input type="color" className="ip-color-input" defaultValue={initialColor.current} onChange={handleColor} onBlur={handleColorCommit} aria-label="Modellfarbe" />
       </label>
       {recentColors.length > 0 && (
         <div className="ip-recent-colors">
@@ -186,7 +204,9 @@ function ModelActions({ model, meta }: ModelActionsProps) {
         <button className="ip-btn" onClick={handleVisibility}>
           {visible ? 'Ausblenden' : 'Anzeigen'}
         </button>
-        <button className="ip-btn" onClick={handleIsolate}>Isolieren</button>
+        <button className={`ip-btn${isolated ? ' ip-btn--active' : ''}`} onClick={handleIsolate}>
+          {isolated ? 'Isolation aufheben' : 'Isolieren'}
+        </button>
         <button
           className={`ip-btn${ghostActive ? ' ip-btn--active' : ''}`}
           onClick={handleGhost}
@@ -257,7 +277,7 @@ export function InfoPanel() {
     >
       <header className="ip-header">
         <div className="ip-title">
-          <span className="ip-title__primary">{displayLabel}</span>
+          <span className="ip-title__primary"><StructureLabel label={displayLabel} /></span>
           <span className="ip-title__group">{getGroupLabel(group)}</span>
         </div>
         <button className="ip-close" onClick={close} aria-label="Info-Panel schließen">✕</button>

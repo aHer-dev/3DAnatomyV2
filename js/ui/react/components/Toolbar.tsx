@@ -84,6 +84,7 @@ interface ToolbarProps {
 export function Toolbar({ browserOpen, onToggleBrowser, collectionOpen, onToggleCollection }: ToolbarProps) {
   const activeTool = useActiveTool()
   const [expanded, setExpanded] = useState(false)
+  const [dirOpen, setDirOpen] = useState(false)
   const [loadingLayer, setLoadingLayer] = useState<string | null>(null)
   const [labelsOn, setLabelsOn] = useState(false)
   const groups = useReactStore(s => s.groups)
@@ -109,13 +110,24 @@ export function Toolbar({ browserOpen, onToggleBrowser, collectionOpen, onToggle
 
   return (
     <>
-      {/* Richtungs-Panel — immer sichtbar über der Toolbar */}
+      {/* Richtungs-Panel — einklappbar */}
       <div id="toolbar-dir-panel">
-        {VIEW_DIRS.map(({ id, label, title }) => (
+        {dirOpen && VIEW_DIRS.map(({ id, label, title }) => (
           <button key={id} className="dir-btn" title={title} onClick={() => handleDir(id)}>
             {label}
           </button>
         ))}
+        <button
+          className={`dir-toggle-btn${dirOpen ? ' dir-toggle-btn--open' : ''}`}
+          title={dirOpen ? 'Ansichten ausblenden' : 'Kamera-Ansichten'}
+          aria-label="Kamera-Ansichten ein-/ausblenden"
+          aria-expanded={dirOpen}
+          onClick={() => setDirOpen(o => !o)}
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+            <polyline points="18 15 12 9 6 15"/>
+          </svg>
+        </button>
       </div>
 
       <div id="anatomy-toolbar" role="toolbar" aria-label="Werkzeuge">

@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useTransition } from 'react'
 import { useReactStore } from '../useReactStore.js'
-import { getGroupLabel, sortGroups } from '../groupLabels.js'
+import { getGroupLabel, sortGroups, ENABLED_GROUPS } from '../groupLabels.js'
 import { loadGroupByName } from '../../../features/modelLoader-core.js'
 import { unloadGroupSilent } from '../../../bootstrap/initGroupLoader.js'
 import { getStore } from '../../../store/useStore.js'
@@ -85,7 +85,7 @@ export function StructureBrowser({ onClose }: StructureBrowserProps) {
   const groupStates     = useReactStore(s => s.groupStates)
   const colors          = useReactStore(s => s.colors)
 
-  const sorted = sortGroups(availableGroups)
+  const sorted = sortGroups(availableGroups.filter(g => ENABLED_GROUPS.has(g)))
 
   return (
     <aside className="sb-panel" aria-label="Strukturen">
