@@ -3,6 +3,7 @@ import {
   applyLighting,
   applyRoomColor,
   getRoomSettings,
+  ROOM_DEFAULTS,
 } from '../../../features/roomSettings.js'
 import { resetColors } from '../../ui-reset.js'
 import { loadPresetManifest, applyPreset } from '../../../features/presets.js'
@@ -105,6 +106,14 @@ export function SettingsPanel({ onClose }: SettingsPanelProps) {
     applyRoomColor(hex, brightness)
   }, [brightness])
 
+  const resetRoom = useCallback(() => {
+    setLighting(ROOM_DEFAULTS.lighting)
+    setBrightness(ROOM_DEFAULTS.brightness)
+    setColor(ROOM_DEFAULTS.color)
+    applyLighting(ROOM_DEFAULTS.lighting)
+    applyRoomColor(ROOM_DEFAULTS.color, ROOM_DEFAULTS.brightness)
+  }, [])
+
   return (
     <aside className="stp-panel" aria-label="Einstellungen">
       <div className="stp-header">
@@ -135,19 +144,23 @@ export function SettingsPanel({ onClose }: SettingsPanelProps) {
           </label>
 
           <label className="stp-control stp-control--row">
-            <span className="stp-control-label">Farbe</span>
+            <span className="stp-control-label">Raumfarbe</span>
             <input
               type="color" value={color}
               onChange={e => onColor(e.target.value)}
               aria-label="Raumfarbe"
             />
           </label>
+
+          <button className="stp-btn" onClick={resetRoom}>
+            Raum zurücksetzen
+          </button>
         </section>
 
         <section className="stp-section">
-          <h3 className="stp-section-title">Farben</h3>
+          <h3 className="stp-section-title">Modellfarben</h3>
           <button className="stp-btn" onClick={() => resetColors()}>
-            Farben zurücksetzen
+            Modellfarben zurücksetzen
           </button>
         </section>
 
