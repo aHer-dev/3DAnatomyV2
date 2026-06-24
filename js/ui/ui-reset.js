@@ -1,4 +1,6 @@
 // js/ui/ui-reset.js
+// App-Reset-Logik (DOM-frei aufgerufen) — React Toolbar/SettingsPanel rufen
+// resetApp() und resetColors() direkt auf.
 import useStore, { getStore, INITIAL_COLORS } from '../store/useStore.js';
 import { renderer } from '../core/renderer.js';
 import { scene } from '../core/scene.js';
@@ -6,135 +8,12 @@ import { camera } from '../core/camera.js';
 import { controls } from '../core/controls.js';
 import { updateModelColors } from '../modelLoader/color.js';
 import { loadGroupByName } from '../features/modelLoader-core.js';
-import { setModelOpacity } from '../features/appearance.js';
 import { setCameraToDefault } from '../core/cameraUtils.js';
-import { setModelVisibility, showModel } from '../features/visibility.js';
+import { setModelVisibility } from '../features/visibility.js';
 import { unregisterPickables } from '../features/selection.js';
-import { clearMultiSelect } from '../interaction/multiSelect.js';
-import { exitIsolatedView } from '../interaction/isolationView.js';
 import { disposeObject3D } from '../modelLoader/cleanup.js';
 
 const STANDARD_GROUPS = ['bones', 'teeth', 'cartilage'];
-
-// ---------------------------------------------------------------
-// 1) LEICHTER RESET
-// ---------------------------------------------------------------
-export function setupResetUI() {
-  const btn = document.getElementById('btn-reset');
-  if (!btn) {
-    console.warn('Reset-Button (#btn-reset) nicht gefunden');
-    return;
-  }
-
-  const shortcutsBtn = document.getElementById('btn-shortcuts');
-  const shortcutsTip = document.getElementById('shortcuts-tip');
-  if (shortcutsBtn && shortcutsTip) {
-    shortcutsBtn.addEventListener('mouseenter', () => {
-      const r = shortcutsBtn.getBoundingClientRect();
-      shortcutsTip.style.left = `${r.left + r.width / 2}px`;
-      shortcutsTip.style.top = `${r.top - 8}px`;
-      shortcutsTip.style.transform = 'translate(-50%, -100%)';
-      shortcutsTip.classList.add('visible');
-      shortcutsTip.setAttribute('aria-hidden', 'false');
-    });
-    shortcutsBtn.addEventListener('mouseleave', () => {
-      shortcutsTip.classList.remove('visible');
-      shortcutsTip.setAttribute('aria-hidden', 'true');
-    });
-    shortcutsBtn.addEventListener('click', () => {
-      const visible = shortcutsTip.classList.toggle('visible');
-      shortcutsTip.setAttribute('aria-hidden', String(!visible));
-    });
-  }
-
-  const colorBtn = document.getElementById('btn-reset-colors');
-  if (colorBtn) {
-    colorBtn.addEventListener('click', () => {
-      resetColors();
-      renderer.render(scene, camera);
-    }, { passive: true });
-  }
-
-  btn.addEventListener('click', async () => {
-    try {
-      console.log('🔄 Schneller Reset gestartet...');
-      await resetToDefaultView();
-      setCameraToDefault(camera, controls);
-      if (typeof controls?.saveState === 'function') controls.saveState();
-      renderer.render(scene, camera);
-      console.log('✅ Reset: Ansicht zurückgesetzt');
-    } catch (error) {
-      console.error('❌ Schneller Reset fehlgeschlagen:', error);
-    }
-  }, { passive: true });
-}
-
-function isMuskelfinderDeeplinkActive() {
-  try {
-    const params = new URLSearchParams(window.location.search);
-    return params.get('source') === 'muskelfinder'
-      || params.has('muscleKey')
-      || params.has('muscle');
-  } catch (error) {
-    return false;
-  }
-}
-
-function clearMuskelfinderDeeplinkParams() {
-  try {
-    const url = new URL(window.location.href);
-    ['muscleKey', 'muscle', 'source', 'returnTo'].forEach((key) => {
-      url.searchParams.delete(key);
-    });
-    const search = url.searchParams.toString();
-    window.history.replaceState({}, '', `${url.pathname}${search ? `?${search}` : ''}${url.hash}`);
-  } catch (error) {
-    console.warn('⚠️ Deeplink-Parameter konnten nicht entfernt werden:', error);
-  }
-}
-
-async function resetToDefaultView() {
-  exitIsolatedView();
-  clearMultiSelect();
-  getStore().clearSelection();
-
-  const loadedGroups = Object.keys(getStore().groups || {});
-
-  for (const groupName of loadedGroups) {
-    if (STANDARD_GROUPS.includes(groupName)) continue;
-
-    const models = getStore().groups[groupName] || [];
-    if (!models.length) continue;
-
-    for (const model of models) {
-      unregisterPickables(model);
-      scene.remove(model);
-      disposeObject3D(model);
-    }
-
-    getStore().unloadGroup(groupName);
-    getStore().setGroupVisible(groupName, false);
-  }
-
-  for (const groupName of STANDARD_GROUPS) {
-    if (!getStore().groups[groupName]?.length) {
-      await loadGroupByName(groupName, { centerCamera: false });
-    }
-
-    getStore().setGroupVisible(groupName, true);
-
-    (getStore().groups[groupName] || []).forEach((model) => {
-      setModelOpacity(model, 1);
-      showModel(model);
-    });
-  }
-
-  if (isMuskelfinderDeeplinkActive()) {
-    clearMuskelfinderDeeplinkParams();
-  }
-
-  console.log('✅ Startansicht mit bones, teeth und cartilage wiederhergestellt');
-}
 
 function ensureOnlyBasicGroupsVisible() {
   Object.keys(getStore().groups || {}).forEach(groupName => {
@@ -143,24 +22,15 @@ function ensureOnlyBasicGroupsVisible() {
     models.forEach(model => {
       if (model && model.parent) {
         setModelVisibility(model, shouldBeVisible);
-        if (!shouldBeVisible && model.visible) {
-          console.warn(`⚠️ Gruppe "${groupName}" sollte unsichtbar sein, ist aber sichtbar!`);
-        }
-        if (shouldBeVisible && !model.visible) {
-          console.warn(`⚠️ Gruppe "${groupName}" sollte sichtbar sein, ist aber unsichtbar!`);
-        }
       }
     });
   });
 }
 
 // ---------------------------------------------------------------
-// 2) VOLLSTÄNDIGER RESET
+// Vollständiger Reset (Ansicht zurücksetzen)
 // ---------------------------------------------------------------
 export async function resetApp() {
-  console.log('🔄 Vollständiger Reset gestartet...');
-  console.log('📋 Standard-Gruppen:', STANDARD_GROUPS);
-
   showResetLoadingOverlay();
 
   try {
@@ -182,8 +52,6 @@ export async function resetApp() {
       disposeObject3D(obj);
     }
 
-    console.log(`🗑️ ${toRemove.length} Modelle entfernt`);
-
     updateResetProgress('Setze Gruppenstatus zurück...', 30);
 
     for (const groupName of Object.keys(getStore().groups || {})) {
@@ -192,8 +60,6 @@ export async function resetApp() {
     }
 
     useStore.setState({ pickableObjects: new Set() });
-
-    console.log('📦 Lade Standard-Gruppen:', STANDARD_GROUPS);
 
     let progressStep = 40;
     const stepSize = 40 / STANDARD_GROUPS.length;
@@ -204,7 +70,6 @@ export async function resetApp() {
       try {
         await loadGroupByName(groupName, { centerCamera: false });
         getStore().setGroupVisible(groupName, true);
-        console.log(`✅ ${groupName} geladen`);
       } catch (err) {
         console.error(`❌ Fehler beim Laden von "${groupName}":`, err);
       }
@@ -223,9 +88,6 @@ export async function resetApp() {
     await new Promise(resolve => setTimeout(resolve, 500));
 
     renderer.render(scene, camera);
-
-    console.log('✅ Reset abgeschlossen - Standard-Gruppen:', STANDARD_GROUPS);
-
   } catch (err) {
     console.error('❌ Fehler beim Reset:', err);
   } finally {
@@ -233,16 +95,22 @@ export async function resetApp() {
   }
 }
 
-function resetColors() {
+// ---------------------------------------------------------------
+// Farben auf Gruppen-Defaults zurücksetzen
+// ---------------------------------------------------------------
+export function resetColors() {
   Object.entries(INITIAL_COLORS).forEach(([groupName, hex]) => {
     getStore().setGroupColor(groupName, hex);
-
     if (getStore().groups[groupName]?.length > 0) {
       updateModelColors(groupName, hex);
     }
   });
+  renderer.render(scene, camera);
 }
 
+// ---------------------------------------------------------------
+// Reset-Lade-Overlay (imperativ, eigenständig)
+// ---------------------------------------------------------------
 function showResetLoadingOverlay() {
   let overlay = document.getElementById('reset-loading-overlay');
 

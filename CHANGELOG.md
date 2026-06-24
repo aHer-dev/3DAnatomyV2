@@ -7,6 +7,37 @@ Format: [Keep a Changelog](https://keepachangelog.com/de/1.0.0/)
 
 ## [Unreleased]
 
+### Changed (UI-Konsolidierung — Chrome vollständig in React, Hamburger entfernt)
+- **DOM-Hamburger-Menü (`#menu-icon` → `#controls`) und DOM-Footer gelöscht** —
+  `index.html` enthält nur noch Canvas + React-Mountpunkt. Siehe ADR 0004.
+- **Neue React-Komponenten**:
+  - `SettingsPanel.tsx` — Raum (Beleuchtung/Helligkeit/Farbe), Farben zurücksetzen,
+    Preset-Bibliothek, Tastenkürzel; Zahnrad-Button („Optionen") in der Toolbar
+  - `Footer.tsx` + `LicenseModal.tsx` — Lizenz/Attribution, Quellen, Datenschutz,
+    Lernen-Link; löst die bisherige dreifache Rechtliches-Doppelung auf
+- **Neue DOM-freie Feature-Module** (portierte 3D-/Daten-Logik, kein Reinvent):
+  - `features/roomSettings.js` (aus `ui-room.js`) — `applyLighting`, `applyRoomColor`,
+    `initRoomSettings`; in `startApp` statt `setupUI` aufgerufen
+  - `features/presets.js` (aus `ui-presets.js`) — `loadPresetManifest`, `applyPreset`
+- **`ui-reset.js` entkernt**: `resetColors` exportiert (für SettingsPanel), toter
+  Light-Reset (`resetToDefaultView`) + DOM-Wiring (`setupResetUI`) entfernt
+- **`photoMode.js` entkoppelt**: kein `hideControlsPanel`-Import mehr, totes
+  `initPhotoMode` (Legacy-Button) entfernt; `enterPhotoMode` bleibt
+- **Gelöschte Legacy-Module**: `ui-init.js`, `ui-controls.js`, `ui-room.js`,
+  `ui-presets.js`, `license.js`, `licenseContent.js`
+- **Tote CSS entfernt**: `components/presets.css`, `layout/footer.css`,
+  `controls/buttons.css` gelöscht; `#menu-icon`/`#controls`/`#room-controls`-Regeln
+  aus `layout/app.css`, `#btn-photo-mode` aus `photo-mode.css`, Preview-Selektoren
+  in `panels.css` bereinigt; neue `components/settings-panel.css`. CSS-Bundle −~13 KB.
+- Build: 110 → 106 Module; Typecheck sauber, 29 Tests grün
+
+### Removed (startApp.js — toter Loading-Screen- & Render-Opt-Code)
+- `LoadingScreenManager`-Klasse + Instanz + `startAppWithLoadingScreen`/
+  `loadGroupWithIndicator`/`loadMultipleGroups` (nirgends aufgerufen)
+- Render-Opt-Cluster (`RENDER_OPTIMIZATION`, `renderOptimizer`, `useOptimization`,
+  `loadOptimizer`, `renderFrame`) — nie verdrahtet, Loop nutzt `renderer.render`
+- verwaiste Imports + leerer `if`-Block; `startApp.js` jetzt lint-sauber
+
 ### Added (Modell-Pipeline — BodyParts3D-Neuaufbereitung, Vorbereitung)
 - **`scripts/sort-new-models.mjs`**: sortiert 3.260 Roh-OBJ (`NEW MODELS/`) in Gruppen-Ordner
   (`NEW MODELS/sorted/<gruppe>/`), Zuordnung über meta.json (FMA/FJ) vor Ordnerlage; volle

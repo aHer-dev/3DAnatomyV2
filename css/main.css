@@ -11,11 +11,9 @@
 
 /* 3. Layout */
 @import 'layout/app.css';
-@import 'layout/footer.css';
 
 /* 4. Controls sidebar */
 @import 'controls/search.css';
-@import 'controls/buttons.css';
 
 /* 5. Components */
 @import 'components/dropdowns.css';
@@ -23,11 +21,11 @@
 @import 'components/toolbar.css';
 @import 'components/loading.css';
 @import 'components/photo-mode.css';
-@import 'components/presets.css';
 
 /* Phase 3 — React overlay components */
 @import 'components/structure-browser.css';
 @import 'components/search-bar.css';
 @import 'components/info-panel-react.css';
 @import 'components/collection-panel.css';
+@import 'components/settings-panel.css';
 @import 'components/labels.css';

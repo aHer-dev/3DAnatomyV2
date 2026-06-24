@@ -6,7 +6,6 @@ import { controls }           from '../core/controls.js';
 import { renderer }           from '../core/renderer.js';
 import { scene }              from '../core/scene.js';
 import { setCameraDirection } from '../core/cameraUtils.js';
-import { hideControlsPanel }  from './ui-controls.js';
 import { requestRender } from '../core/renderScheduler.js';
 
 // ─── Konfiguration ───────────────────────────────────────────────────────────
@@ -36,27 +35,12 @@ let _overlay       = null;
 let _sidebar       = null;
 let _resizeHandler = null;
 
-// ─── Initialisierung ─────────────────────────────────────────────────────────
-
-export function initPhotoMode() {
-  const btn = document.getElementById('btn-photo-mode');
-  if (!btn) return;
-  btn.addEventListener('click', () => {
-    if (_active) exitPhotoMode();
-    else enterPhotoMode();
-  });
-}
-
 // ─── Aktivieren / Deaktivieren ───────────────────────────────────────────────
 
 export function enterPhotoMode() {
   if (_active) return;
   _active = true;
 
-  // Steuerleiste schließen damit sie das Overlay nicht überdeckt
-  hideControlsPanel?.();
-
-  // Body-Klasse: hebt Hamburger-Icon über das Overlay (CSS z-index fix)
   document.body.classList.add('photo-mode-on');
 
   _buildOverlay();
@@ -71,8 +55,6 @@ export function enterPhotoMode() {
 
   _resizeHandler = () => _updateFrame();
   window.addEventListener('resize', _resizeHandler);
-
-  document.getElementById('btn-photo-mode')?.classList.add('photo-mode-active');
 }
 
 export function exitPhotoMode() {
@@ -96,7 +78,6 @@ export function exitPhotoMode() {
   }
 
   document.body.classList.remove('photo-mode-on');
-  document.getElementById('btn-photo-mode')?.classList.remove('photo-mode-active');
 }
 
 // ─── Overlay ─────────────────────────────────────────────────────────────────

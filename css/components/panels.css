@@ -66,14 +66,8 @@
 }
 
 /* ─── Muskelfinder-Preview-Modus: UI ausblenden ─────────────────────────── */
-body.muskelfinder-preview-mode #menu-icon,
-body.muskelfinder-preview-mode #controls,
 body.muskelfinder-preview-mode #anatomy-toolbar,
-body.muskelfinder-preview-mode #toolbar-dir-panel,
-body.muskelfinder-preview-mode #footer,
-body.muskelfinder-preview-mode #legal-menu,
-body.muskelfinder-preview-mode #license-info,
-body.muskelfinder-preview-mode #shortcuts-tip {
+body.muskelfinder-preview-mode #toolbar-dir-panel {
    display: none !important;
 }
 

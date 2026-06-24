@@ -32,7 +32,7 @@ import { processDeeplink, setupDeeplinkSync } from '../integration/deeplink.js';
 
 import { initDynamicGroupLoading } from './initGroupLoader.js';
 
-import { setupUI } from '../ui/ui-init.js';
+import { initRoomSettings } from '../features/roomSettings.js';
 import { updateModelColors } from '../modelLoader/color.js';
 
 import { updatePerformanceMonitor } from '../debug/performanceMonitor.js';
@@ -150,9 +150,9 @@ export async function startApp() {
             Object.entries(cfgColors).forEach(([g, hex]) => getStore().setGroupColor(g, hex));
         }
 
-        // 4) UI initialisieren
+        // 4) Raum-/Lichteinstellungen initialisieren (React-UI ist bereits gemountet)
         if (!previewMode) {
-            setupUI?.();
+            initRoomSettings();
         }
         updateLoadingCircle(45);
 
@@ -267,7 +267,7 @@ async function tryApplyEnvironment(renderer) {
         scene.background = null;
 
         renderer.toneMapping = THREE.ACESFilmicToneMapping;
-        // toneMappingExposure wird von setupRoomUI gesetzt – hier nicht überschreiben
+        // toneMappingExposure wird von initRoomSettings gesetzt – hier nicht überschreiben
 
     } catch (e) {
         console.warn('Kein HDR geladen - weiter ohne Environment.', e?.message);
