@@ -2,7 +2,6 @@
 // visibility.js - BROWSER-KOMPATIBLE VERSION
 // ============================================
 
-import * as THREE from 'three';
 import { getStore } from '../store/useStore.js';
 import { markPickablesDirty } from '../core/raycaster.js';
 import { setPickable } from './selection.js';

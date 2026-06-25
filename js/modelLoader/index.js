@@ -1,5 +1,4 @@
 import { createGLTFLoader } from '../loaders/gltfLoaderFactory.js';
-import { modelPath } from '../core/path.js';
 
 const gltf = createGLTFLoader();
 

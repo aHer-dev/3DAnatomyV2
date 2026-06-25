@@ -15,7 +15,7 @@ import { updateModelColors } from '../modelLoader/color.js';
 import { getStore, INITIAL_COLORS, DEFAULT_COLOR } from '../store/useStore.js';
 import { requestRender } from '../core/renderScheduler.js';
 import { createGLTFLoader } from '../loaders/gltfLoaderFactory.js';
-import { setGroupVisibility, showObject, hideObject, setModelVisibility } from '../features/visibility.js';
+import { setGroupVisibility, showObject, hideObject } from '../features/visibility.js';
 import { showLoadingBar, hideLoadingBar, updateLoadingBar } from '../modelLoader/progress.js';
 
 // ✅ IMPORT CONFIG für dynamische Performance-Werte

@@ -76,7 +76,7 @@ export function updateLoadingBar(percent) {
     if (window?.__DISABLE_PROGRESS_OVERLAY) return; // ← Legacy-Bar komplett aus
     if (!isShowing) {
       // robust: bei erstem Update automatisch anzeigen
-      try { showLoadingBar(); } catch { }
+      try { showLoadingBar(); } catch { /* ignore */ }
     }
 
   // Prozent normalisieren
@@ -103,7 +103,7 @@ export function updateLoadingBar(percent) {
     }
 
     // Alternative: data-Attribut für CSS-basierte Bars
-    try { bar.style.setProperty?.('--progress', `${normalizedPercent}%`); } catch { }
+    try { bar.style.setProperty?.('--progress', `${normalizedPercent}%`); } catch { /* ignore */ }
     bar.setAttribute('data-progress', normalizedPercent);
 
     console.log(`📊 Progress aktualisiert: ${normalizedPercent}%`);
@@ -123,7 +123,7 @@ export function updateLoadingBar(percent) {
   
     // Auto-Close bei 100 %
     if (normalizedPercent >= 100) {
-        setTimeout(() => { try { hideLoadingBar(); } catch { } }, 200);
+        setTimeout(() => { try { hideLoadingBar(); } catch { /* ignore */ } }, 200);
     }
 }
 
@@ -174,7 +174,7 @@ export function hideLoadingBar() {
 
   // Custom Event für Completion
   document.dispatchEvent(new CustomEvent('progressComplete'));
-  try { hideDynamicProgressBar(); } catch { }
+  try { hideDynamicProgressBar(); } catch { /* ignore */ }
 }
 
 /**
@@ -260,10 +260,6 @@ function hideDynamicProgressBar() {
     window.__dynProgressListener = null;
   }
   window.__dynProgressInit = false;
-}
-
-function updateDynamicProgress(percent) {
-  document.dispatchEvent(new CustomEvent('progressUpdate', { detail: { percent } }));
 }
 
 /**

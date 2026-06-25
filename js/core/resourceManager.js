@@ -429,7 +429,7 @@ class AdvancedResourceManager {
 
             return 1024;
 
-        } catch (error) {
+        } catch {
             return 1024;
         }
     }

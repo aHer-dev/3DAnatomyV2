@@ -5,7 +5,7 @@ import { withBase } from '../core/path.js';
 
 /**
  * Setzt dynamisch Pfade für Lade-Sticker und Favicon.
- * Sorgt für korrekte Darstellung auch bei Deployment auf z. B. GitHub Pages.
+ * Sorgt für korrekte Darstellung auch bei Deployment auf z. B. GitHub Pages.
  */
 export function initStaticAssets() {
     ['loading-sticker', 'live-loading-sticker'].forEach(id => {

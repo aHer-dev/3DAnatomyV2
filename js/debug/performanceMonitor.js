@@ -94,7 +94,7 @@ class MinimalPerformanceMonitor {
                 console.log('📊 Stats.js erfolgreich geladen');
                 return true;
 
-            } catch (error) {
+            } catch {
                 // Nächsten Pfad versuchen
                 continue;
             }
@@ -294,7 +294,7 @@ class MinimalPerformanceMonitor {
                 memoryElement.style.color = percent > 80 ? '#ff4444' : '#00ff00';
             }
 
-        } catch (error) {
+        } catch {
             // Fallback-UI Fehler ignorieren
         }
     }
@@ -326,7 +326,7 @@ class MinimalPerformanceMonitor {
                 }
             }
 
-        } catch (error) {
+        } catch {
             // Warning-Check Fehler ignorieren
         }
     }
@@ -439,7 +439,7 @@ class MinimalPerformanceMonitor {
         try {
             const sum = this.frameHistory.reduce((total, frame) => total + frame.fps, 0);
             return Math.round(sum / this.frameHistory.length);
-        } catch (error) {
+        } catch {
             return this.currentFPS;
         }
     }
@@ -492,7 +492,7 @@ export function updatePerformanceMonitor() {
     try {
         const monitor = getPerformanceMonitor();
         monitor.update();
-    } catch (error) {
+    } catch {
         // Silent fail - darf niemals den Render-Loop brechen
     }
 }

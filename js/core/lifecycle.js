@@ -8,7 +8,7 @@ export const lifecycle = {
         const rec = { target, type, handler, options };
         _listeners.add(rec);
         return () => {
-            try { target.removeEventListener(type, handler, options); } catch { }
+            try { target.removeEventListener(type, handler, options); } catch { /* ignore */ }
             _listeners.delete(rec);
         };
     },
@@ -31,7 +31,7 @@ export const lifecycle = {
     dispose() {
         // alle Listener entfernen
         _listeners.forEach(({ target, type, handler, options }) => {
-            try { target.removeEventListener(type, handler, options); } catch { }
+            try { target.removeEventListener(type, handler, options); } catch { /* ignore */ }
         });
         _listeners.clear();
         // RAF stoppen

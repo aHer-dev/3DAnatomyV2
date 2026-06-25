@@ -91,7 +91,7 @@ function sanitizeReturnUrl(value = '') {
     const isAllowedProtocol = url.protocol === 'http:' || url.protocol === 'https:';
     const isSameOrigin = url.origin === window.location.origin;
     return isAllowedProtocol && isSameOrigin ? url.toString() : '';
-  } catch (error) {
+  } catch {
     return '';
   }
 }

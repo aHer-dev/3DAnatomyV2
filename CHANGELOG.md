@@ -7,6 +7,21 @@ Format: [Keep a Changelog](https://keepachangelog.com/de/1.0.0/)
 
 ## [Unreleased]
 
+### Removed (Aufräumen / Hygiene — tote Dateien, Lint, Docs)
+- **15 nicht importierte tote CSS-Dateien gelöscht** (`base/*`, `components/animations.css`,
+  `components/ui-elements.css`, `controls/{dropdowns,inputs,set-list,sidebar,sliders}.css`,
+  `layout/{canvas,layout,responsive,splashscreen}.css`, `utilities/utilities.css`) — einziger
+  CSS-Einstieg ist `css/main.css`.
+- **4 tote JS-Module gelöscht**: `js/core/lodManager.js`, `js/features/groups.js`,
+  `js/features/groupToggle.js`, `js/bootstrap/initSplashScreen.js` (nirgends importiert).
+- **Lint: 10 Fehler → 0** (`npm run lint` grün): leere `catch`-Blöcke kommentiert, ungenutzte
+  `catch (error)`-Bindings entfernt, irreguläres Leerzeichen (U+202F) gefixt, tote Imports
+  raus (`THREE` in selection/visibility, `setModelVisibility`, `modelPath`), tote Funktion
+  `updateDynamicProgress` entfernt. Verbleibend: 5 `no-unused-vars`-Warnungen für noch nicht
+  verdrahteten `resourceManager`-/Loader-Pool-WIP in `modelLoader-core.js` (bewusst behalten).
+- **`docs/architecture.md`** auf den realen Ist-Stand gebracht (Schichten, Datei-Struktur,
+  Store-/Aktions-Kommunikation, meta.json-Hinweis zu leeren region/system-Feldern).
+
 ### Changed (UI-Konsolidierung — Chrome vollständig in React, Hamburger entfernt)
 - **DOM-Hamburger-Menü (`#menu-icon` → `#controls`) und DOM-Footer gelöscht** —
   `index.html` enthält nur noch Canvas + React-Mountpunkt. Siehe ADR 0004.

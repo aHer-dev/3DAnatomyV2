@@ -4,7 +4,6 @@
 import { getStore } from '../store/useStore.js';
 import { loadGroupByName } from '../features/modelLoader-core.js';
 import { setModelColor, setModelOpacity } from '../features/appearance.js';
-import { setModelVisibility } from '../features/visibility.js';
 import { renderer } from '../core/renderer.js';
 import { scene } from '../core/scene.js';
 import { camera } from '../core/camera.js';
@@ -251,7 +250,7 @@ class CollectionManager {
         }
 
         // In allen Gruppen suchen
-        for (const [groupName, models] of Object.entries(getStore().groups)) {
+        for (const models of Object.values(getStore().groups)) {
             for (const model of models || []) {
                 const modelId = model.userData?.meta?.id || model.name;
                 if (modelId === id) return model;
