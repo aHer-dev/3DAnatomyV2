@@ -7,13 +7,6 @@ interface AppConfig {
     showWarnings: boolean
   }
   features: {
-    resourceManager: boolean
-    resourceManagerConfig: {
-      enabled: boolean
-      maxMemoryMB: number
-      autoCleanup: boolean
-      debugLogs: boolean
-    }
     performanceMonitor: boolean
     performanceConfig: {
       enabled: boolean
@@ -72,13 +65,6 @@ export const APP_CONFIG: AppConfig = {
   },
 
   features: {
-    resourceManager: false,
-    resourceManagerConfig: {
-      enabled: false,
-      maxMemoryMB: 200,
-      autoCleanup: true,
-      debugLogs: false,
-    },
     performanceMonitor: false,
     performanceConfig: {
       enabled: true,
@@ -165,10 +151,6 @@ export function getOptimalConfig(): AppConfig {
       },
       features: {
         ...APP_CONFIG.features,
-        resourceManagerConfig: {
-          ...APP_CONFIG.features.resourceManagerConfig,
-          maxMemoryMB: 100,
-        },
       },
     }
   }

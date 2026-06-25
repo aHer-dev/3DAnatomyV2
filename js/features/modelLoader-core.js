@@ -21,24 +21,7 @@ import { showLoadingBar, hideLoadingBar, updateLoadingBar } from '../modelLoader
 // ✅ IMPORT CONFIG für dynamische Performance-Werte
 import { getConfig } from '../config/config.js';
 
-// ✅ IMPORT RESOURCE MANAGER für Caching
-import { loadWithManager } from '../core/resourceManager.js';
-
-
-
-// ✅ GLOBAL LOADER-POOL für bessere Performance
-const LOADER_POOL = [];
-const MAX_LOADERS = 3;
 const RESPONSIVE_BATCH_GROUPS = new Set(['muscles', 'skin_hair']);
-
-function getPooledLoader() {
-  if (LOADER_POOL.length === 0) {
-    for (let i = 0; i < MAX_LOADERS; i++) {
-      LOADER_POOL.push(createGLTFLoader());
-    }
-  }
-  return LOADER_POOL[Math.floor(Math.random() * LOADER_POOL.length)];
-}
 
 function getResponsiveBatchSize(groupName, defaultBatchSize, entryCount) {
   const safeDefault = Math.max(1, defaultBatchSize || 1);
@@ -92,21 +75,6 @@ function prepareForShadows(root, groupName = root?.userData?.group) {
 }
 
 
-const materialCache = new Map();
-
-function getOrCreateMaterial(color, opacity = 1) {
-  const key = `${color}_${opacity}`;
-  if (!materialCache.has(key)) {
-    materialCache.set(key, new THREE.MeshLambertMaterial({
-      color: color,
-      opacity: opacity,
-      transparent: opacity < 1
-    }));
-  }
-  return materialCache.get(key);
-}
-
-
 
 /**
  * Mehrere Modelle einer Gruppe laden (in Batches)
@@ -122,10 +90,9 @@ export async function loadModels(entries, group, centerCamera, scene, loader, ca
   let loaded = 0;
   const configuredBatchSize = getConfig('performance.batchSize', 3);
   const batchSize = getResponsiveBatchSize(group, configuredBatchSize, entries.length);
-  const useResourceManager = getConfig('features.resourceManager', false);
   const yieldBetweenBatches = shouldYieldBetweenBatches(entries.length, batchSize);
 
-  console.log(`🔄 Lade ${entries.length} Modelle für "${group}" (Batch: ${batchSize}/${configuredBatchSize}, Cache: ${useResourceManager}, Yield: ${yieldBetweenBatches})`);
+  console.log(`🔄 Lade ${entries.length} Modelle für "${group}" (Batch: ${batchSize}/${configuredBatchSize}, Yield: ${yieldBetweenBatches})`);
 
 
 
@@ -256,28 +223,6 @@ export function loadSingleModel(entry, group, scene, loader) {
       resolve(null);
     }
   });
-}
-
-/**
- * Gruppe per Namen laden (nutzt Meta/State)
- */
-function applyGroupColor(mesh, groupName) {
-  const groupConfig = getConfig().groups?.[groupName];
-  if (groupConfig && groupConfig.color) {
-    mesh.material = mesh.material.clone();          // kein Shared-Material
-    mesh.material.color.setHex(groupConfig.color);  // Farbe setzen
-    mesh.material.needsUpdate = false;              // für Farbwechsel nicht nötig
-  }
-}
-
-// Ensure proper lighting for muscles (nur einmal hinzufügen)
-let __lightsAdded = false;
-function ensureMuscleLighting(scene) {
-  if (__lightsAdded) return;
-  const ambientLight = new THREE.AmbientLight(0xffffff, 0.4);
-  const directionalLight = new THREE.DirectionalLight(0xffffff, 0.6);
-  scene.add(ambientLight, directionalLight);
-  __lightsAdded = true;
 }
 
 /**

@@ -17,8 +17,13 @@ Format: [Keep a Changelog](https://keepachangelog.com/de/1.0.0/)
 - **Lint: 10 Fehler → 0** (`npm run lint` grün): leere `catch`-Blöcke kommentiert, ungenutzte
   `catch (error)`-Bindings entfernt, irreguläres Leerzeichen (U+202F) gefixt, tote Imports
   raus (`THREE` in selection/visibility, `setModelVisibility`, `modelPath`), tote Funktion
-  `updateDynamicProgress` entfernt. Verbleibend: 5 `no-unused-vars`-Warnungen für noch nicht
-  verdrahteten `resourceManager`-/Loader-Pool-WIP in `modelLoader-core.js` (bewusst behalten).
+  `updateDynamicProgress` entfernt.
+- **`resourceManager`-Subsystem komplett entfernt**: `js/core/resourceManager.js` gelöscht
+  (nutzte verbotenes `localStorage`, preloadete nicht existierende Dateien, war nie verdrahtet).
+  In `modelLoader-core.js` die toten Helfer raus (Loader-Pool `getPooledLoader`, Material-Cache
+  `getOrCreateMaterial`, das durch `updateModelColors`/`setupBasicLights` abgelöste
+  `applyGroupColor`/`ensureMuscleLighting`) inkl. verwaister Konstanten; tote
+  `features.resourceManager*`-Flags aus `config.ts`. **Lint damit komplett blank: 0 Fehler, 0 Warnungen.**
 - **`docs/architecture.md`** auf den realen Ist-Stand gebracht (Schichten, Datei-Struktur,
   Store-/Aktions-Kommunikation, meta.json-Hinweis zu leeren region/system-Feldern).
 
