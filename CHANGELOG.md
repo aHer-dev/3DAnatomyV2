@@ -7,6 +7,25 @@ Format: [Keep a Changelog](https://keepachangelog.com/de/1.0.0/)
 
 ## [Unreleased]
 
+### Changed (Einzelansicht — letzte DOM-Chrome-Altlast nach React)
+- **Isolations-Aktionsleiste von imperativem DOM nach React portiert** (vollendet ADR 0004:
+  „kein paralleles DOM-Chrome mehr"). `isolationView.js` baut keine `document.createElement`-Leiste
+  mehr, sondern schreibt den Isolations-Zustand (`isolation: { model, actionBar }`) in den Store;
+  die neue `IsolationBar.tsx` rendert die Leiste reaktiv. `InfoPanel` liest den Isolations-Status
+  jetzt reaktiv aus dem Store statt über lokalen State — der „Isolieren"-Button aktualisiert sich
+  auch, wenn die Isolation über die Leiste verlassen wird. Der custom-`actionBar`-Erweiterungspunkt
+  (Muskelfinder-Deeplink „← Zurück zum Muskelfinder") bleibt unverändert nutzbar. Nebenbei behoben:
+  `resetApp()` räumt die Isolation jetzt auf (vorher konnte die DOM-Leiste nach Reset hängen bleiben).
+
+### Added (3D-UX)
+- **Röntgen-/Transparenz-Regler pro Layer** im StructureBrowser: jeder geladene & sichtbare
+  Layer (Knochen, Muskeln …) bekommt einen kompakten Slider, um die ganze Gruppe stufenlos
+  durchscheinen zu lassen (z. B. Muskeln auf 30 %, um Knochen darunter zu sehen). Neuer
+  Store-State `groupOpacity` + Action `setGroupOpacity` (geklemmt 0–1); das bestehende, bis
+  dato ungenutzte `appearance.setGroupOpacity()` persistiert jetzt in den Store und fordert ein
+  Render an. `loadGroupByName` wendet gespeicherte Layer-Transparenz nach dem Laden erneut an
+  (Konsistenz beim Neuladen); `resetApp()` setzt sie zurück.
+
 ### Removed (Aufräumen / Hygiene — tote Dateien, Lint, Docs)
 - **15 nicht importierte tote CSS-Dateien gelöscht** (`base/*`, `components/animations.css`,
   `components/ui-elements.css`, `controls/{dropdowns,inputs,set-list,sidebar,sliders}.css`,

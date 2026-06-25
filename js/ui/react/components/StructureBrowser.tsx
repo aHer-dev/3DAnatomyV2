@@ -3,6 +3,7 @@ import { useReactStore } from '../useReactStore.js'
 import { getGroupLabel, sortGroups, ENABLED_GROUPS } from '../groupLabels.js'
 import { loadGroupByName } from '../../../features/modelLoader-core.js'
 import { unloadGroupSilent } from '../../../bootstrap/initGroupLoader.js'
+import { setGroupOpacity } from '../../../features/appearance.js'
 import { getStore } from '../../../store/useStore.js'
 
 // Hex color from store number
@@ -16,9 +17,10 @@ interface GroupRowProps {
   isVisible: boolean
   modelCount: number
   color: number | undefined
+  opacity: number
 }
 
-function GroupRow({ group, isLoaded, isVisible, modelCount, color }: GroupRowProps) {
+function GroupRow({ group, isLoaded, isVisible, modelCount, color, opacity }: GroupRowProps) {
   const [isPending, startTransition] = useTransition()
 
   const handleToggle = useCallback(() => {
@@ -35,6 +37,10 @@ function GroupRow({ group, isLoaded, isVisible, modelCount, color }: GroupRowPro
     getStore().setGroupVisible(group, !isVisible)
   }, [group, isVisible])
 
+  const handleOpacity = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    setGroupOpacity(group, parseFloat(e.target.value))
+  }, [group])
+
   const label = getGroupLabel(group)
   const swatch = color !== undefined ? colorHex(color) : '#888'
 
@@ -47,6 +53,21 @@ function GroupRow({ group, isLoaded, isVisible, modelCount, color }: GroupRowPro
       <span className="sb-label">{label}</span>
       {isLoaded && modelCount > 0 && (
         <span className="sb-count">{modelCount}</span>
+      )}
+
+      {/* Röntgen: Transparenz-Slider (nur wenn geladen & sichtbar) */}
+      {isLoaded && isVisible && (
+        <input
+          type="range"
+          className="sb-opacity"
+          min={0.15}
+          max={1}
+          step={0.05}
+          value={opacity}
+          onChange={handleOpacity}
+          aria-label={`Transparenz ${label}`}
+          title={`Transparenz ${Math.round(opacity * 100)}%`}
+        />
       )}
 
       {/* Visibility toggle (only when loaded) */}
@@ -84,6 +105,7 @@ export function StructureBrowser({ onClose }: StructureBrowserProps) {
   const groups          = useReactStore(s => s.groups)
   const groupStates     = useReactStore(s => s.groupStates)
   const colors          = useReactStore(s => s.colors)
+  const groupOpacity    = useReactStore(s => s.groupOpacity)
 
   const sorted = sortGroups(availableGroups.filter(g => ENABLED_GROUPS.has(g)))
 
@@ -103,6 +125,7 @@ export function StructureBrowser({ onClose }: StructureBrowserProps) {
             isVisible={groupStates[group] ?? false}
             modelCount={groups[group as keyof typeof groups]?.length ?? 0}
             color={colors[group]}
+            opacity={groupOpacity[group] ?? 1}
           />
         ))}
         {sorted.length === 0 && (

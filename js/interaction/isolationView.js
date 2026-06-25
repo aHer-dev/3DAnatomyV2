@@ -6,8 +6,9 @@ import { getStore } from '../store/useStore.js';
 
 const DEFAULT_STRUCTURAL_GROUPS = ['bones', 'teeth', 'cartilage', 'ligaments'];
 
+// Sichtbarkeits-Snapshot ist reine 3D-Logik und bleibt modul-lokal.
+// Der für die UI relevante Isolations-Zustand (Modell + Aktionsleiste) liegt im Store.
 let isolationSnapshot = null;
-let isolatedModel = null;
 
 function saveVisibilitySnapshot() {
   const snapshot = {};
@@ -30,38 +31,19 @@ function restoreVisibilitySnapshot(snapshot) {
   }
 }
 
-function removeIsolationActionBar() {
-  document.getElementById('isolation-actions')?.remove();
-}
-
-function showIsolationActionBar(actionBar = {}) {
-  removeIsolationActionBar();
-
-  const {
-    primaryLabel = '← Zurück zur Gesamtansicht',
-    onPrimary = () => exitIsolatedView(),
-    secondaryLabel = '',
-    onSecondary = null
-  } = actionBar;
-
-  const container = document.createElement('div');
-  container.id = 'isolation-actions';
-
-  const primaryButton = document.createElement('button');
-  primaryButton.className = 'isolation-action-btn isolation-action-btn--primary';
-  primaryButton.textContent = primaryLabel;
-  primaryButton.addEventListener('click', onPrimary);
-  container.appendChild(primaryButton);
-
-  if (secondaryLabel && typeof onSecondary === 'function') {
-    const secondaryButton = document.createElement('button');
-    secondaryButton.className = 'isolation-action-btn isolation-action-btn--secondary';
-    secondaryButton.textContent = secondaryLabel;
-    secondaryButton.addEventListener('click', onSecondary);
-    container.appendChild(secondaryButton);
-  }
-
-  document.body.appendChild(container);
+/**
+ * Normalisiert die (optionale) Aktionsleisten-Konfiguration auf eine vollständige
+ * Form, die die React-Leiste (IsolationBar.tsx) direkt rendern kann.
+ * @param {object|null} actionBar
+ */
+function normalizeActionBar(actionBar) {
+  const base = actionBar || {};
+  return {
+    primaryLabel: base.primaryLabel || '← Zurück zur Gesamtansicht',
+    onPrimary: typeof base.onPrimary === 'function' ? base.onPrimary : () => exitIsolatedView(),
+    secondaryLabel: base.secondaryLabel || '',
+    onSecondary: typeof base.onSecondary === 'function' ? base.onSecondary : null,
+  };
 }
 
 export function enterIsolatedView(model, options = {}) {
@@ -78,8 +60,6 @@ export function enterIsolatedView(model, options = {}) {
     isolationSnapshot = saveVisibilitySnapshot();
   }
 
-  isolatedModel = model;
-
   for (const models of Object.values(getStore().groups || {})) {
     for (const entry of models) {
       setModelVisibility(entry, false);
@@ -94,11 +74,10 @@ export function enterIsolatedView(model, options = {}) {
 
   setModelVisibility(model, true);
 
-  if (showBackButton) {
-    showIsolationActionBar(actionBar || undefined);
-  } else {
-    removeIsolationActionBar();
-  }
+  getStore().setIsolation({
+    model,
+    actionBar: showBackButton ? normalizeActionBar(actionBar) : null,
+  });
 
   renderer.render(scene, camera);
   return true;
@@ -110,11 +89,20 @@ export function exitIsolatedView() {
     isolationSnapshot = null;
   }
 
-  isolatedModel = null;
-  removeIsolationActionBar();
+  getStore().setIsolation({ model: null, actionBar: null });
   renderer.render(scene, camera);
 }
 
 export function getIsolatedModel() {
-  return isolatedModel;
+  return getStore().isolation.model;
+}
+
+/**
+ * Setzt den Isolations-Zustand hart zurück, ohne den (ggf. veralteten)
+ * Sichtbarkeits-Snapshot wiederherzustellen — für den vollständigen App-Reset,
+ * bei dem ohnehin alle Modelle neu geladen werden.
+ */
+export function clearIsolationState() {
+  isolationSnapshot = null;
+  getStore().setIsolation({ model: null, actionBar: null });
 }

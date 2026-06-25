@@ -10,7 +10,7 @@ import { controls } from '../core/controls.js';
 import { fitCameraToScene } from '../core/cameraUtils.js';
 import { modelPath, withBase } from '../core/path.js';
 import { registerPickables } from '../features/selection.js';
-import { getShadowFlagsForGroup } from '../features/appearance.js';
+import { getShadowFlagsForGroup, setGroupOpacity } from '../features/appearance.js';
 import { updateModelColors } from '../modelLoader/color.js';
 import { getStore, INITIAL_COLORS, DEFAULT_COLOR } from '../store/useStore.js';
 import { requestRender } from '../core/renderScheduler.js';
@@ -247,6 +247,12 @@ export async function loadGroupByName(groupName, { centerCamera = false, loaderR
     if (hex != null) {
       updateModelColors(groupName, hex);
       console.log(`🎨 Farbe für "${groupName}" gesetzt: 0x${hex.toString(16)}`);
+    }
+
+    // Gespeicherte Layer-Transparenz (Röntgen) auf neu geladene Modelle anwenden
+    const groupOpacity = getStore().groupOpacity?.[groupName];
+    if (groupOpacity != null && groupOpacity < 1) {
+      setGroupOpacity(groupName, groupOpacity);
     }
 
     console.log(`✅ loadGroupByName: Gruppe "${groupName}" geladen (${entries.length} Modelle)`);

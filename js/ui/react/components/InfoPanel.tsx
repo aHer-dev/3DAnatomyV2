@@ -81,7 +81,8 @@ function ModelActions({ model, meta }: ModelActionsProps) {
   const collection = useReactStore(s => s.collection)
   const inCollection = collection.some((c: any) => c.id === meta.id)
   const [visible, setVisible] = useState(() => isModelVisible(model))
-  const [isolated, setIsolated] = useState(() => getIsolatedModel() === model)
+  const isolatedModel = useReactStore(s => s.isolation.model)
+  const isolated = isolatedModel === model
   const [ghostActive, setGhostActive] = useState(false)
   const [recentColors, setRecentColors] = useState<string[]>(getRecentColors)
   const [toast, setToast] = useState<string | null>(null)
@@ -127,10 +128,8 @@ function ModelActions({ model, meta }: ModelActionsProps) {
   const handleIsolate = useCallback(() => {
     if (getIsolatedModel() === model) {
       exitIsolatedView()
-      setIsolated(false)
     } else {
       enterIsolatedView(model)
-      setIsolated(true)
     }
   }, [model])
 

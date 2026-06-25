@@ -7,6 +7,7 @@ import { CollectionPanel } from './components/CollectionPanel.js'
 import { SettingsPanel } from './components/SettingsPanel.js'
 import { Footer } from './components/Footer.js'
 import { Toolbar } from './components/Toolbar.js'
+import { IsolationBar } from './components/IsolationBar.js'
 
 export function App() {
   const [browserOpen, setBrowserOpen] = useState(false)
@@ -23,6 +24,7 @@ export function App() {
       {settingsOpen && <SettingsPanel onClose={() => setSettingsOpen(false)} />}
       <InfoPanel />
       <MultiSelectPanel />
+      <IsolationBar />
       <Footer />
       <Toolbar
         browserOpen={browserOpen}

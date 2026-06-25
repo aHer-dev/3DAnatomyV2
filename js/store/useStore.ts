@@ -12,6 +12,22 @@ export const INITIAL_COLORS: Record<string, number> = {
   ...(APP_CONFIG.ui.colors as Record<string, number>),
 }
 
+// ─── Einzelansicht (Isolation) ───────────────────────────────────────────────
+
+export interface IsolationActionBar {
+  primaryLabel: string
+  onPrimary: () => void
+  secondaryLabel?: string
+  onSecondary?: (() => void) | null
+}
+
+export interface IsolationState {
+  model: THREE.Object3D | null
+  actionBar: IsolationActionBar | null
+}
+
+const emptyIsolation: IsolationState = { model: null, actionBar: null }
+
 // ─── State-Form ──────────────────────────────────────────────────────────────
 
 export interface StoreState {
@@ -25,9 +41,13 @@ export interface StoreState {
   selected: SelectionState
   multiSelected: Set<THREE.Object3D>
 
+  // ─── Einzelansicht ──────────────────────────────────────────────────────────
+  isolation: IsolationState
+
   // ─── Darstellung ────────────────────────────────────────────────────────────
   colors: Record<string, number>
   opacity: Record<string, number>
+  groupOpacity: Record<string, number>
 
   // ─── Raycasting ─────────────────────────────────────────────────────────────
   pickableObjects: Set<THREE.Object3D>
@@ -51,6 +71,9 @@ export interface StoreState {
   setSelection: (s: Partial<SelectionState>) => void
   clearSelection: () => void
 
+  // ─── Actions: Einzelansicht ───────────────────────────────────────────────
+  setIsolation: (iso: IsolationState) => void
+
   // ─── Actions: MultiSelect ─────────────────────────────────────────────────
   addToMultiSelected: (mesh: THREE.Object3D) => void
   removeFromMultiSelected: (mesh: THREE.Object3D) => void
@@ -68,6 +91,7 @@ export interface StoreState {
   // ─── Actions: Appearance ──────────────────────────────────────────────────
   setGroupColor: (group: string, color: number) => void
   setModelOpacity: (modelId: string, opacity: number) => void
+  setGroupOpacity: (group: string, opacity: number) => void
 
   // ─── Actions: Pickables ───────────────────────────────────────────────────
   addPickable: (mesh: THREE.Object3D) => void
@@ -112,8 +136,10 @@ const useStore = createStore<StoreState>((set, get) => ({
   modelsByName: new Map(),
   selected: emptySelection,
   multiSelected: new Set(),
+  isolation: emptyIsolation,
   colors: { ...INITIAL_COLORS },
   opacity: {},
+  groupOpacity: {},
   pickableObjects: new Set(),
   protection: { bones: true, teeth: true },
   groupedMeta: {},
@@ -130,6 +156,9 @@ const useStore = createStore<StoreState>((set, get) => ({
     })),
 
   clearSelection: () => set({ selected: emptySelection }),
+
+  // Einzelansicht (Isolation)
+  setIsolation: (iso) => set({ isolation: iso }),
 
   // MultiSelect
   addToMultiSelected: (mesh) =>
@@ -193,6 +222,11 @@ const useStore = createStore<StoreState>((set, get) => ({
   setModelOpacity: (modelId, opacity) =>
     set((state) => ({
       opacity: { ...state.opacity, [modelId]: Math.max(0, Math.min(1, opacity)) },
+    })),
+
+  setGroupOpacity: (group, opacity) =>
+    set((state) => ({
+      groupOpacity: { ...state.groupOpacity, [group]: Math.max(0, Math.min(1, opacity)) },
     })),
 
   // Pickables
@@ -263,8 +297,10 @@ const useStore = createStore<StoreState>((set, get) => ({
         modelsByName: new Map(),
         selected: emptySelection,
         multiSelected: new Set(),
+        isolation: emptyIsolation,
         colors: { ...INITIAL_COLORS },
         opacity: {},
+        groupOpacity: {},
         pickableObjects: new Set(),
         collection: [],
         clickCounts: {},

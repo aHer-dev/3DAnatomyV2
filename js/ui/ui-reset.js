@@ -12,6 +12,7 @@ import { setCameraToDefault } from '../core/cameraUtils.js';
 import { setModelVisibility } from '../features/visibility.js';
 import { unregisterPickables } from '../features/selection.js';
 import { disposeObject3D } from '../modelLoader/cleanup.js';
+import { clearIsolationState } from '../interaction/isolationView.js';
 
 const STANDARD_GROUPS = ['bones', 'teeth', 'cartilage'];
 
@@ -37,6 +38,7 @@ export async function resetApp() {
     updateResetProgress('Leere Sammlung...', 10);
     getStore().clearCollection();
     getStore().clearSelection();
+    clearIsolationState();
 
     updateResetProgress('Räume Szene komplett auf...', 20);
     const toRemove = [];
@@ -59,7 +61,7 @@ export async function resetApp() {
       getStore().setGroupVisible(groupName, false);
     }
 
-    useStore.setState({ pickableObjects: new Set() });
+    useStore.setState({ pickableObjects: new Set(), groupOpacity: {} });
 
     let progressStep = 40;
     const stepSize = 40 / STANDARD_GROUPS.length;

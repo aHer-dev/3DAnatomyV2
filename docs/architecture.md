@@ -11,7 +11,8 @@
 │            React UI (Overlay #ui-root)       │
 │  SearchBar · StructureBrowser · InfoPanel    │
 │  MultiSelectPanel · CollectionPanel ·        │
-│  Toolbar · SettingsPanel · Footer/License    │
+│  Toolbar · SettingsPanel · IsolationBar ·    │
+│  Footer/License                              │
 └───────────────┬─────────────────┬───────────┘
    useReactStore │                 │ direkte Aufrufe
    (reaktiver    │                 │ imperativer Aktionen

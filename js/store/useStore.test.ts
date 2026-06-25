@@ -160,6 +160,35 @@ describe('Appearance', () => {
     store.getState().setModelOpacity('FJ1234', -0.3)
     expect(store.getState().opacity['FJ1234']).toBe(0)
   })
+
+  it('setzt Layer-Transparenz (Röntgen) pro Gruppe und klemmt auf 0–1', () => {
+    store.getState().setGroupOpacity('muscles', 0.3)
+    expect(store.getState().groupOpacity['muscles']).toBe(0.3)
+
+    store.getState().setGroupOpacity('muscles', 1.5)
+    expect(store.getState().groupOpacity['muscles']).toBe(1)
+
+    store.getState().setGroupOpacity('muscles', -0.3)
+    expect(store.getState().groupOpacity['muscles']).toBe(0)
+  })
+})
+
+// ─── Einzelansicht (Isolation) ──────────────────────────────────────────────────
+
+describe('Einzelansicht', () => {
+  it('setzt und löscht den Isolations-Zustand inkl. Aktionsleiste', () => {
+    const mesh = mockMesh()
+    store.getState().setIsolation({
+      model: mesh,
+      actionBar: { primaryLabel: 'Zurück', onPrimary: () => {} },
+    })
+    expect(store.getState().isolation.model).toBe(mesh)
+    expect(store.getState().isolation.actionBar?.primaryLabel).toBe('Zurück')
+
+    store.getState().setIsolation({ model: null, actionBar: null })
+    expect(store.getState().isolation.model).toBeNull()
+    expect(store.getState().isolation.actionBar).toBeNull()
+  })
 })
 
 // ─── Pickables ────────────────────────────────────────────────────────────────
