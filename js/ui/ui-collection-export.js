@@ -33,7 +33,7 @@ class CollectionManager {
                 version: this.version,
                 timestamp: new Date().toISOString(),
                 appInfo: {
-                    name: 'BlueBody 3D',
+                    name: 'Anatomie Fokus 3D',
                     exportDate: new Date().toLocaleDateString()
                 },
                 statistics: {

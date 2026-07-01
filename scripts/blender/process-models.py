@@ -1,4 +1,4 @@
-# process-models.py — headless BodyParts3D-Aufbereitung für BlueBody 3D
+# process-models.py — headless BodyParts3D-Aufbereitung für Anatomie Fokus 3D
 # =============================================================================
 # Verarbeitet die sortierten Roh-OBJ (NEW MODELS/sorted/<gruppe>/) zu sauberen
 # GLBs: Voxel-Remesh -> Smooth -> Decimate -> 1 Material -> Export (hifi + draco).

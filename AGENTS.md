@@ -1,4 +1,4 @@
-# BlueBody 3D — Agenten-Regeln
+# Anatomie Fokus 3D — Agenten-Regeln
 
 3D-Anatomie-Webapp für Studierende (Physio/Ergo/Logopädie). Statische Seite.
 Solo-Projekt, KI-gestützt. Strategie: ROADMAP.md · Architektur: docs/architecture.md

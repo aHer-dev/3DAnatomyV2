@@ -1,4 +1,4 @@
-# BlueBody 3D — Lokal starten
+# Anatomie Fokus 3D — Lokal starten
 
 ## Voraussetzungen
 

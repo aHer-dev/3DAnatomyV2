@@ -312,7 +312,7 @@ function _capturePhoto() {
 
   // Download
   const ts   = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
-  const name = `bluebody-${label.replace(':', 'x')}-${ts}.jpg`;
+  const name = `anatomie-fokus-3d-${label.replace(':', 'x')}-${ts}.jpg`;
   const link = document.createElement('a');
   link.download = name;
   link.href     = dataURL;

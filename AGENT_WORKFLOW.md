@@ -1,4 +1,4 @@
-# BlueBody 3D — Agenten-Workflow & Arbeitsumgebung
+# Anatomie Fokus 3D — Agenten-Workflow & Arbeitsumgebung
 
 > Wie Claude Code und OpenAI Codex in diesem Projekt zusammenarbeiten — strukturiert, dokumentiert, getestet. Kein Agentenbrei, sondern ein Uhrwerk.
 >
@@ -310,7 +310,7 @@ git add -A && git commit -m "chore: agenten-workflow & steuerdateien aufgesetzt"
 Kompakt, projektspezifisch, im Budget. Anpassen sobald der Stack steht (Phase 1/2):
 
 ```markdown
-# BlueBody 3D — Agenten-Regeln
+# Anatomie Fokus 3D — Agenten-Regeln
 
 3D-Anatomie-Webapp für Studierende (Physio/Ergo/Logopädie). Statische Seite.
 Solo-Projekt, KI-gestützt. Strategie: ROADMAP.md · Architektur: docs/architecture.md

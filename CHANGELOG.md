@@ -7,6 +7,16 @@ Format: [Keep a Changelog](https://keepachangelog.com/de/1.0.0/)
 
 ## [Unreleased]
 
+### Changed (Rebranding — „BlueBody 3D" → „Anatomie Fokus 3D")
+- Anzeigename überall auf **Anatomie Fokus 3D** umgestellt: Browser-Titel (`index.html`),
+  alle Doku-Titel (AGENTS/CLAUDE.md, ROADMAP, architecture, STARTEN, AGENT_WORKFLOW,
+  DESIGN_BRIEF), Export-Signatur im Sammlungs-Export, `name`-Feld der Preset-Dateien,
+  Screenshot-Dateiname (`anatomie-fokus-3d-…jpg`) und npm-Paketname (`anatomie-fokus-3d`,
+  package.json + lock synchron, `npm ci` grün).
+- **Bewusst belassen:** die technische Dateiendung `.bluebody` (Format der gespeicherten
+  Sammlungen/Presets) — eine Umbenennung würde bereits exportierte Nutzerdateien
+  unlesbar machen; offen als separate Entscheidung.
+
 ### Added (Nomenklatur — kuratiertes Latein für sichtbare neue Muskeln)
 - **`labels.la` für die 54 neuen, aktuell sichtbaren Muskel-Teile** (Gruppe `muscles`)
   mit geprüftem Terminologia-Anatomica-Latein gesetzt (`scripts/set-muscle-latin.mjs`,

@@ -1,4 +1,4 @@
-# BlueBody 3D — Architektur-Überblick
+# Anatomie Fokus 3D — Architektur-Überblick
 
 > Stand der tatsächlichen Codebasis. Entscheidungen siehe `docs/decisions/` (ADRs).
 
