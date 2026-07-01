@@ -4456,7 +4456,7 @@
       "current": "draco",
       "variants": {
         "draco": {
-          "path": "arteries",
+          "path": "nerves",
           "filename": "FJ1293.glb",
           "format": "glb"
         },
@@ -4491,9 +4491,9 @@
       "checksum": "",
       "root_name": "FJ1293",
       "asset": {
-        "path": "arteries",
+        "path": "nerves",
         "file": "FJ1293.glb",
-        "url": "arteries/FJ1293.glb",
+        "url": "nerves/FJ1293.glb",
         "fileKey": "FJ1293.glb"
       }
     },
@@ -5104,7 +5104,7 @@
       "current": "draco",
       "variants": {
         "draco": {
-          "path": "eyes",
+          "path": "glands",
           "filename": "FJ1299.glb",
           "format": "glb"
         },
@@ -5139,9 +5139,9 @@
       "checksum": "",
       "root_name": "FJ1299",
       "asset": {
-        "path": "eyes",
+        "path": "glands",
         "file": "FJ1299.glb",
-        "url": "eyes/FJ1299.glb",
+        "url": "glands/FJ1299.glb",
         "fileKey": "FJ1299.glb"
       }
     },
@@ -6184,7 +6184,7 @@
       "current": "draco",
       "variants": {
         "draco": {
-          "path": "arteries",
+          "path": "nerves",
           "filename": "FJ1311.glb",
           "format": "glb"
         },
@@ -6219,9 +6219,9 @@
       "checksum": "",
       "root_name": "FJ1311",
       "asset": {
-        "path": "arteries",
+        "path": "nerves",
         "file": "FJ1311.glb",
-        "url": "arteries/FJ1311.glb",
+        "url": "nerves/FJ1311.glb",
         "fileKey": "FJ1311.glb"
       }
     },
@@ -7048,7 +7048,7 @@
       "current": "draco",
       "variants": {
         "draco": {
-          "path": "arteries",
+          "path": "nerves",
           "filename": "FJ1321.glb",
           "format": "glb"
         },
@@ -7083,9 +7083,9 @@
       "checksum": "",
       "root_name": "FJ1321",
       "asset": {
-        "path": "arteries",
+        "path": "nerves",
         "file": "FJ1321.glb",
-        "url": "arteries/FJ1321.glb",
+        "url": "nerves/FJ1321.glb",
         "fileKey": "FJ1321.glb"
       }
     },
@@ -9424,7 +9424,7 @@
       "current": "draco",
       "variants": {
         "draco": {
-          "path": "arteries",
+          "path": "nerves",
           "filename": "FJ1344.glb",
           "format": "glb"
         },
@@ -9459,9 +9459,9 @@
       "checksum": "",
       "root_name": "FJ1344",
       "asset": {
-        "path": "arteries",
+        "path": "nerves",
         "file": "FJ1344.glb",
-        "url": "arteries/FJ1344.glb",
+        "url": "nerves/FJ1344.glb",
         "fileKey": "FJ1344.glb"
       }
     },
@@ -10072,7 +10072,7 @@
       "current": "draco",
       "variants": {
         "draco": {
-          "path": "eyes",
+          "path": "glands",
           "filename": "FJ1350.glb",
           "format": "glb"
         },
@@ -10107,9 +10107,9 @@
       "checksum": "",
       "root_name": "FJ1350",
       "asset": {
-        "path": "eyes",
+        "path": "glands",
         "file": "FJ1350.glb",
-        "url": "eyes/FJ1350.glb",
+        "url": "glands/FJ1350.glb",
         "fileKey": "FJ1350.glb"
       }
     },
@@ -11152,7 +11152,7 @@
       "current": "draco",
       "variants": {
         "draco": {
-          "path": "arteries",
+          "path": "nerves",
           "filename": "FJ1362.glb",
           "format": "glb"
         },
@@ -11187,9 +11187,9 @@
       "checksum": "",
       "root_name": "FJ1362",
       "asset": {
-        "path": "arteries",
+        "path": "nerves",
         "file": "FJ1362.glb",
-        "url": "arteries/FJ1362.glb",
+        "url": "nerves/FJ1362.glb",
         "fileKey": "FJ1362.glb"
       }
     },
@@ -12016,7 +12016,7 @@
       "current": "draco",
       "variants": {
         "draco": {
-          "path": "arteries",
+          "path": "nerves",
           "filename": "FJ1372.glb",
           "format": "glb"
         },
@@ -12051,9 +12051,9 @@
       "checksum": "",
       "root_name": "FJ1372",
       "asset": {
-        "path": "arteries",
+        "path": "nerves",
         "file": "FJ1372.glb",
-        "url": "arteries/FJ1372.glb",
+        "url": "nerves/FJ1372.glb",
         "fileKey": "FJ1372.glb"
       }
     },
@@ -21812,7 +21812,7 @@
       "current": "draco",
       "variants": {
         "draco": {
-          "path": "brain",
+          "path": "ligaments",
           "filename": "FJ1423.glb",
           "format": "glb"
         },
@@ -21847,9 +21847,9 @@
       "checksum": "",
       "root_name": "FJ1423",
       "asset": {
-        "path": "brain",
+        "path": "ligaments",
         "file": "FJ1423.glb",
-        "url": "brain/FJ1423.glb",
+        "url": "ligaments/FJ1423.glb",
         "fileKey": "FJ1423.glb"
       }
     },
@@ -21920,7 +21920,7 @@
       "current": "draco",
       "variants": {
         "draco": {
-          "path": "brain",
+          "path": "ligaments",
           "filename": "FJ1423M.glb",
           "format": "glb"
         },
@@ -21955,9 +21955,9 @@
       "checksum": "",
       "root_name": "FJ1423M",
       "asset": {
-        "path": "brain",
+        "path": "ligaments",
         "file": "FJ1423M.glb",
-        "url": "brain/FJ1423M.glb",
+        "url": "ligaments/FJ1423M.glb",
         "fileKey": "FJ1423M.glb"
       }
     },
@@ -23988,7 +23988,7 @@
       "current": "draco",
       "variants": {
         "draco": {
-          "path": "eyes",
+          "path": "muscles",
           "filename": "FJ1433.glb",
           "format": "glb"
         },
@@ -24023,9 +24023,9 @@
       "checksum": "",
       "root_name": "FJ1433",
       "asset": {
-        "path": "eyes",
+        "path": "muscles",
         "file": "FJ1433.glb",
-        "url": "eyes/FJ1433.glb",
+        "url": "muscles/FJ1433.glb",
         "fileKey": "FJ1433.glb"
       }
     },
@@ -24097,7 +24097,7 @@
       "current": "draco",
       "variants": {
         "draco": {
-          "path": "eyes",
+          "path": "muscles",
           "filename": "FJ1433M.glb",
           "format": "glb"
         },
@@ -24132,9 +24132,9 @@
       "checksum": "",
       "root_name": "FJ1433M",
       "asset": {
-        "path": "eyes",
+        "path": "muscles",
         "file": "FJ1433M.glb",
-        "url": "eyes/FJ1433M.glb",
+        "url": "muscles/FJ1433M.glb",
         "fileKey": "FJ1433M.glb"
       }
     },
@@ -27693,7 +27693,7 @@
       "current": "draco",
       "variants": {
         "draco": {
-          "path": "arteries",
+          "path": "muscles",
           "filename": "FJ1451.glb",
           "format": "glb"
         },
@@ -27728,9 +27728,9 @@
       "checksum": "",
       "root_name": "FJ1451",
       "asset": {
-        "path": "arteries",
+        "path": "muscles",
         "file": "FJ1451.glb",
-        "url": "arteries/FJ1451.glb",
+        "url": "muscles/FJ1451.glb",
         "fileKey": "FJ1451.glb"
       }
     },
@@ -27802,7 +27802,7 @@
       "current": "draco",
       "variants": {
         "draco": {
-          "path": "arteries",
+          "path": "muscles",
           "filename": "FJ1451M.glb",
           "format": "glb"
         },
@@ -27837,9 +27837,9 @@
       "checksum": "",
       "root_name": "FJ1451M",
       "asset": {
-        "path": "arteries",
+        "path": "muscles",
         "file": "FJ1451M.glb",
-        "url": "arteries/FJ1451M.glb",
+        "url": "muscles/FJ1451M.glb",
         "fileKey": "FJ1451M.glb"
       }
     },
@@ -27911,7 +27911,7 @@
       "current": "draco",
       "variants": {
         "draco": {
-          "path": "eyes",
+          "path": "muscles",
           "filename": "FJ1452.glb",
           "format": "glb"
         },
@@ -27946,9 +27946,9 @@
       "checksum": "",
       "root_name": "FJ1452",
       "asset": {
-        "path": "eyes",
+        "path": "muscles",
         "file": "FJ1452.glb",
-        "url": "eyes/FJ1452.glb",
+        "url": "muscles/FJ1452.glb",
         "fileKey": "FJ1452.glb"
       }
     },
@@ -28020,7 +28020,7 @@
       "current": "draco",
       "variants": {
         "draco": {
-          "path": "eyes",
+          "path": "muscles",
           "filename": "FJ1452M.glb",
           "format": "glb"
         },
@@ -28055,9 +28055,9 @@
       "checksum": "",
       "root_name": "FJ1452M",
       "asset": {
-        "path": "eyes",
+        "path": "muscles",
         "file": "FJ1452M.glb",
-        "url": "eyes/FJ1452M.glb",
+        "url": "muscles/FJ1452M.glb",
         "fileKey": "FJ1452M.glb"
       }
     },
@@ -28238,7 +28238,7 @@
       "current": "draco",
       "variants": {
         "draco": {
-          "path": "arteries",
+          "path": "muscles",
           "filename": "FJ1454.glb",
           "format": "glb"
         },
@@ -28273,9 +28273,9 @@
       "checksum": "",
       "root_name": "FJ1454",
       "asset": {
-        "path": "arteries",
+        "path": "muscles",
         "file": "FJ1454.glb",
-        "url": "arteries/FJ1454.glb",
+        "url": "muscles/FJ1454.glb",
         "fileKey": "FJ1454.glb"
       }
     },
@@ -28347,7 +28347,7 @@
       "current": "draco",
       "variants": {
         "draco": {
-          "path": "arteries",
+          "path": "muscles",
           "filename": "FJ1454M.glb",
           "format": "glb"
         },
@@ -28382,9 +28382,9 @@
       "checksum": "",
       "root_name": "FJ1454M",
       "asset": {
-        "path": "arteries",
+        "path": "muscles",
         "file": "FJ1454M.glb",
-        "url": "arteries/FJ1454M.glb",
+        "url": "muscles/FJ1454M.glb",
         "fileKey": "FJ1454M.glb"
       }
     },
@@ -28456,7 +28456,7 @@
       "current": "draco",
       "variants": {
         "draco": {
-          "path": "arteries",
+          "path": "muscles",
           "filename": "FJ1455.glb",
           "format": "glb"
         },
@@ -28491,9 +28491,9 @@
       "checksum": "",
       "root_name": "FJ1455",
       "asset": {
-        "path": "arteries",
+        "path": "muscles",
         "file": "FJ1455.glb",
-        "url": "arteries/FJ1455.glb",
+        "url": "muscles/FJ1455.glb",
         "fileKey": "FJ1455.glb"
       }
     },
@@ -28565,7 +28565,7 @@
       "current": "draco",
       "variants": {
         "draco": {
-          "path": "arteries",
+          "path": "muscles",
           "filename": "FJ1455M.glb",
           "format": "glb"
         },
@@ -28600,9 +28600,9 @@
       "checksum": "",
       "root_name": "FJ1455M",
       "asset": {
-        "path": "arteries",
+        "path": "muscles",
         "file": "FJ1455M.glb",
-        "url": "arteries/FJ1455M.glb",
+        "url": "muscles/FJ1455M.glb",
         "fileKey": "FJ1455M.glb"
       }
     },
@@ -31724,7 +31724,7 @@
       "current": "draco",
       "variants": {
         "draco": {
-          "path": "eyes",
+          "path": "ligaments",
           "filename": "FJ1471.glb",
           "format": "glb"
         },
@@ -31759,9 +31759,9 @@
       "checksum": "",
       "root_name": "FJ1471",
       "asset": {
-        "path": "eyes",
+        "path": "ligaments",
         "file": "FJ1471.glb",
-        "url": "eyes/FJ1471.glb",
+        "url": "ligaments/FJ1471.glb",
         "fileKey": "FJ1471.glb"
       }
     },
@@ -31832,7 +31832,7 @@
       "current": "draco",
       "variants": {
         "draco": {
-          "path": "eyes",
+          "path": "ligaments",
           "filename": "FJ1471M.glb",
           "format": "glb"
         },
@@ -31867,9 +31867,9 @@
       "checksum": "",
       "root_name": "FJ1471M",
       "asset": {
-        "path": "eyes",
+        "path": "ligaments",
         "file": "FJ1471M.glb",
-        "url": "eyes/FJ1471M.glb",
+        "url": "ligaments/FJ1471M.glb",
         "fileKey": "FJ1471M.glb"
       }
     },
@@ -33902,7 +33902,7 @@
       "current": "draco",
       "variants": {
         "draco": {
-          "path": "eyes",
+          "path": "muscles",
           "filename": "FJ1481.glb",
           "format": "glb"
         },
@@ -33937,9 +33937,9 @@
       "checksum": "",
       "root_name": "FJ1481",
       "asset": {
-        "path": "eyes",
+        "path": "muscles",
         "file": "FJ1481.glb",
-        "url": "eyes/FJ1481.glb",
+        "url": "muscles/FJ1481.glb",
         "fileKey": "FJ1481.glb"
       }
     },
@@ -34011,7 +34011,7 @@
       "current": "draco",
       "variants": {
         "draco": {
-          "path": "eyes",
+          "path": "muscles",
           "filename": "FJ1481M.glb",
           "format": "glb"
         },
@@ -34046,9 +34046,9 @@
       "checksum": "",
       "root_name": "FJ1481M",
       "asset": {
-        "path": "eyes",
+        "path": "muscles",
         "file": "FJ1481M.glb",
-        "url": "eyes/FJ1481M.glb",
+        "url": "muscles/FJ1481M.glb",
         "fileKey": "FJ1481M.glb"
       }
     },
@@ -35210,7 +35210,7 @@
       "current": "draco",
       "variants": {
         "draco": {
-          "path": "arteries",
+          "path": "muscles",
           "filename": "FJ1487.glb",
           "format": "glb"
         },
@@ -35245,9 +35245,9 @@
       "checksum": "",
       "root_name": "FJ1487",
       "asset": {
-        "path": "arteries",
+        "path": "muscles",
         "file": "FJ1487.glb",
-        "url": "arteries/FJ1487.glb",
+        "url": "muscles/FJ1487.glb",
         "fileKey": "FJ1487.glb"
       }
     },
@@ -35319,7 +35319,7 @@
       "current": "draco",
       "variants": {
         "draco": {
-          "path": "arteries",
+          "path": "muscles",
           "filename": "FJ1487M.glb",
           "format": "glb"
         },
@@ -35354,9 +35354,9 @@
       "checksum": "",
       "root_name": "FJ1487M",
       "asset": {
-        "path": "arteries",
+        "path": "muscles",
         "file": "FJ1487M.glb",
-        "url": "arteries/FJ1487M.glb",
+        "url": "muscles/FJ1487M.glb",
         "fileKey": "FJ1487M.glb"
       }
     },
@@ -35646,7 +35646,7 @@
       "current": "draco",
       "variants": {
         "draco": {
-          "path": "arteries",
+          "path": "muscles",
           "filename": "FJ1489.glb",
           "format": "glb"
         },
@@ -35681,9 +35681,9 @@
       "checksum": "",
       "root_name": "FJ1489",
       "asset": {
-        "path": "arteries",
+        "path": "muscles",
         "file": "FJ1489.glb",
-        "url": "arteries/FJ1489.glb",
+        "url": "muscles/FJ1489.glb",
         "fileKey": "FJ1489.glb"
       }
     },
@@ -35755,7 +35755,7 @@
       "current": "draco",
       "variants": {
         "draco": {
-          "path": "arteries",
+          "path": "muscles",
           "filename": "FJ1489M.glb",
           "format": "glb"
         },
@@ -35790,9 +35790,9 @@
       "checksum": "",
       "root_name": "FJ1489M",
       "asset": {
-        "path": "arteries",
+        "path": "muscles",
         "file": "FJ1489M.glb",
-        "url": "arteries/FJ1489M.glb",
+        "url": "muscles/FJ1489M.glb",
         "fileKey": "FJ1489M.glb"
       }
     },
@@ -35864,7 +35864,7 @@
       "current": "draco",
       "variants": {
         "draco": {
-          "path": "arteries",
+          "path": "muscles",
           "filename": "FJ1490.glb",
           "format": "glb"
         },
@@ -35899,9 +35899,9 @@
       "checksum": "",
       "root_name": "FJ1490",
       "asset": {
-        "path": "arteries",
+        "path": "muscles",
         "file": "FJ1490.glb",
-        "url": "arteries/FJ1490.glb",
+        "url": "muscles/FJ1490.glb",
         "fileKey": "FJ1490.glb"
       }
     },
@@ -35973,7 +35973,7 @@
       "current": "draco",
       "variants": {
         "draco": {
-          "path": "arteries",
+          "path": "muscles",
           "filename": "FJ1490M.glb",
           "format": "glb"
         },
@@ -36008,9 +36008,9 @@
       "checksum": "",
       "root_name": "FJ1490M",
       "asset": {
-        "path": "arteries",
+        "path": "muscles",
         "file": "FJ1490M.glb",
-        "url": "arteries/FJ1490M.glb",
+        "url": "muscles/FJ1490M.glb",
         "fileKey": "FJ1490M.glb"
       }
     },
@@ -37172,7 +37172,7 @@
       "current": "draco",
       "variants": {
         "draco": {
-          "path": "arteries",
+          "path": "muscles",
           "filename": "FJ1496.glb",
           "format": "glb"
         },
@@ -37207,9 +37207,9 @@
       "checksum": "",
       "root_name": "FJ1496",
       "asset": {
-        "path": "arteries",
+        "path": "muscles",
         "file": "FJ1496.glb",
-        "url": "arteries/FJ1496.glb",
+        "url": "muscles/FJ1496.glb",
         "fileKey": "FJ1496.glb"
       }
     },
@@ -37281,7 +37281,7 @@
       "current": "draco",
       "variants": {
         "draco": {
-          "path": "arteries",
+          "path": "muscles",
           "filename": "FJ1496M.glb",
           "format": "glb"
         },
@@ -37316,9 +37316,9 @@
       "checksum": "",
       "root_name": "FJ1496M",
       "asset": {
-        "path": "arteries",
+        "path": "muscles",
         "file": "FJ1496M.glb",
-        "url": "arteries/FJ1496M.glb",
+        "url": "muscles/FJ1496M.glb",
         "fileKey": "FJ1496M.glb"
       }
     },
@@ -50142,7 +50142,7 @@
       "current": "draco",
       "variants": {
         "draco": {
-          "path": "eyes",
+          "path": "muscles",
           "filename": "FJ1566.glb",
           "format": "glb"
         },
@@ -50177,9 +50177,9 @@
       "checksum": "",
       "root_name": "FJ1566",
       "asset": {
-        "path": "eyes",
+        "path": "muscles",
         "file": "FJ1566.glb",
-        "url": "eyes/FJ1566.glb",
+        "url": "muscles/FJ1566.glb",
         "fileKey": "FJ1566.glb"
       }
     },
@@ -50251,7 +50251,7 @@
       "current": "draco",
       "variants": {
         "draco": {
-          "path": "eyes",
+          "path": "muscles",
           "filename": "FJ1567.glb",
           "format": "glb"
         },
@@ -50286,9 +50286,9 @@
       "checksum": "",
       "root_name": "FJ1567",
       "asset": {
-        "path": "eyes",
+        "path": "muscles",
         "file": "FJ1567.glb",
-        "url": "eyes/FJ1567.glb",
+        "url": "muscles/FJ1567.glb",
         "fileKey": "FJ1567.glb"
       }
     },
@@ -50360,7 +50360,7 @@
       "current": "draco",
       "variants": {
         "draco": {
-          "path": "eyes",
+          "path": "muscles",
           "filename": "FJ1568.glb",
           "format": "glb"
         },
@@ -50395,9 +50395,9 @@
       "checksum": "",
       "root_name": "FJ1568",
       "asset": {
-        "path": "eyes",
+        "path": "muscles",
         "file": "FJ1568.glb",
-        "url": "eyes/FJ1568.glb",
+        "url": "muscles/FJ1568.glb",
         "fileKey": "FJ1568.glb"
       }
     },
@@ -50469,7 +50469,7 @@
       "current": "draco",
       "variants": {
         "draco": {
-          "path": "eyes",
+          "path": "muscles",
           "filename": "FJ1569.glb",
           "format": "glb"
         },
@@ -50504,9 +50504,9 @@
       "checksum": "",
       "root_name": "FJ1569",
       "asset": {
-        "path": "eyes",
+        "path": "muscles",
         "file": "FJ1569.glb",
-        "url": "eyes/FJ1569.glb",
+        "url": "muscles/FJ1569.glb",
         "fileKey": "FJ1569.glb"
       }
     },
@@ -52539,7 +52539,7 @@
       "current": "draco",
       "variants": {
         "draco": {
-          "path": "eyes",
+          "path": "muscles",
           "filename": "FJ1588.glb",
           "format": "glb"
         },
@@ -52574,9 +52574,9 @@
       "checksum": "",
       "root_name": "FJ1588",
       "asset": {
-        "path": "eyes",
+        "path": "muscles",
         "file": "FJ1588.glb",
-        "url": "eyes/FJ1588.glb",
+        "url": "muscles/FJ1588.glb",
         "fileKey": "FJ1588.glb"
       }
     },
@@ -52648,7 +52648,7 @@
       "current": "draco",
       "variants": {
         "draco": {
-          "path": "eyes",
+          "path": "muscles",
           "filename": "FJ1589.glb",
           "format": "glb"
         },
@@ -52683,9 +52683,9 @@
       "checksum": "",
       "root_name": "FJ1589",
       "asset": {
-        "path": "eyes",
+        "path": "muscles",
         "file": "FJ1589.glb",
-        "url": "eyes/FJ1589.glb",
+        "url": "muscles/FJ1589.glb",
         "fileKey": "FJ1589.glb"
       }
     },
@@ -52757,7 +52757,7 @@
       "current": "draco",
       "variants": {
         "draco": {
-          "path": "eyes",
+          "path": "muscles",
           "filename": "FJ1590.glb",
           "format": "glb"
         },
@@ -52792,9 +52792,9 @@
       "checksum": "",
       "root_name": "FJ1590",
       "asset": {
-        "path": "eyes",
+        "path": "muscles",
         "file": "FJ1590.glb",
-        "url": "eyes/FJ1590.glb",
+        "url": "muscles/FJ1590.glb",
         "fileKey": "FJ1590.glb"
       }
     },
@@ -52866,7 +52866,7 @@
       "current": "draco",
       "variants": {
         "draco": {
-          "path": "eyes",
+          "path": "muscles",
           "filename": "FJ1591.glb",
           "format": "glb"
         },
@@ -52901,9 +52901,9 @@
       "checksum": "",
       "root_name": "FJ1591",
       "asset": {
-        "path": "eyes",
+        "path": "muscles",
         "file": "FJ1591.glb",
-        "url": "eyes/FJ1591.glb",
+        "url": "muscles/FJ1591.glb",
         "fileKey": "FJ1591.glb"
       }
     },
@@ -55252,7 +55252,7 @@
       "current": "draco",
       "variants": {
         "draco": {
-          "path": "brain",
+          "path": "arteries",
           "filename": "FJ1660.glb",
           "format": "glb"
         },
@@ -55287,9 +55287,9 @@
       "checksum": "",
       "root_name": "FJ1660",
       "asset": {
-        "path": "brain",
+        "path": "arteries",
         "file": "FJ1660.glb",
-        "url": "brain/FJ1660.glb",
+        "url": "arteries/FJ1660.glb",
         "fileKey": "FJ1660.glb"
       }
     },
@@ -55360,7 +55360,7 @@
       "current": "draco",
       "variants": {
         "draco": {
-          "path": "brain",
+          "path": "arteries",
           "filename": "FJ1660M.glb",
           "format": "glb"
         },
@@ -55395,9 +55395,9 @@
       "checksum": "",
       "root_name": "FJ1660M",
       "asset": {
-        "path": "brain",
+        "path": "arteries",
         "file": "FJ1660M.glb",
-        "url": "brain/FJ1660M.glb",
+        "url": "arteries/FJ1660M.glb",
         "fileKey": "FJ1660M.glb"
       }
     },
@@ -57952,7 +57952,7 @@
       "current": "draco",
       "variants": {
         "draco": {
-          "path": "brain",
+          "path": "arteries",
           "filename": "FJ1673.glb",
           "format": "glb"
         },
@@ -57987,9 +57987,9 @@
       "checksum": "",
       "root_name": "FJ1673",
       "asset": {
-        "path": "brain",
+        "path": "arteries",
         "file": "FJ1673.glb",
-        "url": "brain/FJ1673.glb",
+        "url": "arteries/FJ1673.glb",
         "fileKey": "FJ1673.glb"
       }
     },
@@ -58060,7 +58060,7 @@
       "current": "draco",
       "variants": {
         "draco": {
-          "path": "brain",
+          "path": "arteries",
           "filename": "FJ1673M.glb",
           "format": "glb"
         },
@@ -58095,9 +58095,9 @@
       "checksum": "",
       "root_name": "FJ1673M",
       "asset": {
-        "path": "brain",
+        "path": "arteries",
         "file": "FJ1673M.glb",
-        "url": "brain/FJ1673M.glb",
+        "url": "arteries/FJ1673M.glb",
         "fileKey": "FJ1673M.glb"
       }
     },
@@ -62272,7 +62272,7 @@
       "current": "draco",
       "variants": {
         "draco": {
-          "path": "brain",
+          "path": "arteries",
           "filename": "FJ1693.glb",
           "format": "glb"
         },
@@ -62307,9 +62307,9 @@
       "checksum": "",
       "root_name": "FJ1693",
       "asset": {
-        "path": "brain",
+        "path": "arteries",
         "file": "FJ1693.glb",
-        "url": "brain/FJ1693.glb",
+        "url": "arteries/FJ1693.glb",
         "fileKey": "FJ1693.glb"
       }
     },
@@ -62380,7 +62380,7 @@
       "current": "draco",
       "variants": {
         "draco": {
-          "path": "brain",
+          "path": "arteries",
           "filename": "FJ1693M.glb",
           "format": "glb"
         },
@@ -62415,9 +62415,9 @@
       "checksum": "",
       "root_name": "FJ1693M",
       "asset": {
-        "path": "brain",
+        "path": "arteries",
         "file": "FJ1693M.glb",
-        "url": "brain/FJ1693M.glb",
+        "url": "arteries/FJ1693M.glb",
         "fileKey": "FJ1693M.glb"
       }
     },
@@ -62488,7 +62488,7 @@
       "current": "draco",
       "variants": {
         "draco": {
-          "path": "brain",
+          "path": "arteries",
           "filename": "FJ1694.glb",
           "format": "glb"
         },
@@ -62523,9 +62523,9 @@
       "checksum": "",
       "root_name": "FJ1694",
       "asset": {
-        "path": "brain",
+        "path": "arteries",
         "file": "FJ1694.glb",
-        "url": "brain/FJ1694.glb",
+        "url": "arteries/FJ1694.glb",
         "fileKey": "FJ1694.glb"
       }
     },
@@ -62596,7 +62596,7 @@
       "current": "draco",
       "variants": {
         "draco": {
-          "path": "brain",
+          "path": "arteries",
           "filename": "FJ1694M.glb",
           "format": "glb"
         },
@@ -62631,9 +62631,9 @@
       "checksum": "",
       "root_name": "FJ1694M",
       "asset": {
-        "path": "brain",
+        "path": "arteries",
         "file": "FJ1694M.glb",
-        "url": "brain/FJ1694M.glb",
+        "url": "arteries/FJ1694M.glb",
         "fileKey": "FJ1694M.glb"
       }
     },
@@ -67456,7 +67456,7 @@
       "current": "draco",
       "variants": {
         "draco": {
-          "path": "brain",
+          "path": "arteries",
           "filename": "FJ1717.glb",
           "format": "glb"
         },
@@ -67491,9 +67491,9 @@
       "checksum": "",
       "root_name": "FJ1717",
       "asset": {
-        "path": "brain",
+        "path": "arteries",
         "file": "FJ1717.glb",
-        "url": "brain/FJ1717.glb",
+        "url": "arteries/FJ1717.glb",
         "fileKey": "FJ1717.glb"
       }
     },
@@ -67564,7 +67564,7 @@
       "current": "draco",
       "variants": {
         "draco": {
-          "path": "brain",
+          "path": "arteries",
           "filename": "FJ1717M.glb",
           "format": "glb"
         },
@@ -67599,9 +67599,9 @@
       "checksum": "",
       "root_name": "FJ1717M",
       "asset": {
-        "path": "brain",
+        "path": "arteries",
         "file": "FJ1717M.glb",
-        "url": "brain/FJ1717M.glb",
+        "url": "arteries/FJ1717M.glb",
         "fileKey": "FJ1717M.glb"
       }
     },
@@ -70048,7 +70048,7 @@
       "current": "draco",
       "variants": {
         "draco": {
-          "path": "brain",
+          "path": "arteries",
           "filename": "FJ1729.glb",
           "format": "glb"
         },
@@ -70083,9 +70083,9 @@
       "checksum": "",
       "root_name": "FJ1729",
       "asset": {
-        "path": "brain",
+        "path": "arteries",
         "file": "FJ1729.glb",
-        "url": "brain/FJ1729.glb",
+        "url": "arteries/FJ1729.glb",
         "fileKey": "FJ1729.glb"
       }
     },
@@ -70156,7 +70156,7 @@
       "current": "draco",
       "variants": {
         "draco": {
-          "path": "brain",
+          "path": "arteries",
           "filename": "FJ1729M.glb",
           "format": "glb"
         },
@@ -70191,9 +70191,9 @@
       "checksum": "",
       "root_name": "FJ1729M",
       "asset": {
-        "path": "brain",
+        "path": "arteries",
         "file": "FJ1729M.glb",
-        "url": "brain/FJ1729M.glb",
+        "url": "arteries/FJ1729M.glb",
         "fileKey": "FJ1729M.glb"
       }
     },
@@ -121132,7 +121132,7 @@
       "current": "draco",
       "variants": {
         "draco": {
-          "path": "lungs",
+          "path": "heart",
           "filename": "FJ2417.glb",
           "format": "glb"
         },
@@ -121167,9 +121167,9 @@
       "checksum": "",
       "root_name": "FJ2417",
       "asset": {
-        "path": "lungs",
+        "path": "heart",
         "file": "FJ2417.glb",
-        "url": "lungs/FJ2417.glb",
+        "url": "heart/FJ2417.glb",
         "fileKey": "FJ2417.glb"
       }
     },
@@ -121240,7 +121240,7 @@
       "current": "draco",
       "variants": {
         "draco": {
-          "path": "brain",
+          "path": "muscles",
           "filename": "FJ2418.glb",
           "format": "glb"
         },
@@ -121275,9 +121275,9 @@
       "checksum": "",
       "root_name": "FJ2418",
       "asset": {
-        "path": "brain",
+        "path": "muscles",
         "file": "FJ2418.glb",
-        "url": "brain/FJ2418.glb",
+        "url": "muscles/FJ2418.glb",
         "fileKey": "FJ2418.glb"
       }
     },
@@ -121349,7 +121349,7 @@
       "current": "draco",
       "variants": {
         "draco": {
-          "path": "brain",
+          "path": "muscles",
           "filename": "FJ2419.glb",
           "format": "glb"
         },
@@ -121384,9 +121384,9 @@
       "checksum": "",
       "root_name": "FJ2419",
       "asset": {
-        "path": "brain",
+        "path": "muscles",
         "file": "FJ2419.glb",
-        "url": "brain/FJ2419.glb",
+        "url": "muscles/FJ2419.glb",
         "fileKey": "FJ2419.glb"
       }
     },
@@ -122214,7 +122214,7 @@
       "current": "draco",
       "variants": {
         "draco": {
-          "path": "lungs",
+          "path": "heart",
           "filename": "FJ2427.glb",
           "format": "glb"
         },
@@ -122249,9 +122249,9 @@
       "checksum": "",
       "root_name": "FJ2427",
       "asset": {
-        "path": "lungs",
+        "path": "heart",
         "file": "FJ2427.glb",
-        "url": "lungs/FJ2427.glb",
+        "url": "heart/FJ2427.glb",
         "fileKey": "FJ2427.glb"
       }
     },
@@ -122430,7 +122430,7 @@
       "current": "draco",
       "variants": {
         "draco": {
-          "path": "brain",
+          "path": "muscles",
           "filename": "FJ2429.glb",
           "format": "glb"
         },
@@ -122465,9 +122465,9 @@
       "checksum": "",
       "root_name": "FJ2429",
       "asset": {
-        "path": "brain",
+        "path": "muscles",
         "file": "FJ2429.glb",
-        "url": "brain/FJ2429.glb",
+        "url": "muscles/FJ2429.glb",
         "fileKey": "FJ2429.glb"
       }
     },
@@ -122539,7 +122539,7 @@
       "current": "draco",
       "variants": {
         "draco": {
-          "path": "brain",
+          "path": "muscles",
           "filename": "FJ2430.glb",
           "format": "glb"
         },
@@ -122574,9 +122574,9 @@
       "checksum": "",
       "root_name": "FJ2430",
       "asset": {
-        "path": "brain",
+        "path": "muscles",
         "file": "FJ2430.glb",
-        "url": "brain/FJ2430.glb",
+        "url": "muscles/FJ2430.glb",
         "fileKey": "FJ2430.glb"
       }
     },
@@ -122972,7 +122972,7 @@
       "current": "draco",
       "variants": {
         "draco": {
-          "path": "lungs",
+          "path": "heart",
           "filename": "FJ2434.glb",
           "format": "glb"
         },
@@ -123007,9 +123007,9 @@
       "checksum": "",
       "root_name": "FJ2434",
       "asset": {
-        "path": "lungs",
+        "path": "heart",
         "file": "FJ2434.glb",
-        "url": "lungs/FJ2434.glb",
+        "url": "heart/FJ2434.glb",
         "fileKey": "FJ2434.glb"
       }
     },
@@ -123296,7 +123296,7 @@
       "current": "draco",
       "variants": {
         "draco": {
-          "path": "brain",
+          "path": "muscles",
           "filename": "FJ2437.glb",
           "format": "glb"
         },
@@ -123331,9 +123331,9 @@
       "checksum": "",
       "root_name": "FJ2437",
       "asset": {
-        "path": "brain",
+        "path": "muscles",
         "file": "FJ2437.glb",
-        "url": "brain/FJ2437.glb",
+        "url": "muscles/FJ2437.glb",
         "fileKey": "FJ2437.glb"
       }
     },
@@ -135943,7 +135943,7 @@
       "current": "draco",
       "variants": {
         "draco": {
-          "path": "cartilage",
+          "path": "ear",
           "filename": "FJ2554.glb",
           "format": "glb"
         },
@@ -135978,9 +135978,9 @@
       "checksum": "",
       "root_name": "FJ2554",
       "asset": {
-        "path": "cartilage",
+        "path": "ear",
         "file": "FJ2554.glb",
-        "url": "cartilage/FJ2554.glb",
+        "url": "ear/FJ2554.glb",
         "fileKey": "FJ2554.glb"
       }
     },
@@ -136051,7 +136051,7 @@
       "current": "draco",
       "variants": {
         "draco": {
-          "path": "cartilage",
+          "path": "ear",
           "filename": "FJ2555.glb",
           "format": "glb"
         },
@@ -136086,9 +136086,9 @@
       "checksum": "",
       "root_name": "FJ2555",
       "asset": {
-        "path": "cartilage",
+        "path": "ear",
         "file": "FJ2555.glb",
-        "url": "cartilage/FJ2555.glb",
+        "url": "ear/FJ2555.glb",
         "fileKey": "FJ2555.glb"
       }
     },
@@ -136159,7 +136159,7 @@
       "current": "draco",
       "variants": {
         "draco": {
-          "path": "cartilage",
+          "path": "ear",
           "filename": "FJ2556.glb",
           "format": "glb"
         },
@@ -136194,9 +136194,9 @@
       "checksum": "",
       "root_name": "FJ2556",
       "asset": {
-        "path": "cartilage",
+        "path": "ear",
         "file": "FJ2556.glb",
-        "url": "cartilage/FJ2556.glb",
+        "url": "ear/FJ2556.glb",
         "fileKey": "FJ2556.glb"
       }
     },
@@ -136267,7 +136267,7 @@
       "current": "draco",
       "variants": {
         "draco": {
-          "path": "cartilage",
+          "path": "ear",
           "filename": "FJ2557.glb",
           "format": "glb"
         },
@@ -136302,9 +136302,9 @@
       "checksum": "",
       "root_name": "FJ2557",
       "asset": {
-        "path": "cartilage",
+        "path": "ear",
         "file": "FJ2557.glb",
-        "url": "cartilage/FJ2557.glb",
+        "url": "ear/FJ2557.glb",
         "fileKey": "FJ2557.glb"
       }
     },
@@ -136375,7 +136375,7 @@
       "current": "draco",
       "variants": {
         "draco": {
-          "path": "cartilage",
+          "path": "ear",
           "filename": "FJ2558.glb",
           "format": "glb"
         },
@@ -136410,9 +136410,9 @@
       "checksum": "",
       "root_name": "FJ2558",
       "asset": {
-        "path": "cartilage",
+        "path": "ear",
         "file": "FJ2558.glb",
-        "url": "cartilage/FJ2558.glb",
+        "url": "ear/FJ2558.glb",
         "fileKey": "FJ2558.glb"
       }
     },
@@ -173886,7 +173886,7 @@
       "current": "draco",
       "variants": {
         "draco": {
-          "path": "lungs",
+          "path": "heart",
           "filename": "FJ2966.glb",
           "format": "glb"
         },
@@ -173921,9 +173921,9 @@
       "checksum": "",
       "root_name": "FJ2966",
       "asset": {
-        "path": "lungs",
+        "path": "heart",
         "file": "FJ2966.glb",
-        "url": "lungs/FJ2966.glb",
+        "url": "heart/FJ2966.glb",
         "fileKey": "FJ2966.glb"
       }
     },
@@ -191598,7 +191598,7 @@
       "current": "draco",
       "variants": {
         "draco": {
-          "path": "organs",
+          "path": "muscles",
           "filename": "FJ3131.glb",
           "format": "glb"
         },
@@ -191633,9 +191633,9 @@
       "checksum": "",
       "root_name": "FJ3131",
       "asset": {
-        "path": "organs",
+        "path": "muscles",
         "file": "FJ3131.glb",
-        "url": "organs/FJ3131.glb",
+        "url": "muscles/FJ3131.glb",
         "fileKey": "FJ3131.glb"
       }
     },
@@ -199122,7 +199122,7 @@
       "current": "draco",
       "variants": {
         "draco": {
-          "path": "brain",
+          "path": "bones",
           "filename": "FJ3200.glb",
           "format": "glb"
         },
@@ -199157,9 +199157,9 @@
       "checksum": "",
       "root_name": "FJ3200",
       "asset": {
-        "path": "brain",
+        "path": "bones",
         "file": "FJ3200.glb",
-        "url": "brain/FJ3200.glb",
+        "url": "bones/FJ3200.glb",
         "fileKey": "FJ3200.glb"
       }
     },
@@ -199340,7 +199340,7 @@
       "current": "draco",
       "variants": {
         "draco": {
-          "path": "ligaments",
+          "path": "cartilage",
           "filename": "FJ3202.glb",
           "format": "glb"
         },
@@ -199375,9 +199375,9 @@
       "checksum": "",
       "root_name": "FJ3202",
       "asset": {
-        "path": "ligaments",
+        "path": "cartilage",
         "file": "FJ3202.glb",
-        "url": "ligaments/FJ3202.glb",
+        "url": "cartilage/FJ3202.glb",
         "fileKey": "FJ3202.glb"
       }
     },
@@ -199448,7 +199448,7 @@
       "current": "draco",
       "variants": {
         "draco": {
-          "path": "ligaments",
+          "path": "cartilage",
           "filename": "FJ3203.glb",
           "format": "glb"
         },
@@ -199483,9 +199483,9 @@
       "checksum": "",
       "root_name": "FJ3203",
       "asset": {
-        "path": "ligaments",
+        "path": "cartilage",
         "file": "FJ3203.glb",
-        "url": "ligaments/FJ3203.glb",
+        "url": "cartilage/FJ3203.glb",
         "fileKey": "FJ3203.glb"
       }
     },
@@ -199556,7 +199556,7 @@
       "current": "draco",
       "variants": {
         "draco": {
-          "path": "ligaments",
+          "path": "cartilage",
           "filename": "FJ3204.glb",
           "format": "glb"
         },
@@ -199591,9 +199591,9 @@
       "checksum": "",
       "root_name": "FJ3204",
       "asset": {
-        "path": "ligaments",
+        "path": "cartilage",
         "file": "FJ3204.glb",
-        "url": "ligaments/FJ3204.glb",
+        "url": "cartilage/FJ3204.glb",
         "fileKey": "FJ3204.glb"
       }
     },
@@ -199664,7 +199664,7 @@
       "current": "draco",
       "variants": {
         "draco": {
-          "path": "ligaments",
+          "path": "cartilage",
           "filename": "FJ3205.glb",
           "format": "glb"
         },
@@ -199699,9 +199699,9 @@
       "checksum": "",
       "root_name": "FJ3205",
       "asset": {
-        "path": "ligaments",
+        "path": "cartilage",
         "file": "FJ3205.glb",
-        "url": "ligaments/FJ3205.glb",
+        "url": "cartilage/FJ3205.glb",
         "fileKey": "FJ3205.glb"
       }
     },
@@ -199772,7 +199772,7 @@
       "current": "draco",
       "variants": {
         "draco": {
-          "path": "ligaments",
+          "path": "cartilage",
           "filename": "FJ3206.glb",
           "format": "glb"
         },
@@ -199807,9 +199807,9 @@
       "checksum": "",
       "root_name": "FJ3206",
       "asset": {
-        "path": "ligaments",
+        "path": "cartilage",
         "file": "FJ3206.glb",
-        "url": "ligaments/FJ3206.glb",
+        "url": "cartilage/FJ3206.glb",
         "fileKey": "FJ3206.glb"
       }
     },
@@ -199880,7 +199880,7 @@
       "current": "draco",
       "variants": {
         "draco": {
-          "path": "ligaments",
+          "path": "cartilage",
           "filename": "FJ3207.glb",
           "format": "glb"
         },
@@ -199915,9 +199915,9 @@
       "checksum": "",
       "root_name": "FJ3207",
       "asset": {
-        "path": "ligaments",
+        "path": "cartilage",
         "file": "FJ3207.glb",
-        "url": "ligaments/FJ3207.glb",
+        "url": "cartilage/FJ3207.glb",
         "fileKey": "FJ3207.glb"
       }
     },
@@ -199988,7 +199988,7 @@
       "current": "draco",
       "variants": {
         "draco": {
-          "path": "ligaments",
+          "path": "cartilage",
           "filename": "FJ3208.glb",
           "format": "glb"
         },
@@ -200023,9 +200023,9 @@
       "checksum": "",
       "root_name": "FJ3208",
       "asset": {
-        "path": "ligaments",
+        "path": "cartilage",
         "file": "FJ3208.glb",
-        "url": "ligaments/FJ3208.glb",
+        "url": "cartilage/FJ3208.glb",
         "fileKey": "FJ3208.glb"
       }
     },
@@ -200096,7 +200096,7 @@
       "current": "draco",
       "variants": {
         "draco": {
-          "path": "ligaments",
+          "path": "cartilage",
           "filename": "FJ3209.glb",
           "format": "glb"
         },
@@ -200131,9 +200131,9 @@
       "checksum": "",
       "root_name": "FJ3209",
       "asset": {
-        "path": "ligaments",
+        "path": "cartilage",
         "file": "FJ3209.glb",
-        "url": "ligaments/FJ3209.glb",
+        "url": "cartilage/FJ3209.glb",
         "fileKey": "FJ3209.glb"
       }
     },
@@ -200204,7 +200204,7 @@
       "current": "draco",
       "variants": {
         "draco": {
-          "path": "ligaments",
+          "path": "cartilage",
           "filename": "FJ3210.glb",
           "format": "glb"
         },
@@ -200239,9 +200239,9 @@
       "checksum": "",
       "root_name": "FJ3210",
       "asset": {
-        "path": "ligaments",
+        "path": "cartilage",
         "file": "FJ3210.glb",
-        "url": "ligaments/FJ3210.glb",
+        "url": "cartilage/FJ3210.glb",
         "fileKey": "FJ3210.glb"
       }
     },
@@ -200312,7 +200312,7 @@
       "current": "draco",
       "variants": {
         "draco": {
-          "path": "ligaments",
+          "path": "cartilage",
           "filename": "FJ3211.glb",
           "format": "glb"
         },
@@ -200347,9 +200347,9 @@
       "checksum": "",
       "root_name": "FJ3211",
       "asset": {
-        "path": "ligaments",
+        "path": "cartilage",
         "file": "FJ3211.glb",
-        "url": "ligaments/FJ3211.glb",
+        "url": "cartilage/FJ3211.glb",
         "fileKey": "FJ3211.glb"
       }
     },
@@ -200420,7 +200420,7 @@
       "current": "draco",
       "variants": {
         "draco": {
-          "path": "ligaments",
+          "path": "cartilage",
           "filename": "FJ3212.glb",
           "format": "glb"
         },
@@ -200455,9 +200455,9 @@
       "checksum": "",
       "root_name": "FJ3212",
       "asset": {
-        "path": "ligaments",
+        "path": "cartilage",
         "file": "FJ3212.glb",
-        "url": "ligaments/FJ3212.glb",
+        "url": "cartilage/FJ3212.glb",
         "fileKey": "FJ3212.glb"
       }
     },
@@ -200528,7 +200528,7 @@
       "current": "draco",
       "variants": {
         "draco": {
-          "path": "ligaments",
+          "path": "cartilage",
           "filename": "FJ3213.glb",
           "format": "glb"
         },
@@ -200563,9 +200563,9 @@
       "checksum": "",
       "root_name": "FJ3213",
       "asset": {
-        "path": "ligaments",
+        "path": "cartilage",
         "file": "FJ3213.glb",
-        "url": "ligaments/FJ3213.glb",
+        "url": "cartilage/FJ3213.glb",
         "fileKey": "FJ3213.glb"
       }
     },
@@ -200636,7 +200636,7 @@
       "current": "draco",
       "variants": {
         "draco": {
-          "path": "ligaments",
+          "path": "cartilage",
           "filename": "FJ3214.glb",
           "format": "glb"
         },
@@ -200671,9 +200671,9 @@
       "checksum": "",
       "root_name": "FJ3214",
       "asset": {
-        "path": "ligaments",
+        "path": "cartilage",
         "file": "FJ3214.glb",
-        "url": "ligaments/FJ3214.glb",
+        "url": "cartilage/FJ3214.glb",
         "fileKey": "FJ3214.glb"
       }
     },
@@ -200744,7 +200744,7 @@
       "current": "draco",
       "variants": {
         "draco": {
-          "path": "ligaments",
+          "path": "cartilage",
           "filename": "FJ3215.glb",
           "format": "glb"
         },
@@ -200779,9 +200779,9 @@
       "checksum": "",
       "root_name": "FJ3215",
       "asset": {
-        "path": "ligaments",
+        "path": "cartilage",
         "file": "FJ3215.glb",
-        "url": "ligaments/FJ3215.glb",
+        "url": "cartilage/FJ3215.glb",
         "fileKey": "FJ3215.glb"
       }
     },
@@ -200852,7 +200852,7 @@
       "current": "draco",
       "variants": {
         "draco": {
-          "path": "ligaments",
+          "path": "cartilage",
           "filename": "FJ3216.glb",
           "format": "glb"
         },
@@ -200887,9 +200887,9 @@
       "checksum": "",
       "root_name": "FJ3216",
       "asset": {
-        "path": "ligaments",
+        "path": "cartilage",
         "file": "FJ3216.glb",
-        "url": "ligaments/FJ3216.glb",
+        "url": "cartilage/FJ3216.glb",
         "fileKey": "FJ3216.glb"
       }
     },
@@ -200960,7 +200960,7 @@
       "current": "draco",
       "variants": {
         "draco": {
-          "path": "ligaments",
+          "path": "cartilage",
           "filename": "FJ3217.glb",
           "format": "glb"
         },
@@ -200995,9 +200995,9 @@
       "checksum": "",
       "root_name": "FJ3217",
       "asset": {
-        "path": "ligaments",
+        "path": "cartilage",
         "file": "FJ3217.glb",
-        "url": "ligaments/FJ3217.glb",
+        "url": "cartilage/FJ3217.glb",
         "fileKey": "FJ3217.glb"
       }
     },
@@ -201068,7 +201068,7 @@
       "current": "draco",
       "variants": {
         "draco": {
-          "path": "ligaments",
+          "path": "cartilage",
           "filename": "FJ3218.glb",
           "format": "glb"
         },
@@ -201103,9 +201103,9 @@
       "checksum": "",
       "root_name": "FJ3218",
       "asset": {
-        "path": "ligaments",
+        "path": "cartilage",
         "file": "FJ3218.glb",
-        "url": "ligaments/FJ3218.glb",
+        "url": "cartilage/FJ3218.glb",
         "fileKey": "FJ3218.glb"
       }
     },
@@ -201176,7 +201176,7 @@
       "current": "draco",
       "variants": {
         "draco": {
-          "path": "ligaments",
+          "path": "cartilage",
           "filename": "FJ3219.glb",
           "format": "glb"
         },
@@ -201211,9 +201211,9 @@
       "checksum": "",
       "root_name": "FJ3219",
       "asset": {
-        "path": "ligaments",
+        "path": "cartilage",
         "file": "FJ3219.glb",
-        "url": "ligaments/FJ3219.glb",
+        "url": "cartilage/FJ3219.glb",
         "fileKey": "FJ3219.glb"
       }
     },
@@ -201284,7 +201284,7 @@
       "current": "draco",
       "variants": {
         "draco": {
-          "path": "ligaments",
+          "path": "cartilage",
           "filename": "FJ3220.glb",
           "format": "glb"
         },
@@ -201319,9 +201319,9 @@
       "checksum": "",
       "root_name": "FJ3220",
       "asset": {
-        "path": "ligaments",
+        "path": "cartilage",
         "file": "FJ3220.glb",
-        "url": "ligaments/FJ3220.glb",
+        "url": "cartilage/FJ3220.glb",
         "fileKey": "FJ3220.glb"
       }
     },
@@ -201392,7 +201392,7 @@
       "current": "draco",
       "variants": {
         "draco": {
-          "path": "ligaments",
+          "path": "cartilage",
           "filename": "FJ3221.glb",
           "format": "glb"
         },
@@ -201427,9 +201427,9 @@
       "checksum": "",
       "root_name": "FJ3221",
       "asset": {
-        "path": "ligaments",
+        "path": "cartilage",
         "file": "FJ3221.glb",
-        "url": "ligaments/FJ3221.glb",
+        "url": "cartilage/FJ3221.glb",
         "fileKey": "FJ3221.glb"
       }
     },
@@ -201500,7 +201500,7 @@
       "current": "draco",
       "variants": {
         "draco": {
-          "path": "ligaments",
+          "path": "cartilage",
           "filename": "FJ3222.glb",
           "format": "glb"
         },
@@ -201535,9 +201535,9 @@
       "checksum": "",
       "root_name": "FJ3222",
       "asset": {
-        "path": "ligaments",
+        "path": "cartilage",
         "file": "FJ3222.glb",
-        "url": "ligaments/FJ3222.glb",
+        "url": "cartilage/FJ3222.glb",
         "fileKey": "FJ3222.glb"
       }
     },
@@ -201608,7 +201608,7 @@
       "current": "draco",
       "variants": {
         "draco": {
-          "path": "ligaments",
+          "path": "cartilage",
           "filename": "FJ3223.glb",
           "format": "glb"
         },
@@ -201643,9 +201643,9 @@
       "checksum": "",
       "root_name": "FJ3223",
       "asset": {
-        "path": "ligaments",
+        "path": "cartilage",
         "file": "FJ3223.glb",
-        "url": "ligaments/FJ3223.glb",
+        "url": "cartilage/FJ3223.glb",
         "fileKey": "FJ3223.glb"
       }
     },
@@ -201716,7 +201716,7 @@
       "current": "draco",
       "variants": {
         "draco": {
-          "path": "ligaments",
+          "path": "cartilage",
           "filename": "FJ3224.glb",
           "format": "glb"
         },
@@ -201751,9 +201751,9 @@
       "checksum": "",
       "root_name": "FJ3224",
       "asset": {
-        "path": "ligaments",
+        "path": "cartilage",
         "file": "FJ3224.glb",
-        "url": "ligaments/FJ3224.glb",
+        "url": "cartilage/FJ3224.glb",
         "fileKey": "FJ3224.glb"
       }
     },
@@ -203458,7 +203458,7 @@
       "current": "draco",
       "variants": {
         "draco": {
-          "path": "eyes",
+          "path": "bones",
           "filename": "FJ3241.glb",
           "format": "glb"
         },
@@ -203493,9 +203493,9 @@
       "checksum": "",
       "root_name": "FJ3241",
       "asset": {
-        "path": "eyes",
+        "path": "bones",
         "file": "FJ3241.glb",
-        "url": "eyes/FJ3241.glb",
+        "url": "bones/FJ3241.glb",
         "fileKey": "FJ3241.glb"
       }
     },
@@ -203784,7 +203784,7 @@
       "current": "draco",
       "variants": {
         "draco": {
-          "path": "eyes",
+          "path": "bones",
           "filename": "FJ3244.glb",
           "format": "glb"
         },
@@ -203819,9 +203819,9 @@
       "checksum": "",
       "root_name": "FJ3244",
       "asset": {
-        "path": "eyes",
+        "path": "bones",
         "file": "FJ3244.glb",
-        "url": "eyes/FJ3244.glb",
+        "url": "bones/FJ3244.glb",
         "fileKey": "FJ3244.glb"
       }
     },
@@ -204110,7 +204110,7 @@
       "current": "draco",
       "variants": {
         "draco": {
-          "path": "eyes",
+          "path": "bones",
           "filename": "FJ3247.glb",
           "format": "glb"
         },
@@ -204145,9 +204145,9 @@
       "checksum": "",
       "root_name": "FJ3247",
       "asset": {
-        "path": "eyes",
+        "path": "bones",
         "file": "FJ3247.glb",
-        "url": "eyes/FJ3247.glb",
+        "url": "bones/FJ3247.glb",
         "fileKey": "FJ3247.glb"
       }
     },
@@ -204436,7 +204436,7 @@
       "current": "draco",
       "variants": {
         "draco": {
-          "path": "eyes",
+          "path": "bones",
           "filename": "FJ3250.glb",
           "format": "glb"
         },
@@ -204471,9 +204471,9 @@
       "checksum": "",
       "root_name": "FJ3250",
       "asset": {
-        "path": "eyes",
+        "path": "bones",
         "file": "FJ3250.glb",
-        "url": "eyes/FJ3250.glb",
+        "url": "bones/FJ3250.glb",
         "fileKey": "FJ3250.glb"
       }
     },
@@ -204762,7 +204762,7 @@
       "current": "draco",
       "variants": {
         "draco": {
-          "path": "eyes",
+          "path": "bones",
           "filename": "FJ3253.glb",
           "format": "glb"
         },
@@ -204797,9 +204797,9 @@
       "checksum": "",
       "root_name": "FJ3253",
       "asset": {
-        "path": "eyes",
+        "path": "bones",
         "file": "FJ3253.glb",
-        "url": "eyes/FJ3253.glb",
+        "url": "bones/FJ3253.glb",
         "fileKey": "FJ3253.glb"
       }
     },
@@ -206068,7 +206068,7 @@
       "current": "draco",
       "variants": {
         "draco": {
-          "path": "eyes",
+          "path": "bones",
           "filename": "FJ3265.glb",
           "format": "glb"
         },
@@ -206103,9 +206103,9 @@
       "checksum": "",
       "root_name": "FJ3265",
       "asset": {
-        "path": "eyes",
+        "path": "bones",
         "file": "FJ3265.glb",
-        "url": "eyes/FJ3265.glb",
+        "url": "bones/FJ3265.glb",
         "fileKey": "FJ3265.glb"
       }
     },
@@ -207048,7 +207048,7 @@
       "current": "draco",
       "variants": {
         "draco": {
-          "path": "brain",
+          "path": "bones",
           "filename": "FJ3274.glb",
           "format": "glb"
         },
@@ -207083,9 +207083,9 @@
       "checksum": "",
       "root_name": "FJ3274",
       "asset": {
-        "path": "brain",
+        "path": "bones",
         "file": "FJ3274.glb",
-        "url": "brain/FJ3274.glb",
+        "url": "bones/FJ3274.glb",
         "fileKey": "FJ3274.glb"
       }
     },
@@ -207811,7 +207811,7 @@
       "current": "draco",
       "variants": {
         "draco": {
-          "path": "brain",
+          "path": "bones",
           "filename": "FJ3281.glb",
           "format": "glb"
         },
@@ -207846,9 +207846,9 @@
       "checksum": "",
       "root_name": "FJ3281",
       "asset": {
-        "path": "brain",
+        "path": "bones",
         "file": "FJ3281.glb",
-        "url": "brain/FJ3281.glb",
+        "url": "bones/FJ3281.glb",
         "fileKey": "FJ3281.glb"
       }
     },
@@ -210863,7 +210863,7 @@
       "current": "draco",
       "variants": {
         "draco": {
-          "path": "brain",
+          "path": "bones",
           "filename": "FJ3309.glb",
           "format": "glb"
         },
@@ -210898,9 +210898,9 @@
       "checksum": "",
       "root_name": "FJ3309",
       "asset": {
-        "path": "brain",
+        "path": "bones",
         "file": "FJ3309.glb",
-        "url": "brain/FJ3309.glb",
+        "url": "bones/FJ3309.glb",
         "fileKey": "FJ3309.glb"
       }
     },
@@ -215434,7 +215434,7 @@
       "current": "draco",
       "variants": {
         "draco": {
-          "path": "eyes",
+          "path": "bones",
           "filename": "FJ3351.glb",
           "format": "glb"
         },
@@ -215469,9 +215469,9 @@
       "checksum": "",
       "root_name": "FJ3351",
       "asset": {
-        "path": "eyes",
+        "path": "bones",
         "file": "FJ3351.glb",
-        "url": "eyes/FJ3351.glb",
+        "url": "bones/FJ3351.glb",
         "fileKey": "FJ3351.glb"
       }
     },
@@ -215652,7 +215652,7 @@
       "current": "draco",
       "variants": {
         "draco": {
-          "path": "eyes",
+          "path": "bones",
           "filename": "FJ3353.glb",
           "format": "glb"
         },
@@ -215687,9 +215687,9 @@
       "checksum": "",
       "root_name": "FJ3353",
       "asset": {
-        "path": "eyes",
+        "path": "bones",
         "file": "FJ3353.glb",
-        "url": "eyes/FJ3353.glb",
+        "url": "bones/FJ3353.glb",
         "fileKey": "FJ3353.glb"
       }
     },
@@ -215870,7 +215870,7 @@
       "current": "draco",
       "variants": {
         "draco": {
-          "path": "eyes",
+          "path": "bones",
           "filename": "FJ3355.glb",
           "format": "glb"
         },
@@ -215905,9 +215905,9 @@
       "checksum": "",
       "root_name": "FJ3355",
       "asset": {
-        "path": "eyes",
+        "path": "bones",
         "file": "FJ3355.glb",
-        "url": "eyes/FJ3355.glb",
+        "url": "bones/FJ3355.glb",
         "fileKey": "FJ3355.glb"
       }
     },
@@ -216088,7 +216088,7 @@
       "current": "draco",
       "variants": {
         "draco": {
-          "path": "eyes",
+          "path": "bones",
           "filename": "FJ3357.glb",
           "format": "glb"
         },
@@ -216123,9 +216123,9 @@
       "checksum": "",
       "root_name": "FJ3357",
       "asset": {
-        "path": "eyes",
+        "path": "bones",
         "file": "FJ3357.glb",
-        "url": "eyes/FJ3357.glb",
+        "url": "bones/FJ3357.glb",
         "fileKey": "FJ3357.glb"
       }
     },
@@ -216306,7 +216306,7 @@
       "current": "draco",
       "variants": {
         "draco": {
-          "path": "eyes",
+          "path": "bones",
           "filename": "FJ3359.glb",
           "format": "glb"
         },
@@ -216341,9 +216341,9 @@
       "checksum": "",
       "root_name": "FJ3359",
       "asset": {
-        "path": "eyes",
+        "path": "bones",
         "file": "FJ3359.glb",
-        "url": "eyes/FJ3359.glb",
+        "url": "bones/FJ3359.glb",
         "fileKey": "FJ3359.glb"
       }
     },
@@ -217505,7 +217505,7 @@
       "current": "draco",
       "variants": {
         "draco": {
-          "path": "eyes",
+          "path": "bones",
           "filename": "FJ3371.glb",
           "format": "glb"
         },
@@ -217540,9 +217540,9 @@
       "checksum": "",
       "root_name": "FJ3371",
       "asset": {
-        "path": "eyes",
+        "path": "bones",
         "file": "FJ3371.glb",
-        "url": "eyes/FJ3371.glb",
+        "url": "bones/FJ3371.glb",
         "fileKey": "FJ3371.glb"
       }
     },
@@ -218485,7 +218485,7 @@
       "current": "draco",
       "variants": {
         "draco": {
-          "path": "brain",
+          "path": "bones",
           "filename": "FJ3380.glb",
           "format": "glb"
         },
@@ -218520,9 +218520,9 @@
       "checksum": "",
       "root_name": "FJ3380",
       "asset": {
-        "path": "brain",
+        "path": "bones",
         "file": "FJ3380.glb",
-        "url": "brain/FJ3380.glb",
+        "url": "bones/FJ3380.glb",
         "fileKey": "FJ3380.glb"
       }
     },
@@ -219139,7 +219139,7 @@
       "current": "draco",
       "variants": {
         "draco": {
-          "path": "brain",
+          "path": "bones",
           "filename": "FJ3386.glb",
           "format": "glb"
         },
@@ -219174,9 +219174,9 @@
       "checksum": "",
       "root_name": "FJ3386",
       "asset": {
-        "path": "brain",
+        "path": "bones",
         "file": "FJ3386.glb",
-        "url": "brain/FJ3386.glb",
+        "url": "bones/FJ3386.glb",
         "fileKey": "FJ3386.glb"
       }
     },
