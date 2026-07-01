@@ -7,6 +7,78 @@ Format: [Keep a Changelog](https://keepachangelog.com/de/1.0.0/)
 
 ## [Unreleased]
 
+### Added (Nomenklatur — kuratiertes Latein für sichtbare neue Muskeln)
+- **`labels.la` für die 54 neuen, aktuell sichtbaren Muskel-Teile** (Gruppe `muscles`)
+  mit geprüftem Terminologia-Anatomica-Latein gesetzt (`scripts/set-muscle-latin.mjs`,
+  Schlüssel = FMA-ID). Ersetzt die fehleranfällige Laufzeit-Synthese aus dem Englischen
+  durch feste Namen — z. B. „Right medial pterygoid" → `M. pterygoideus medialis dexter`,
+  „Right internal oblique" → `M. obliquus internus abdominis dexter`. Seiten-neutral
+  gespeichert (App hängt dexter/sinister an); Provenienz über `meta.validation_status =
+  'latin_manual'` (menschlich kuratiert, fachliche Stichprobe noch empfohlen). Die
+  restlichen 702 neuen Teile liegen in noch deaktivierten Gruppen (Gefäße/Nerven/Hirn)
+  und behalten vorerst die synthetisierten Namen — dran, sobald ihre Gruppen freigeschaltet
+  werden.
+- **Nebenbefund (nicht behoben):** `fma57084`/`fma57086` (stylomandibular ligament) sind
+  Bänder, liegen aber in der `muscles`-Gruppe (BP3D-Fehlklassifikation). Korrekt als
+  `Lig. stylomandibulare dextrum/sinistrum` benannt; die Gruppen-Umlage bleibt offen.
+
+### Not done (Modell-Pipeline — Komplett-Tausch vorerst zurückgezogen)
+- Der Tausch der 2.153 Bestandsteile auf die reprozessierten Meshes wurde **versucht,
+  aber wieder zurückgenommen**, weil er die Modelle räumlich zerlegt hat (der Schädel
+  schwebte über der Wirbelsäule). **Ursache:** Die alten Live-Modelle tragen eine
+  *hand-kalibrierte, uneinheitliche* Skalierung — der Schädel liegt bereits auf
+  `SCALE 0.0010844`, der Rumpf/die Wirbelsäule aber auf ~`0.001176` (≈ ×1,0844). Diese
+  Mischung ergibt zusammengesetzt ein stimmiges Skelett. Die Blender-Pipeline exportiert
+  jedoch **einheitlich** auf `0.0010844`; der Tausch verkleinerte deshalb den Rumpf um
+  Faktor 0,922 zum Ursprung hin, ließ den (schon passenden) Schädel aber unverändert →
+  Rumpf rutscht nach unten weg. Numerisch nachgewiesen an Frontal/Occipital (ratio 1,00,
+  unbewegt) vs. C7/T5/Sakrum/Femur (ratio 0,922, bis −11,6 cm).
+- **Konsequenz:** `public/models` + `meta.json`-Modellpfade wurden auf den bekannten,
+  ausgerichteten Vor-Tausch-Stand zurückgesetzt (Ausrichtung numerisch verifiziert:
+  Skull+Spine wieder bbox-identisch zum Alt-Stand). `scripts/swap-existing-models.mjs`
+  bleibt erhalten, wird aber **nicht** angewandt, bis die Pipeline die alte Per-Teil-
+  Kalibrierung reproduziert (offener Punkt, siehe Runbook). Der einzige QC-Fehler
+  (`fma7163`, 0 Materialien, deaktivierte `skin_hair`-Gruppe) besteht damit wie vor dem
+  Tausch weiter — Alt-Zustand, keine neue Regression.
+
+### Fixed (Build — fehlende Rechtsseiten im Deploy)
+- **`quellen-lizenzen.html` und `datenschutz.html` fehlten komplett im Produktions-Build**:
+  `vite.config.js` hatte nur `index.html` als Rollup-Input, die beiden eigenständigen
+  Rechtsseiten wurden nie nach `dist/` gebaut. Da der GitHub-Actions-Workflow exakt
+  `dist/` deployt, waren die Footer-/LicenseModal-Links „Quellen & Lizenzen" und
+  „Datenschutz" auf der live laufenden Seite tote 404-Links. `build.rollupOptions.input`
+  um beide Seiten ergänzt; Build-Output enthält jetzt alle drei HTML-Dateien.
+
+### Fixed (Modell-Pipeline — Ordner-Konsistenz, QC, Lizenz)
+- **108 Ordner-Konflikte behoben**: GLB-Dateien, die noch im falschen Gruppen-Ordner
+  lagen (`classification.group` in meta.json wich vom physischen Ablageort ab —
+  z. B. ein Muskel, der aus `arteries/` geladen wurde), in den korrekten Ordner
+  verschoben und `model.variants.draco.path`/`model.asset` in meta.json nachgezogen.
+  Betraf u. a. Teile aus aktiven Gruppen (Muskeln, Bänder, Knorpel, Knochen), die im
+  StructureBrowser bislang unter der falschen Kategorie auftauchten.
+  Neues Skript `scripts/fix-folder-conflicts.mjs` (idempotent, `--dry-run`).
+- **QC-Skript** (`scripts/qc-models.mjs`, Phase 6 aus `docs/tasks/model-pipeline-bp3d.md`):
+  prüft jede ausgelieferte draco-GLB strukturell (1 Mesh/1 Material, Dreieckszahl > 0,
+  Draco-Dekodierung via `@gltf-transform/core` + `draco3dgltf`) und gleicht meta.json
+  gegen das Dateisystem ab (fehlende/verwaiste Dateien, FJ/Gruppen-Pfad-Konsistenz).
+  Report unter `NEW MODELS/qc-report.json`. Lauf über alle 2.997 Einträge: nur noch
+  1 bekannter Inhaltsfehler (`fma7163`, deaktivierte Gruppe `skin_hair`, 0 Materialien
+  in der GLB — dokumentiert in `docs/MODELS.md`, nicht automatisch korrigiert).
+- **BodyParts3D-Lizenz korrigiert auf CC BY 4.0** ([ADR 0005](docs/decisions/0005-bodyparts3d-lizenz-korrektur.md),
+  ersetzt ADR 0003): Das Projekt führte bisher zwei widersprüchliche Lizenzangaben
+  parallel — UI (Footer, LicenseModal, `quellen-lizenzen.html`) und 2.232 ältere
+  meta.json-Einträge sagten CC BY 4.0, während ADR 0003/CLAUDE.md/AGENTS.md und die
+  765 neu integrierten Einträge CC BY-SA 2.1 Japan vorschrieben. Gegenprüfung an zwei
+  offiziellen DBCLS-Quellen ergab: CC BY-SA 2.1 Japan war die Lizenz der
+  BodyParts3D-Erstveröffentlichung 2008, die aktuelle, vom Rechteinhaber selbst
+  betriebene Archiv-Distribution lizenziert die Datenbank heute unter CC BY 4.0.
+  Alle 2.997 meta.json-Einträge, `CLAUDE.md`/`AGENTS.md`,
+  `scripts/integrate-new-models.mjs` und `quellen-lizenzen.html` auf CC BY 4.0
+  vereinheitlicht; ADR 0003 als ersetzt markiert (Historie bleibt erhalten).
+- **`docs/MODELS.md` neu**: Provenienz, Pipeline-Schritte, Tool-Versionen,
+  „modified"-Hinweis, bekannter Stand (2.232 Bestandsteile noch nicht auf die
+  reprozessierten Meshes umgestellt, 765 neue Teile ohne geprüfte Latein-Namen).
+
 ### Changed (Einzelansicht — letzte DOM-Chrome-Altlast nach React)
 - **Isolations-Aktionsleiste von imperativem DOM nach React portiert** (vollendet ADR 0004:
   „kein paralleles DOM-Chrome mehr"). `isolationView.js` baut keine `document.createElement`-Leiste
