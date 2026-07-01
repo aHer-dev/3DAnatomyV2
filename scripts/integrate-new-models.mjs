@@ -65,8 +65,8 @@ function makeEntry({ fj, fma, label, group }) {
     },
     meta: {
       sources: ['BodyParts3D'],
-      license: 'CC BY-SA 2.1 Japan',
-      attribution: 'BodyParts3D, © DBCLS, licensed under CC BY-SA 2.1 Japan',
+      license: 'CC BY 4.0',
+      attribution: 'BodyParts3D, © DBCLS, licensed under CC BY 4.0',
       version: '1.0.0',
       last_updated: new Date().toISOString().slice(0, 10),
       reliability_score: null,

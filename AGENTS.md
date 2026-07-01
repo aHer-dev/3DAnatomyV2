@@ -28,5 +28,5 @@ Solo-Projekt, KI-gestützt. Strategie: ROADMAP.md · Architektur: docs/architect
 ## Verbote
 - Keine browser storage APIs (localStorage o. Ä.) in Artifacts/Komponenten.
 - Keine fremden 3D-Modelle ohne geklärte Lizenz einbauen.
-  Bestehende Modelle: BodyParts3D, CC BY-SA 2.1 JP — Attribution Pflicht.
+  Bestehende Modelle: BodyParts3D, CC BY 4.0 — Attribution Pflicht (siehe ADR 0005).
 - Keinen toten/auskommentierten Code hinterlassen.
