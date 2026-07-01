@@ -276643,7 +276643,7 @@
     "labels": {
       "en": "Right levator anguli oris",
       "de": "",
-      "la": ""
+      "la": "Musculus levator anguli oris"
     },
     "synonyms": {
       "en": [],
@@ -276735,7 +276735,7 @@
       "last_updated": "2026-06-18",
       "reliability_score": null,
       "notes": "Auto-generiert aus BodyParts3D-Dateinamen (Pipeline-Neuaufbereitung).",
-      "validation_status": "",
+      "validation_status": "latin_manual",
       "purpose": ""
     }
   },
@@ -276744,7 +276744,7 @@
     "labels": {
       "en": "Right risorius",
       "de": "",
-      "la": ""
+      "la": "Musculus risorius"
     },
     "synonyms": {
       "en": [],
@@ -276836,7 +276836,7 @@
       "last_updated": "2026-06-18",
       "reliability_score": null,
       "notes": "Auto-generiert aus BodyParts3D-Dateinamen (Pipeline-Neuaufbereitung).",
-      "validation_status": "",
+      "validation_status": "latin_manual",
       "purpose": ""
     }
   },
@@ -276845,7 +276845,7 @@
     "labels": {
       "en": "Right medial pterygoid",
       "de": "",
-      "la": ""
+      "la": "Musculus pterygoideus medialis"
     },
     "synonyms": {
       "en": [],
@@ -276937,7 +276937,7 @@
       "last_updated": "2026-06-18",
       "reliability_score": null,
       "notes": "Auto-generiert aus BodyParts3D-Dateinamen (Pipeline-Neuaufbereitung).",
-      "validation_status": "",
+      "validation_status": "latin_manual",
       "purpose": ""
     }
   },
@@ -276946,7 +276946,7 @@
     "labels": {
       "en": "Right internal oblique",
       "de": "",
-      "la": ""
+      "la": "Musculus obliquus internus abdominis"
     },
     "synonyms": {
       "en": [],
@@ -277038,7 +277038,7 @@
       "last_updated": "2026-06-18",
       "reliability_score": null,
       "notes": "Auto-generiert aus BodyParts3D-Dateinamen (Pipeline-Neuaufbereitung).",
-      "validation_status": "",
+      "validation_status": "latin_manual",
       "purpose": ""
     }
   },
@@ -277047,7 +277047,7 @@
     "labels": {
       "en": "Left risorius",
       "de": "",
-      "la": ""
+      "la": "Musculus risorius"
     },
     "synonyms": {
       "en": [],
@@ -277139,7 +277139,7 @@
       "last_updated": "2026-06-18",
       "reliability_score": null,
       "notes": "Auto-generiert aus BodyParts3D-Dateinamen (Pipeline-Neuaufbereitung).",
-      "validation_status": "",
+      "validation_status": "latin_manual",
       "purpose": ""
     }
   },
@@ -277148,7 +277148,7 @@
     "labels": {
       "en": "Right transversus abdominis",
       "de": "",
-      "la": ""
+      "la": "Musculus transversus abdominis"
     },
     "synonyms": {
       "en": [],
@@ -277240,7 +277240,7 @@
       "last_updated": "2026-06-18",
       "reliability_score": null,
       "notes": "Auto-generiert aus BodyParts3D-Dateinamen (Pipeline-Neuaufbereitung).",
-      "validation_status": "",
+      "validation_status": "latin_manual",
       "purpose": ""
     }
   },
@@ -277249,7 +277249,7 @@
     "labels": {
       "en": "Left zygomaticus major",
       "de": "",
-      "la": ""
+      "la": "Musculus zygomaticus major"
     },
     "synonyms": {
       "en": [],
@@ -277341,7 +277341,7 @@
       "last_updated": "2026-06-18",
       "reliability_score": null,
       "notes": "Auto-generiert aus BodyParts3D-Dateinamen (Pipeline-Neuaufbereitung).",
-      "validation_status": "",
+      "validation_status": "latin_manual",
       "purpose": ""
     }
   },
@@ -277350,7 +277350,7 @@
     "labels": {
       "en": "Left temporalis",
       "de": "",
-      "la": ""
+      "la": "Musculus temporalis"
     },
     "synonyms": {
       "en": [],
@@ -277442,7 +277442,7 @@
       "last_updated": "2026-06-18",
       "reliability_score": null,
       "notes": "Auto-generiert aus BodyParts3D-Dateinamen (Pipeline-Neuaufbereitung).",
-      "validation_status": "",
+      "validation_status": "latin_manual",
       "purpose": ""
     }
   },
@@ -277451,7 +277451,7 @@
     "labels": {
       "en": "Right zygomaticus minor",
       "de": "",
-      "la": ""
+      "la": "Musculus zygomaticus minor"
     },
     "synonyms": {
       "en": [],
@@ -277543,7 +277543,7 @@
       "last_updated": "2026-06-18",
       "reliability_score": null,
       "notes": "Auto-generiert aus BodyParts3D-Dateinamen (Pipeline-Neuaufbereitung).",
-      "validation_status": "",
+      "validation_status": "latin_manual",
       "purpose": ""
     }
   },
@@ -277552,7 +277552,7 @@
     "labels": {
       "en": "Left buccinator",
       "de": "",
-      "la": ""
+      "la": "Musculus buccinator"
     },
     "synonyms": {
       "en": [],
@@ -277644,7 +277644,7 @@
       "last_updated": "2026-06-18",
       "reliability_score": null,
       "notes": "Auto-generiert aus BodyParts3D-Dateinamen (Pipeline-Neuaufbereitung).",
-      "validation_status": "",
+      "validation_status": "latin_manual",
       "purpose": ""
     }
   },
@@ -277653,7 +277653,7 @@
     "labels": {
       "en": "Left depressor septi nasi",
       "de": "",
-      "la": ""
+      "la": "Musculus depressor septi nasi"
     },
     "synonyms": {
       "en": [],
@@ -277745,7 +277745,7 @@
       "last_updated": "2026-06-18",
       "reliability_score": null,
       "notes": "Auto-generiert aus BodyParts3D-Dateinamen (Pipeline-Neuaufbereitung).",
-      "validation_status": "",
+      "validation_status": "latin_manual",
       "purpose": ""
     }
   },
@@ -277754,7 +277754,7 @@
     "labels": {
       "en": "Right occipitalis",
       "de": "",
-      "la": ""
+      "la": "Musculus occipitalis"
     },
     "synonyms": {
       "en": [],
@@ -277846,7 +277846,7 @@
       "last_updated": "2026-06-18",
       "reliability_score": null,
       "notes": "Auto-generiert aus BodyParts3D-Dateinamen (Pipeline-Neuaufbereitung).",
-      "validation_status": "",
+      "validation_status": "latin_manual",
       "purpose": ""
     }
   },
@@ -277855,7 +277855,7 @@
     "labels": {
       "en": "Left mentalis",
       "de": "",
-      "la": ""
+      "la": "Musculus mentalis"
     },
     "synonyms": {
       "en": [],
@@ -277947,7 +277947,7 @@
       "last_updated": "2026-06-18",
       "reliability_score": null,
       "notes": "Auto-generiert aus BodyParts3D-Dateinamen (Pipeline-Neuaufbereitung).",
-      "validation_status": "",
+      "validation_status": "latin_manual",
       "purpose": ""
     }
   },
@@ -277956,7 +277956,7 @@
     "labels": {
       "en": "Left frontalis",
       "de": "",
-      "la": ""
+      "la": "Musculus frontalis"
     },
     "synonyms": {
       "en": [],
@@ -278048,7 +278048,7 @@
       "last_updated": "2026-06-18",
       "reliability_score": null,
       "notes": "Auto-generiert aus BodyParts3D-Dateinamen (Pipeline-Neuaufbereitung).",
-      "validation_status": "",
+      "validation_status": "latin_manual",
       "purpose": ""
     }
   },
@@ -278057,7 +278057,7 @@
     "labels": {
       "en": "Left levator anguli oris",
       "de": "",
-      "la": ""
+      "la": "Musculus levator anguli oris"
     },
     "synonyms": {
       "en": [],
@@ -278149,7 +278149,7 @@
       "last_updated": "2026-06-18",
       "reliability_score": null,
       "notes": "Auto-generiert aus BodyParts3D-Dateinamen (Pipeline-Neuaufbereitung).",
-      "validation_status": "",
+      "validation_status": "latin_manual",
       "purpose": ""
     }
   },
@@ -278158,7 +278158,7 @@
     "labels": {
       "en": "Left transversus abdominis",
       "de": "",
-      "la": ""
+      "la": "Musculus transversus abdominis"
     },
     "synonyms": {
       "en": [],
@@ -278250,7 +278250,7 @@
       "last_updated": "2026-06-18",
       "reliability_score": null,
       "notes": "Auto-generiert aus BodyParts3D-Dateinamen (Pipeline-Neuaufbereitung).",
-      "validation_status": "",
+      "validation_status": "latin_manual",
       "purpose": ""
     }
   },
@@ -278259,7 +278259,7 @@
     "labels": {
       "en": "Orbital part of left orbicularis oculi",
       "de": "",
-      "la": ""
+      "la": "Pars orbitalis musculi orbicularis oculi"
     },
     "synonyms": {
       "en": [],
@@ -278351,7 +278351,7 @@
       "last_updated": "2026-06-18",
       "reliability_score": null,
       "notes": "Auto-generiert aus BodyParts3D-Dateinamen (Pipeline-Neuaufbereitung).",
-      "validation_status": "",
+      "validation_status": "latin_manual",
       "purpose": ""
     }
   },
@@ -278360,7 +278360,7 @@
     "labels": {
       "en": "Left levator labii superioris alaeque nasi",
       "de": "",
-      "la": ""
+      "la": "Musculus levator labii superioris alaeque nasi"
     },
     "synonyms": {
       "en": [],
@@ -278452,7 +278452,7 @@
       "last_updated": "2026-06-18",
       "reliability_score": null,
       "notes": "Auto-generiert aus BodyParts3D-Dateinamen (Pipeline-Neuaufbereitung).",
-      "validation_status": "",
+      "validation_status": "latin_manual",
       "purpose": ""
     }
   },
@@ -278461,7 +278461,7 @@
     "labels": {
       "en": "Left procerus",
       "de": "",
-      "la": ""
+      "la": "Musculus procerus"
     },
     "synonyms": {
       "en": [],
@@ -278553,7 +278553,7 @@
       "last_updated": "2026-06-18",
       "reliability_score": null,
       "notes": "Auto-generiert aus BodyParts3D-Dateinamen (Pipeline-Neuaufbereitung).",
-      "validation_status": "",
+      "validation_status": "latin_manual",
       "purpose": ""
     }
   },
@@ -278562,7 +278562,7 @@
     "labels": {
       "en": "Left thyro-arytenoid proper",
       "de": "",
-      "la": ""
+      "la": "Musculus thyroarytenoideus"
     },
     "synonyms": {
       "en": [],
@@ -278654,7 +278654,7 @@
       "last_updated": "2026-06-18",
       "reliability_score": null,
       "notes": "Auto-generiert aus BodyParts3D-Dateinamen (Pipeline-Neuaufbereitung).",
-      "validation_status": "",
+      "validation_status": "latin_manual",
       "purpose": ""
     }
   },
@@ -278663,7 +278663,7 @@
     "labels": {
       "en": "Left corrugator supercilii",
       "de": "",
-      "la": ""
+      "la": "Musculus corrugator supercilii"
     },
     "synonyms": {
       "en": [],
@@ -278755,7 +278755,7 @@
       "last_updated": "2026-06-18",
       "reliability_score": null,
       "notes": "Auto-generiert aus BodyParts3D-Dateinamen (Pipeline-Neuaufbereitung).",
-      "validation_status": "",
+      "validation_status": "latin_manual",
       "purpose": ""
     }
   },
@@ -278764,7 +278764,7 @@
     "labels": {
       "en": "Right thyro-arytenoid proper",
       "de": "",
-      "la": ""
+      "la": "Musculus thyroarytenoideus"
     },
     "synonyms": {
       "en": [],
@@ -278856,7 +278856,7 @@
       "last_updated": "2026-06-18",
       "reliability_score": null,
       "notes": "Auto-generiert aus BodyParts3D-Dateinamen (Pipeline-Neuaufbereitung).",
-      "validation_status": "",
+      "validation_status": "latin_manual",
       "purpose": ""
     }
   },
@@ -278865,7 +278865,7 @@
     "labels": {
       "en": "Right frontalis",
       "de": "",
-      "la": ""
+      "la": "Musculus frontalis"
     },
     "synonyms": {
       "en": [],
@@ -278957,7 +278957,7 @@
       "last_updated": "2026-06-18",
       "reliability_score": null,
       "notes": "Auto-generiert aus BodyParts3D-Dateinamen (Pipeline-Neuaufbereitung).",
-      "validation_status": "",
+      "validation_status": "latin_manual",
       "purpose": ""
     }
   },
@@ -278966,7 +278966,7 @@
     "labels": {
       "en": "Right temporalis",
       "de": "",
-      "la": ""
+      "la": "Musculus temporalis"
     },
     "synonyms": {
       "en": [],
@@ -279058,7 +279058,7 @@
       "last_updated": "2026-06-18",
       "reliability_score": null,
       "notes": "Auto-generiert aus BodyParts3D-Dateinamen (Pipeline-Neuaufbereitung).",
-      "validation_status": "",
+      "validation_status": "latin_manual",
       "purpose": ""
     }
   },
@@ -279067,7 +279067,7 @@
     "labels": {
       "en": "Left occipitalis",
       "de": "",
-      "la": ""
+      "la": "Musculus occipitalis"
     },
     "synonyms": {
       "en": [],
@@ -279159,7 +279159,7 @@
       "last_updated": "2026-06-18",
       "reliability_score": null,
       "notes": "Auto-generiert aus BodyParts3D-Dateinamen (Pipeline-Neuaufbereitung).",
-      "validation_status": "",
+      "validation_status": "latin_manual",
       "purpose": ""
     }
   },
@@ -279168,7 +279168,7 @@
     "labels": {
       "en": "Right levator labii superioris alaeque nasi",
       "de": "",
-      "la": ""
+      "la": "Musculus levator labii superioris alaeque nasi"
     },
     "synonyms": {
       "en": [],
@@ -279260,7 +279260,7 @@
       "last_updated": "2026-06-18",
       "reliability_score": null,
       "notes": "Auto-generiert aus BodyParts3D-Dateinamen (Pipeline-Neuaufbereitung).",
-      "validation_status": "",
+      "validation_status": "latin_manual",
       "purpose": ""
     }
   },
@@ -279269,7 +279269,7 @@
     "labels": {
       "en": "Right levator labii superioris",
       "de": "",
-      "la": ""
+      "la": "Musculus levator labii superioris"
     },
     "synonyms": {
       "en": [],
@@ -279361,7 +279361,7 @@
       "last_updated": "2026-06-18",
       "reliability_score": null,
       "notes": "Auto-generiert aus BodyParts3D-Dateinamen (Pipeline-Neuaufbereitung).",
-      "validation_status": "",
+      "validation_status": "latin_manual",
       "purpose": ""
     }
   },
@@ -279370,7 +279370,7 @@
     "labels": {
       "en": "Left levator labii superioris",
       "de": "",
-      "la": ""
+      "la": "Musculus levator labii superioris"
     },
     "synonyms": {
       "en": [],
@@ -279462,7 +279462,7 @@
       "last_updated": "2026-06-18",
       "reliability_score": null,
       "notes": "Auto-generiert aus BodyParts3D-Dateinamen (Pipeline-Neuaufbereitung).",
-      "validation_status": "",
+      "validation_status": "latin_manual",
       "purpose": ""
     }
   },
@@ -279471,7 +279471,7 @@
     "labels": {
       "en": "Right depressor anguli oris",
       "de": "",
-      "la": ""
+      "la": "Musculus depressor anguli oris"
     },
     "synonyms": {
       "en": [],
@@ -279563,7 +279563,7 @@
       "last_updated": "2026-06-18",
       "reliability_score": null,
       "notes": "Auto-generiert aus BodyParts3D-Dateinamen (Pipeline-Neuaufbereitung).",
-      "validation_status": "",
+      "validation_status": "latin_manual",
       "purpose": ""
     }
   },
@@ -279572,7 +279572,7 @@
     "labels": {
       "en": "Right buccinator",
       "de": "",
-      "la": ""
+      "la": "Musculus buccinator"
     },
     "synonyms": {
       "en": [],
@@ -279664,7 +279664,7 @@
       "last_updated": "2026-06-18",
       "reliability_score": null,
       "notes": "Auto-generiert aus BodyParts3D-Dateinamen (Pipeline-Neuaufbereitung).",
-      "validation_status": "",
+      "validation_status": "latin_manual",
       "purpose": ""
     }
   },
@@ -279673,7 +279673,7 @@
     "labels": {
       "en": "Palpebral part of right orbicularis oculi",
       "de": "",
-      "la": ""
+      "la": "Pars palpebralis musculi orbicularis oculi"
     },
     "synonyms": {
       "en": [],
@@ -279765,7 +279765,7 @@
       "last_updated": "2026-06-18",
       "reliability_score": null,
       "notes": "Auto-generiert aus BodyParts3D-Dateinamen (Pipeline-Neuaufbereitung).",
-      "validation_status": "",
+      "validation_status": "latin_manual",
       "purpose": ""
     }
   },
@@ -279774,7 +279774,7 @@
     "labels": {
       "en": "Left medial pterygoid",
       "de": "",
-      "la": ""
+      "la": "Musculus pterygoideus medialis"
     },
     "synonyms": {
       "en": [],
@@ -279866,7 +279866,7 @@
       "last_updated": "2026-06-18",
       "reliability_score": null,
       "notes": "Auto-generiert aus BodyParts3D-Dateinamen (Pipeline-Neuaufbereitung).",
-      "validation_status": "",
+      "validation_status": "latin_manual",
       "purpose": ""
     }
   },
@@ -279875,7 +279875,7 @@
     "labels": {
       "en": "Right nasalis",
       "de": "",
-      "la": ""
+      "la": "Musculus nasalis"
     },
     "synonyms": {
       "en": [],
@@ -279967,7 +279967,7 @@
       "last_updated": "2026-06-18",
       "reliability_score": null,
       "notes": "Auto-generiert aus BodyParts3D-Dateinamen (Pipeline-Neuaufbereitung).",
-      "validation_status": "",
+      "validation_status": "latin_manual",
       "purpose": ""
     }
   },
@@ -279976,7 +279976,7 @@
     "labels": {
       "en": "Right mentalis",
       "de": "",
-      "la": ""
+      "la": "Musculus mentalis"
     },
     "synonyms": {
       "en": [],
@@ -280068,7 +280068,7 @@
       "last_updated": "2026-06-18",
       "reliability_score": null,
       "notes": "Auto-generiert aus BodyParts3D-Dateinamen (Pipeline-Neuaufbereitung).",
-      "validation_status": "",
+      "validation_status": "latin_manual",
       "purpose": ""
     }
   },
@@ -280077,7 +280077,7 @@
     "labels": {
       "en": "Left temporoparietalis",
       "de": "",
-      "la": ""
+      "la": "Musculus temporoparietalis"
     },
     "synonyms": {
       "en": [],
@@ -280169,7 +280169,7 @@
       "last_updated": "2026-06-18",
       "reliability_score": null,
       "notes": "Auto-generiert aus BodyParts3D-Dateinamen (Pipeline-Neuaufbereitung).",
-      "validation_status": "",
+      "validation_status": "latin_manual",
       "purpose": ""
     }
   },
@@ -280178,7 +280178,7 @@
     "labels": {
       "en": "Right depressor labii inferioris",
       "de": "",
-      "la": ""
+      "la": "Musculus depressor labii inferioris"
     },
     "synonyms": {
       "en": [],
@@ -280270,7 +280270,7 @@
       "last_updated": "2026-06-18",
       "reliability_score": null,
       "notes": "Auto-generiert aus BodyParts3D-Dateinamen (Pipeline-Neuaufbereitung).",
-      "validation_status": "",
+      "validation_status": "latin_manual",
       "purpose": ""
     }
   },
@@ -280279,7 +280279,7 @@
     "labels": {
       "en": "Left nasalis",
       "de": "",
-      "la": ""
+      "la": "Musculus nasalis"
     },
     "synonyms": {
       "en": [],
@@ -280371,7 +280371,7 @@
       "last_updated": "2026-06-18",
       "reliability_score": null,
       "notes": "Auto-generiert aus BodyParts3D-Dateinamen (Pipeline-Neuaufbereitung).",
-      "validation_status": "",
+      "validation_status": "latin_manual",
       "purpose": ""
     }
   },
@@ -280380,7 +280380,7 @@
     "labels": {
       "en": "Right depressor septi nasi",
       "de": "",
-      "la": ""
+      "la": "Musculus depressor septi nasi"
     },
     "synonyms": {
       "en": [],
@@ -280472,7 +280472,7 @@
       "last_updated": "2026-06-18",
       "reliability_score": null,
       "notes": "Auto-generiert aus BodyParts3D-Dateinamen (Pipeline-Neuaufbereitung).",
-      "validation_status": "",
+      "validation_status": "latin_manual",
       "purpose": ""
     }
   },
@@ -280481,7 +280481,7 @@
     "labels": {
       "en": "Left zygomaticus minor",
       "de": "",
-      "la": ""
+      "la": "Musculus zygomaticus minor"
     },
     "synonyms": {
       "en": [],
@@ -280573,7 +280573,7 @@
       "last_updated": "2026-06-18",
       "reliability_score": null,
       "notes": "Auto-generiert aus BodyParts3D-Dateinamen (Pipeline-Neuaufbereitung).",
-      "validation_status": "",
+      "validation_status": "latin_manual",
       "purpose": ""
     }
   },
@@ -280582,7 +280582,7 @@
     "labels": {
       "en": "Left depressor anguli oris",
       "de": "",
-      "la": ""
+      "la": "Musculus depressor anguli oris"
     },
     "synonyms": {
       "en": [],
@@ -280674,7 +280674,7 @@
       "last_updated": "2026-06-18",
       "reliability_score": null,
       "notes": "Auto-generiert aus BodyParts3D-Dateinamen (Pipeline-Neuaufbereitung).",
-      "validation_status": "",
+      "validation_status": "latin_manual",
       "purpose": ""
     }
   },
@@ -280683,7 +280683,7 @@
     "labels": {
       "en": "Left depressor labii inferioris",
       "de": "",
-      "la": ""
+      "la": "Musculus depressor labii inferioris"
     },
     "synonyms": {
       "en": [],
@@ -280775,7 +280775,7 @@
       "last_updated": "2026-06-18",
       "reliability_score": null,
       "notes": "Auto-generiert aus BodyParts3D-Dateinamen (Pipeline-Neuaufbereitung).",
-      "validation_status": "",
+      "validation_status": "latin_manual",
       "purpose": ""
     }
   },
@@ -280784,7 +280784,7 @@
     "labels": {
       "en": "Left rectus abdominis",
       "de": "",
-      "la": ""
+      "la": "Musculus rectus abdominis"
     },
     "synonyms": {
       "en": [],
@@ -280876,7 +280876,7 @@
       "last_updated": "2026-06-18",
       "reliability_score": null,
       "notes": "Auto-generiert aus BodyParts3D-Dateinamen (Pipeline-Neuaufbereitung).",
-      "validation_status": "",
+      "validation_status": "latin_manual",
       "purpose": ""
     }
   },
@@ -280885,7 +280885,7 @@
     "labels": {
       "en": "Right procerus",
       "de": "",
-      "la": ""
+      "la": "Musculus procerus"
     },
     "synonyms": {
       "en": [],
@@ -280977,7 +280977,7 @@
       "last_updated": "2026-06-18",
       "reliability_score": null,
       "notes": "Auto-generiert aus BodyParts3D-Dateinamen (Pipeline-Neuaufbereitung).",
-      "validation_status": "",
+      "validation_status": "latin_manual",
       "purpose": ""
     }
   },
@@ -280986,7 +280986,7 @@
     "labels": {
       "en": "Left stylomandibular ligament",
       "de": "",
-      "la": ""
+      "la": "Ligamentum stylomandibulare sinistrum"
     },
     "synonyms": {
       "en": [],
@@ -281078,7 +281078,7 @@
       "last_updated": "2026-06-18",
       "reliability_score": null,
       "notes": "Auto-generiert aus BodyParts3D-Dateinamen (Pipeline-Neuaufbereitung).",
-      "validation_status": "",
+      "validation_status": "latin_manual",
       "purpose": ""
     }
   },
@@ -281087,7 +281087,7 @@
     "labels": {
       "en": "Right stylomandibular ligament",
       "de": "",
-      "la": ""
+      "la": "Ligamentum stylomandibulare dextrum"
     },
     "synonyms": {
       "en": [],
@@ -281179,7 +281179,7 @@
       "last_updated": "2026-06-18",
       "reliability_score": null,
       "notes": "Auto-generiert aus BodyParts3D-Dateinamen (Pipeline-Neuaufbereitung).",
-      "validation_status": "",
+      "validation_status": "latin_manual",
       "purpose": ""
     }
   },
@@ -281188,7 +281188,7 @@
     "labels": {
       "en": "Right zygomaticus major",
       "de": "",
-      "la": ""
+      "la": "Musculus zygomaticus major"
     },
     "synonyms": {
       "en": [],
@@ -281280,7 +281280,7 @@
       "last_updated": "2026-06-18",
       "reliability_score": null,
       "notes": "Auto-generiert aus BodyParts3D-Dateinamen (Pipeline-Neuaufbereitung).",
-      "validation_status": "",
+      "validation_status": "latin_manual",
       "purpose": ""
     }
   },
@@ -281289,7 +281289,7 @@
     "labels": {
       "en": "Right temporoparietalis",
       "de": "",
-      "la": ""
+      "la": "Musculus temporoparietalis"
     },
     "synonyms": {
       "en": [],
@@ -281381,7 +281381,7 @@
       "last_updated": "2026-06-18",
       "reliability_score": null,
       "notes": "Auto-generiert aus BodyParts3D-Dateinamen (Pipeline-Neuaufbereitung).",
-      "validation_status": "",
+      "validation_status": "latin_manual",
       "purpose": ""
     }
   },
@@ -281390,7 +281390,7 @@
     "labels": {
       "en": "Right corrugator supercilii",
       "de": "",
-      "la": ""
+      "la": "Musculus corrugator supercilii"
     },
     "synonyms": {
       "en": [],
@@ -281482,7 +281482,7 @@
       "last_updated": "2026-06-18",
       "reliability_score": null,
       "notes": "Auto-generiert aus BodyParts3D-Dateinamen (Pipeline-Neuaufbereitung).",
-      "validation_status": "",
+      "validation_status": "latin_manual",
       "purpose": ""
     }
   },
@@ -281491,7 +281491,7 @@
     "labels": {
       "en": "Orbital part of right orbicularis oculi",
       "de": "",
-      "la": ""
+      "la": "Pars orbitalis musculi orbicularis oculi"
     },
     "synonyms": {
       "en": [],
@@ -281583,7 +281583,7 @@
       "last_updated": "2026-06-18",
       "reliability_score": null,
       "notes": "Auto-generiert aus BodyParts3D-Dateinamen (Pipeline-Neuaufbereitung).",
-      "validation_status": "",
+      "validation_status": "latin_manual",
       "purpose": ""
     }
   },
@@ -281592,7 +281592,7 @@
     "labels": {
       "en": "Palpebral part of left orbicularis oculi",
       "de": "",
-      "la": ""
+      "la": "Pars palpebralis musculi orbicularis oculi"
     },
     "synonyms": {
       "en": [],
@@ -281684,7 +281684,7 @@
       "last_updated": "2026-06-18",
       "reliability_score": null,
       "notes": "Auto-generiert aus BodyParts3D-Dateinamen (Pipeline-Neuaufbereitung).",
-      "validation_status": "",
+      "validation_status": "latin_manual",
       "purpose": ""
     }
   },
@@ -281693,7 +281693,7 @@
     "labels": {
       "en": "Orbicularis oris",
       "de": "",
-      "la": ""
+      "la": "Musculus orbicularis oris"
     },
     "synonyms": {
       "en": [],
@@ -281785,7 +281785,7 @@
       "last_updated": "2026-06-18",
       "reliability_score": null,
       "notes": "Auto-generiert aus BodyParts3D-Dateinamen (Pipeline-Neuaufbereitung).",
-      "validation_status": "",
+      "validation_status": "latin_manual",
       "purpose": ""
     }
   },
@@ -281794,7 +281794,7 @@
     "labels": {
       "en": "Right rectus abdominis",
       "de": "",
-      "la": ""
+      "la": "Musculus rectus abdominis"
     },
     "synonyms": {
       "en": [],
@@ -281886,7 +281886,7 @@
       "last_updated": "2026-06-18",
       "reliability_score": null,
       "notes": "Auto-generiert aus BodyParts3D-Dateinamen (Pipeline-Neuaufbereitung).",
-      "validation_status": "",
+      "validation_status": "latin_manual",
       "purpose": ""
     }
   },
@@ -281895,7 +281895,7 @@
     "labels": {
       "en": "Right latissimus dorsi",
       "de": "",
-      "la": ""
+      "la": "Musculus latissimus dorsi"
     },
     "synonyms": {
       "en": [],
@@ -281987,7 +281987,7 @@
       "last_updated": "2026-06-18",
       "reliability_score": null,
       "notes": "Auto-generiert aus BodyParts3D-Dateinamen (Pipeline-Neuaufbereitung).",
-      "validation_status": "",
+      "validation_status": "latin_manual",
       "purpose": ""
     }
   },
@@ -281996,7 +281996,7 @@
     "labels": {
       "en": "Left latissimus dorsi",
       "de": "",
-      "la": ""
+      "la": "Musculus latissimus dorsi"
     },
     "synonyms": {
       "en": [],
@@ -282088,7 +282088,7 @@
       "last_updated": "2026-06-18",
       "reliability_score": null,
       "notes": "Auto-generiert aus BodyParts3D-Dateinamen (Pipeline-Neuaufbereitung).",
-      "validation_status": "",
+      "validation_status": "latin_manual",
       "purpose": ""
     }
   },
