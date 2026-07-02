@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{background:#e7e5df;font-family:'Manrope',system-ui,sans-serif;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+</style>
+</helmet>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="afSilver" x1="0" y1="0" x2="0.2" y2="1">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="0.45" stop-color="#eceef0"/>
+      <stop offset="0.72" stop-color="#c2c6cb"/>
+      <stop offset="1" stop-color="#a7abb2"/>
+    </linearGradient>
+    <linearGradient id="afFacet" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#c4c7cc"/>
+      <stop offset="1" stop-color="#7e828a"/>
+    </linearGradient>
+    <linearGradient id="afOrange" x1="0" y1="1" x2="1" y2="0">
+      <stop offset="0" stop-color="#e64500"/>
+      <stop offset="0.5" stop-color="#ff6a00"/>
+      <stop offset="1" stop-color="#ff9d3d"/>
+    </linearGradient>
+    <mask id="afAmask" maskContentUnits="userSpaceOnUse">
+      <path d="M100 32 L186 174 Q188 178 183 178 L17 178 Q12 178 14 174 Z" fill="#fff"/>
+      <path d="M100 60 L124 104 L76 104 Z" fill="#000"/>
+      <path d="M100 136 L117 178 L83 178 Z" fill="#000"/>
+    </mask>
+    <symbol id="afA" viewBox="0 0 985 892"><image href="assets/af-logo.png" width="985" height="892"></image></symbol>
+    <symbol id="afAmono" viewBox="0 0 985 892"><image href="assets/af-logo-white.png" width="985" height="892"></image></symbol>
+    <symbol id="afAflat" viewBox="0 0 985 892"><image href="assets/af-logo-white.png" width="985" height="892"></image></symbol>
+  </defs>
+</svg>
+
+<div ref="{{ setRoot }}" style="width:max-content;min-width:100%;min-height:100vh;box-sizing:border-box;padding:52px;background:#e7e5df">
+
+  <div style="display:flex;align-items:baseline;gap:18px;margin:0 0 8px 4px">
+    <span style="font-family:'Sora',sans-serif;font-weight:700;font-size:22px;letter-spacing:-.01em;color:#1a1a1a">Anatomie Fokus</span>
+    <span style="font-family:'Manrope';font-weight:600;font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:#8a8780">Logo &amp; Typografie · Variante A · Dark Mode</span>
+  </div>
+  <div style="height:1px;width:100%;max-width:1432px;background:linear-gradient(90deg,#c9c6bf,transparent);margin:0 0 32px 4px"></div>
+
+  <div style="flex:none;width:1432px">
+    <div style="background:#0b0b0b;border-radius:4px;box-shadow:0 18px 60px rgba(0,0,0,.28);padding:52px;display:flex;flex-direction:column;gap:44px;background-image:radial-gradient(120% 80% at 0% 0%,#141519,#0b0b0b 60%)">
+
+      <!-- ROW 1 -->
+      <div style="display:grid;grid-template-columns:1.15fr 1fr 1fr;gap:40px">
+
+        <!-- HERO LOCKUP -->
+        <div style="display:flex;flex-direction:column">
+          <div style="font-family:'Manrope';font-weight:600;font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:#5f6066;margin-bottom:6px">Primäres Logo</div>
+          <div style="height:1px;background:rgba(255,255,255,.09);margin-bottom:26px"></div>
+          <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding:14px 0">
+            <img src="assets/af-logo.png" style="width:190px;height:190px;object-fit:contain;filter:drop-shadow(0 14px 30px rgba(0,0,0,.6))" alt="Anatomie Fokus">
+            <div style="font-family:'Sora';font-weight:700;font-size:46px;letter-spacing:-.025em;color:#f6f6f7;line-height:1;margin-top:10px">Anatomie <span style="color:var(--accent,#ff6a00)">Fokus</span></div>
+            <div style="font-family:'Manrope';font-weight:600;font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:#7c7e84;margin-top:12px">Anatomie verstehen. Wissen anwenden.</div>
+          </div>
+        </div>
+
+        <!-- CONSTRUCTION / CLEAR SPACE -->
+        <div style="display:flex;flex-direction:column">
+          <div style="font-family:'Manrope';font-weight:600;font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:#5f6066;margin-bottom:6px">Aufbau &amp; Schutzraum</div>
+          <div style="height:1px;background:rgba(255,255,255,.09);margin-bottom:26px"></div>
+          <div style="flex:1;display:flex;align-items:center;justify-content:center;padding:10px">
+            <div style="position:relative;padding:42px">
+              <div style="position:absolute;inset:0;border:1px dashed rgba(255,106,0,.4);border-radius:4px"></div>
+              <div style="position:absolute;top:6px;left:8px;font-family:'Manrope';font-weight:700;font-size:11px;color:var(--accent,#ff6a00)">x</div>
+              <div style="position:absolute;left:0;top:50%;transform:translateY(-50%);width:42px;border-top:1px dashed rgba(255,255,255,.25)"></div>
+              <div style="position:absolute;right:0;top:50%;transform:translateY(-50%);width:42px;border-top:1px dashed rgba(255,255,255,.25)"></div>
+              <div style="position:relative;width:128px;height:128px;display:flex;align-items:center;justify-content:center;outline:1px solid rgba(255,255,255,.1)">
+                <img src="assets/af-logo.png" style="width:118px;height:118px;object-fit:contain" alt="Anatomie Fokus">
+              </div>
+            </div>
+          </div>
+          <div style="font-family:'Manrope';font-weight:500;font-size:12px;line-height:1.5;color:#9a9ca2;text-align:center">Schutzraum = <span style="color:#f6f6f7;font-weight:700">x</span> ringsum (½ Logohöhe).<br>Niemals Logo verzerren, drehen oder neu einfärben.</div>
+        </div>
+
+        <!-- MIN SIZES -->
+        <div style="display:flex;flex-direction:column">
+          <div style="font-family:'Manrope';font-weight:600;font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:#5f6066;margin-bottom:6px">Mindestgrößen</div>
+          <div style="height:1px;background:rgba(255,255,255,.09);margin-bottom:26px"></div>
+          <div style="flex:1;display:flex;align-items:center;justify-content:center;gap:34px;padding:10px">
+            <div style="display:flex;flex-direction:column;align-items:center;gap:14px">
+              <img src="assets/af-logo.png" style="width:96px;height:96px;object-fit:contain" alt="Anatomie Fokus">
+              <div style="text-align:center"><div style="font-family:'Sora';font-weight:700;font-size:15px;color:#f6f6f7">96 px</div><div style="font-family:'Manrope';font-weight:600;font-size:10px;letter-spacing:.06em;color:#7c7e84;margin-top:3px">Web / Banner</div></div>
+            </div>
+            <div style="display:flex;flex-direction:column;align-items:center;gap:14px">
+              <img src="assets/af-logo-white.png" style="width:48px;height:48px;object-fit:contain" alt="Anatomie Fokus">
+              <div style="text-align:center"><div style="font-family:'Sora';font-weight:700;font-size:15px;color:#f6f6f7">48 px</div><div style="font-family:'Manrope';font-weight:600;font-size:10px;letter-spacing:.06em;color:#7c7e84;margin-top:3px">Profilbild</div></div>
+            </div>
+            <div style="display:flex;flex-direction:column;align-items:center;gap:14px">
+              <img src="assets/af-logo-white.png" style="width:24px;height:24px;object-fit:contain" alt="Anatomie Fokus">
+              <div style="text-align:center"><div style="font-family:'Sora';font-weight:700;font-size:15px;color:#f6f6f7">24 px</div><div style="font-family:'Manrope';font-weight:600;font-size:10px;letter-spacing:.06em;color:#7c7e84;margin-top:3px">Favicon (flach)</div></div>
+            </div>
+          </div>
+          <div style="font-family:'Manrope';font-weight:500;font-size:12px;line-height:1.5;color:#9a9ca2;text-align:center">Unter 48 px die flache Version ohne Bevel nutzen.</div>
+        </div>
+      </div>
+
+      <div style="height:1px;background:rgba(255,255,255,.07)"></div>
+
+      <!-- ROW 2: VARIANTS -->
+      <div>
+        <div style="font-family:'Manrope';font-weight:600;font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:#5f6066;margin-bottom:18px">Logo-Varianten</div>
+        <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:18px">
+          <div style="border-radius:6px;overflow:hidden;background:#0b0b0b;box-shadow:inset 0 0 0 1px rgba(255,255,255,.07);height:150px;display:flex;align-items:center;justify-content:center"><img src="assets/af-logo.png" style="width:84px;height:84px;object-fit:contain" alt="Anatomie Fokus"></div>
+          <div style="border-radius:6px;overflow:hidden;background:#f6f6f7;height:150px;display:flex;align-items:center;justify-content:center"><img src="assets/af-logo-dark.png" style="width:84px" alt="Logo auf Hell"></div>
+          <div style="border-radius:6px;overflow:hidden;background:#1b1d21;box-shadow:inset 0 0 0 1px rgba(255,255,255,.07);height:150px;display:flex;align-items:center;justify-content:center;color:#f6f6f7"><img src="assets/af-logo-white.png" style="width:84px" alt="Logo mono weiß"></div>
+          <div style="border-radius:6px;overflow:hidden;background:#f6f6f7;height:150px;display:flex;align-items:center;justify-content:center;color:#0b0b0b"><img src="assets/af-logo-black.png" style="width:84px" alt="Logo mono schwarz"></div>
+          <div style="border-radius:6px;overflow:hidden;background:#0b0b0b;box-shadow:inset 0 0 0 1px rgba(255,255,255,.07);height:150px;display:flex;align-items:center;justify-content:center;color:var(--accent,#ff6a00)"><img src="assets/af-logo-orange.png" style="width:84px" alt="Logo mono orange"></div>
+
+          <div style="font-family:'Manrope';font-weight:600;font-size:11px;letter-spacing:.04em;color:#9a9ca2;text-align:center">Primär · auf Schwarz</div>
+          <div style="font-family:'Manrope';font-weight:600;font-size:11px;letter-spacing:.04em;color:#9a9ca2;text-align:center">Primär · auf Weiß</div>
+          <div style="font-family:'Manrope';font-weight:600;font-size:11px;letter-spacing:.04em;color:#9a9ca2;text-align:center">Mono · Weiß</div>
+          <div style="font-family:'Manrope';font-weight:600;font-size:11px;letter-spacing:.04em;color:#9a9ca2;text-align:center">Mono · Schwarz</div>
+          <div style="font-family:'Manrope';font-weight:600;font-size:11px;letter-spacing:.04em;color:#9a9ca2;text-align:center">Mono · Orange</div>
+        </div>
+      </div>
+
+      <div style="height:1px;background:rgba(255,255,255,.07)"></div>
+
+      <!-- ROW 3 -->
+      <div style="display:grid;grid-template-columns:1fr 1.1fr 1.1fr;gap:40px">
+
+        <!-- FAVICON / PROFILE -->
+        <div style="display:flex;flex-direction:column">
+          <div style="font-family:'Manrope';font-weight:600;font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:#5f6066;margin-bottom:18px">Profil &amp; App-Icon</div>
+          <div style="display:flex;align-items:center;gap:22px">
+            <div style="display:flex;flex-direction:column;align-items:center;gap:10px">
+              <div style="width:96px;height:96px;border-radius:50%;background:radial-gradient(130% 130% at 35% 25%,#1c1e22,#0c0c0d);box-shadow:0 10px 24px rgba(0,0,0,.5),inset 0 0 0 1px rgba(255,255,255,.06);display:flex;align-items:center;justify-content:center"><img src="assets/af-logo.png" style="width:56px;height:56px;object-fit:contain" alt="Anatomie Fokus"></div>
+              <span style="font-family:'Manrope';font-weight:600;font-size:10px;letter-spacing:.06em;color:#7c7e84">Rund</span>
+            </div>
+            <div style="display:flex;flex-direction:column;align-items:center;gap:10px">
+              <div style="width:96px;height:96px;border-radius:22px;background:radial-gradient(130% 130% at 35% 25%,#1c1e22,#0c0c0d);box-shadow:0 10px 24px rgba(0,0,0,.5),inset 0 0 0 1px rgba(255,255,255,.06);display:flex;align-items:center;justify-content:center"><img src="assets/af-logo.png" style="width:56px;height:56px;object-fit:contain" alt="Anatomie Fokus"></div>
+              <span style="font-family:'Manrope';font-weight:600;font-size:10px;letter-spacing:.06em;color:#7c7e84">Squircle</span>
+            </div>
+            <div style="display:flex;flex-direction:column;align-items:center;gap:10px">
+              <div style="width:96px;height:96px;border-radius:22px;background:var(--accent,#ff6a00);display:flex;align-items:center;justify-content:center;color:#0b0b0b"><img src="assets/af-logo-black.png" style="width:56px" alt="Logo"></div>
+              <span style="font-family:'Manrope';font-weight:600;font-size:10px;letter-spacing:.06em;color:#7c7e84">Orange</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- WORDMARK RULE -->
+        <div style="display:flex;flex-direction:column">
+          <div style="font-family:'Manrope';font-weight:600;font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:#5f6066;margin-bottom:18px">Wortmarke · Regel</div>
+          <div style="display:flex;flex-direction:column;gap:16px">
+            <div style="display:flex;align-items:center;gap:16px">
+              <div style="font-family:'Sora';font-weight:700;font-size:34px;letter-spacing:-.025em;line-height:1"><span style="color:#f6f6f7">Anatomie</span> <span style="color:var(--accent,#ff6a00)">Fokus</span></div>
+            </div>
+            <div style="display:flex;gap:10px;flex-wrap:wrap">
+              <span style="font-family:'Manrope';font-weight:600;font-size:12px;color:#9a9ca2;background:rgba(255,255,255,.05);border-radius:3px;padding:7px 12px"><span style="color:#f6f6f7">Anatomie</span> = Off-White #F6F6F7</span>
+              <span style="font-family:'Manrope';font-weight:600;font-size:12px;color:#9a9ca2;background:rgba(255,106,0,.1);border-radius:3px;padding:7px 12px"><span style="color:var(--accent,#ff6a00)">Fokus</span> = Orange #FF6A00</span>
+            </div>
+            <div style="font-family:'Manrope';font-weight:500;font-size:12px;line-height:1.55;color:#7c7e84">Auf hellem Grund wird „Anatomie" zu Anthrazit #1A1A1A, „Fokus" bleibt orange. Wortmarke immer in <span style="color:#f6f6f7;font-weight:700">Sora</span> setzen, nie ersetzen.</div>
+          </div>
+        </div>
+
+        <!-- DON'TS -->
+        <div style="display:flex;flex-direction:column">
+          <div style="font-family:'Manrope';font-weight:600;font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:#5f6066;margin-bottom:18px">Nicht erlaubt</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px">
+            <div style="position:relative;border-radius:6px;background:#15171a;height:74px;display:flex;align-items:center;justify-content:center"><img src="assets/af-logo.png" style="width:44px;height:44px;object-fit:contain;transform:scaleX(1.6)" alt="Anatomie Fokus"><div style="position:absolute;bottom:6px;font-family:'Manrope';font-weight:600;font-size:9px;color:#ff5a5a">verzerren</div></div>
+            <div style="position:relative;border-radius:6px;background:#15171a;height:74px;display:flex;align-items:center;justify-content:center;color:#3ad17a"><img src="assets/af-logo-green.png" style="width:44px" alt="Fremdfarbe"><div style="position:absolute;bottom:6px;font-family:'Manrope';font-weight:600;font-size:9px;color:#ff5a5a">Fremdfarbe</div></div>
+            <div style="position:relative;border-radius:6px;background:#15171a;height:74px;display:flex;align-items:center;justify-content:center"><img src="assets/af-logo.png" style="width:44px;height:44px;object-fit:contain;transform:rotate(22deg)" alt="Anatomie Fokus"><div style="position:absolute;bottom:6px;font-family:'Manrope';font-weight:600;font-size:9px;color:#ff5a5a">drehen</div></div>
+          </div>
+        </div>
+      </div>
+
+      <div style="height:1px;background:rgba(255,255,255,.07)"></div>
+
+      <!-- ROW 4: TYPOGRAPHY -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:40px">
+
+        <!-- SORA -->
+        <div style="display:flex;flex-direction:column">
+          <div style="display:flex;align-items:baseline;gap:12px;margin-bottom:18px">
+            <span style="font-family:'Manrope';font-weight:600;font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:#5f6066">Display · Headlines</span>
+            <span style="font-family:'Sora';font-weight:700;font-size:13px;color:var(--accent,#ff6a00)">Sora</span>
+          </div>
+          <div style="display:flex;align-items:flex-end;gap:24px;border-bottom:1px solid rgba(255,255,255,.08);padding-bottom:20px;margin-bottom:18px">
+            <div style="font-family:'Sora';font-weight:700;font-size:96px;line-height:.85;color:#f6f6f7">Aa</div>
+            <div style="display:flex;flex-direction:column;gap:5px;padding-bottom:6px">
+              <span style="font-family:'Sora';font-weight:300;font-size:15px;color:#9a9ca2">Light · 300</span>
+              <span style="font-family:'Sora';font-weight:500;font-size:15px;color:#9a9ca2">Medium · 500</span>
+              <span style="font-family:'Sora';font-weight:600;font-size:15px;color:#cfd1d6">SemiBold · 600</span>
+              <span style="font-family:'Sora';font-weight:700;font-size:15px;color:#f6f6f7">Bold · 700</span>
+              <span style="font-family:'Sora';font-weight:800;font-size:15px;color:#f6f6f7">ExtraBold · 800</span>
+            </div>
+          </div>
+          <div style="font-family:'Sora';font-weight:600;font-size:26px;letter-spacing:-.01em;color:#f6f6f7;margin-bottom:4px">Schulter verstehen.</div>
+          <div style="font-family:'Manrope';font-weight:500;font-size:12px;line-height:1.55;color:#7c7e84">Für Wortmarke, Video-Titel, Überschriften und Lower-Thirds. Geometrisch, klar, modern.</div>
+        </div>
+
+        <!-- MANROPE -->
+        <div style="display:flex;flex-direction:column">
+          <div style="display:flex;align-items:baseline;gap:12px;margin-bottom:18px">
+            <span style="font-family:'Manrope';font-weight:600;font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:#5f6066">Text · Interface</span>
+            <span style="font-family:'Manrope';font-weight:700;font-size:13px;color:var(--accent,#ff6a00)">Manrope</span>
+          </div>
+          <div style="display:flex;align-items:flex-end;gap:24px;border-bottom:1px solid rgba(255,255,255,.08);padding-bottom:20px;margin-bottom:18px">
+            <div style="font-family:'Manrope';font-weight:700;font-size:96px;line-height:.85;color:#f6f6f7">Aa</div>
+            <div style="display:flex;flex-direction:column;gap:5px;padding-bottom:6px">
+              <span style="font-family:'Manrope';font-weight:400;font-size:15px;color:#9a9ca2">Regular · 400</span>
+              <span style="font-family:'Manrope';font-weight:500;font-size:15px;color:#9a9ca2">Medium · 500</span>
+              <span style="font-family:'Manrope';font-weight:600;font-size:15px;color:#cfd1d6">SemiBold · 600</span>
+              <span style="font-family:'Manrope';font-weight:700;font-size:15px;color:#f6f6f7">Bold · 700</span>
+              <span style="font-family:'Manrope';font-weight:800;font-size:15px;color:#f6f6f7">ExtraBold · 800</span>
+            </div>
+          </div>
+          <div style="font-family:'Manrope';font-weight:500;font-size:15px;line-height:1.6;color:#cfd1d6;margin-bottom:4px">Der M. deltoideus abduziert den Arm und besteht aus drei Anteilen — pars clavicularis, acromialis und spinalis.</div>
+          <div style="font-family:'Manrope';font-weight:500;font-size:12px;line-height:1.55;color:#7c7e84">Für Fließtext, Lern­inhalte, Labels und Buttons. Hohe Lesbarkeit auf kleinen Displays.</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1536,&quot;height&quot;:1180},&quot;accent&quot;:{&quot;editor&quot;:&quot;color&quot;,&quot;default&quot;:&quot;#ff6a00&quot;,&quot;tsType&quot;:&quot;string&quot;}}">
+class Component extends DCLogic {
+  componentDidMount() { this.apply(); }
+  componentDidUpdate() { this.apply(); }
+  apply() {
+    const a = this.props.accent || '#ff6a00';
+    if (this.root) this.root.style.setProperty('--accent', a);
+  }
+  renderVals() {
+    return { setRoot: (el) => { this.root = el; } };
+  }
+}
+</script>
+</body>
+</html>

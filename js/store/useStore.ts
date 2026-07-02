@@ -28,6 +28,13 @@ export interface IsolationState {
 
 const emptyIsolation: IsolationState = { model: null, actionBar: null }
 
+// ─── Overlay-UI (Layout B) ───────────────────────────────────────────────────
+// Reiner React-Overlay-Zustand (Rail/Sidebar/Flyout). Kein Three.js-Bezug —
+// additiv zum Domänen-State (siehe ADR 0006).
+
+export type SidebarTab = 'structures' | 'collection' | 'info'
+export type Flyout = 'settings' | null
+
 // ─── State-Form ──────────────────────────────────────────────────────────────
 
 export interface StoreState {
@@ -66,6 +73,10 @@ export interface StoreState {
 
   // ─── Klick-Statistik ────────────────────────────────────────────────────────
   clickCounts: Record<string, number>
+
+  // ─── Overlay-UI (Layout B) ────────────────────────────────────────────────
+  sidebarTab: SidebarTab
+  openFlyout: Flyout
 
   // ─── Actions: Selection ───────────────────────────────────────────────────
   setSelection: (s: Partial<SelectionState>) => void
@@ -113,6 +124,11 @@ export interface StoreState {
   // ─── Actions: ClickCounts ─────────────────────────────────────────────────
   incrementClickCount: (id: string) => void
 
+  // ─── Actions: Overlay-UI ──────────────────────────────────────────────────
+  setSidebarTab: (tab: SidebarTab) => void
+  openFlyoutExclusive: (name: Exclude<Flyout, null>) => void
+  closeFlyout: () => void
+
   // ─── Actions: Reset ───────────────────────────────────────────────────────
   resetVisibility: () => void
   resetAll: () => void
@@ -148,6 +164,8 @@ const useStore = createStore<StoreState>((set, get) => ({
   metaByFile: {},
   collection: [],
   clickCounts: {},
+  sidebarTab: 'structures',
+  openFlyout: null,
 
   // Selection
   setSelection: (s) =>
@@ -266,6 +284,11 @@ const useStore = createStore<StoreState>((set, get) => ({
     set((state) => ({
       clickCounts: { ...state.clickCounts, [id]: (state.clickCounts[id] ?? 0) + 1 },
     })),
+
+  // Overlay-UI (Layout B)
+  setSidebarTab: (tab) => set({ sidebarTab: tab }),
+  openFlyoutExclusive: (name) => set({ openFlyout: name }),
+  closeFlyout: () => set({ openFlyout: null }),
 
   // Reset: nur Sichtbarkeit zurücksetzen, Modelle bleiben geladen
   resetVisibility: () =>

@@ -302,3 +302,27 @@ describe('resetAll', () => {
     expect(multiSelected.size).toBe(0)
   })
 })
+
+// ─── Overlay-UI (Layout B) ─────────────────────────────────────────────────────
+
+describe('Overlay-UI', () => {
+  it('startet mit Default-Tab „structures" und ohne Flyout', () => {
+    store.setState({ sidebarTab: 'structures', openFlyout: null })
+    expect(store.getState().sidebarTab).toBe('structures')
+    expect(store.getState().openFlyout).toBeNull()
+  })
+
+  it('wechselt den Sidebar-Tab', () => {
+    store.getState().setSidebarTab('info')
+    expect(store.getState().sidebarTab).toBe('info')
+    store.getState().setSidebarTab('collection')
+    expect(store.getState().sidebarTab).toBe('collection')
+  })
+
+  it('öffnet und schließt das Flyout exklusiv', () => {
+    store.getState().openFlyoutExclusive('settings')
+    expect(store.getState().openFlyout).toBe('settings')
+    store.getState().closeFlyout()
+    expect(store.getState().openFlyout).toBeNull()
+  })
+})

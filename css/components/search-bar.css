@@ -24,8 +24,8 @@
 .sb-search__toggle svg { width: 16px; height: 16px; }
 .sb-search__toggle:hover {
   color: #fff;
-  border-color: var(--accent-blue);
-  box-shadow: 0 0 0 2px var(--accent-blue-dim), var(--glass-shadow);
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px var(--accent-dim), var(--glass-shadow);
 }
 
 .sb-search {
@@ -52,8 +52,8 @@
   transition: border-color 0.2s;
 }
 .sb-search__wrap:focus-within {
-  border-color: var(--accent-blue);
-  box-shadow: 0 0 0 2px var(--accent-blue-dim), var(--glass-shadow);
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px var(--accent-dim), var(--glass-shadow);
 }
 
 .sb-search__icon {
@@ -129,8 +129,8 @@
 .sb-search__item-group {
   flex-shrink: 0;
   font-size: 0.68rem;
-  color: var(--accent-blue);
-  background: var(--accent-blue-dim);
+  color: var(--accent);
+  background: var(--accent-dim);
   border-radius: 8px;
   padding: 1px 6px;
 }

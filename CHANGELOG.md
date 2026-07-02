@@ -7,6 +7,42 @@ Format: [Keep a Changelog](https://keepachangelog.com/de/1.0.0/)
 
 ## [Unreleased]
 
+### Changed (Redesign „Variante B" — S1 App-Shell: Icon-Rail + Tab-Sidebar)
+- **Layout B eingeführt** (`js/ui/react/components/AppShell.tsx` + `css/components/app-shell.css`):
+  Icon-Rail links (Logo, Auswahl-Werkzeuge, Layer-Toggles Knochen/Muskeln, Labels/Foto/Reset,
+  ⚙ unten) + **persistente Tab-Sidebar** rechts (`Strukturen · Sammlung · Info`) mit Such-Kopf
+  und Footer-Fuß + Ansichts-Cluster unten mittig. Ersetzt die bisherige Bottom-Toolbar und die
+  an den Ecken floatenden Panels (Layout A).
+- **Additiver UI-Store-Slice** (`js/store/useStore.ts`): `sidebarTab` (`structures|collection|info`)
+  + `openFlyout` (`settings|null`) mit Actions `setSidebarTab`/`openFlyoutExclusive`/`closeFlyout`.
+  `App.tsx` hält keinen Panel-`useState` mehr — Navigation läuft über den Store (ADR 0006).
+- **Auto-Switch:** Auswahl einer Struktur schaltet die Sidebar automatisch auf „Info", das
+  Aufheben zurück auf „Strukturen" (Effekt in der Shell, `selected.root`-gebunden — bewusst
+  außerhalb der imperativ genutzten Selection-Actions, ADR 0006).
+- **Bestehende Panels** (StructureBrowser/InfoPanel/CollectionPanel) werden **in die Tab-Bodies
+  gehostet** (temporärer Positionierungs-Override in `app-shell.css`); ihr pixelgenauer Umbau
+  folgt isoliert je Komponente (S2/S3/S6). Multi/Isolation bleiben vorerst kontextuelle Overlays
+  (S7), Settings öffnet als Panel via ⚙ (Rail-Flyout in S8).
+- **Toten Code entfernt:** `Toolbar.tsx` + `css/components/toolbar.css` gelöscht (Werkzeuge leben
+  in der Rail, Kamera-Richtungen im Ansichts-Cluster). Store-Tests +3 (34 grün).
+- **Assets:** `af-logo.png` (+ `-white`) nach `public/assets/` für die Rail (Favicon-Set folgt S9).
+- **Sichtprüfung nötig:** Pixel-/3D-Verhalten ist nicht unit-getestet.
+
+### Changed (Redesign „Variante B" — S0 Fundament: Tokens, Fonts, Cleanup)
+- **Design-Tokens auf Marke „Anatomie Fokus" umgestellt** (`css/theme/variables.css`):
+  Navy/Blau → Marken-Schwarz `#0b0c0e` + Orange-Akzent `#ff6a00`, neutralisiertes Glas,
+  Sora/Manrope-Font-Stacks, `--stage-gradient`, Hairlines, erweiterte Spacing-/Radius-/
+  z-index-Stufen und semantische Gruppenfarben (Drop-in aus dem Design-Handoff).
+- **Alte Blau-Token migriert:** `--accent-blue`/`--accent-blue-dim`/`--accent-orange` →
+  `--accent`/`--accent-dim` in `info-panel-react.css`, `search-bar.css`,
+  `structure-browser.css` (semantischer Primär-Akzent ist jetzt Orange).
+- **`base.css`** nutzt Tokens statt Navy-Hardcodes (`--stage-gradient`, `--font-ui`).
+- **Fonts self-hosted vorbereitet** (`css/theme/fonts.css`, in `main.css` importiert):
+  `@font-face` für Sora (300–800) + Manrope (400–800), `font-display:swap`, lokale
+  `/fonts/*.woff2` (CSP `font-src 'self'`). Die 11 `.woff2` (latin-ext-Subset, SIL OFL 1.1)
+  liegen unter `public/fonts/` und werden vom Build nach `dist/fonts/` übernommen.
+- **Toten Code entfernt:** `css/components/dropdowns.css` gelöscht + Import aus `main.css`.
+
 ### Changed (Rebranding — „BlueBody 3D" → „Anatomie Fokus 3D")
 - Anzeigename überall auf **Anatomie Fokus 3D** umgestellt: Browser-Titel (`index.html`),
   alle Doku-Titel (AGENTS/CLAUDE.md, ROADMAP, architecture, STARTEN, AGENT_WORKFLOW,

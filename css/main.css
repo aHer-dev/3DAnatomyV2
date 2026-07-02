@@ -6,6 +6,9 @@
 /* 1. Design tokens */
 @import 'theme/variables.css';
 
+/* 1b. Self-hosted fonts (Sora + Manrope) */
+@import 'theme/fonts.css';
+
 /* 2. Reset & body */
 @import 'theme/base.css';
 
@@ -16,11 +19,12 @@
 @import 'controls/search.css';
 
 /* 5. Components */
-@import 'components/dropdowns.css';
 @import 'components/panels.css';
-@import 'components/toolbar.css';
 @import 'components/loading.css';
 @import 'components/photo-mode.css';
+
+/* Layout B — Overlay-Shell (Rail + Tab-Sidebar) */
+@import 'components/app-shell.css';
 
 /* Phase 3 — React overlay components */
 @import 'components/structure-browser.css';

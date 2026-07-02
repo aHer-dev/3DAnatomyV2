@@ -6,8 +6,8 @@
 }
 
 body {
-   font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif;
-   background: linear-gradient(135deg, #0a0e27 0%, #151933 100%);
+   font-family: var(--font-ui);
+   background: var(--stage-gradient);
    color: var(--text-primary);
    overflow: hidden;
    height: 100vh;
