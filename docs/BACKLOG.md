@@ -5,6 +5,13 @@
 > Stand: 2026-07-02.
 
 ## Priorität 1 — größter Nutzen / entblockt anderes
+- **Draw-Call-Reduktion für volle Muskel-Last** — alle Muskeln geladen = hunderte
+  Einzel-Meshes = hunderte Draw-Calls pro Frame; auf iGPU-Laptops der strukturelle
+  Flaschenhals bei Kamerabewegung. Lösungsweg: Three.js `BatchedMesh` pro Gruppe
+  (ein Draw-Call, Picking/Sichtbarkeit/Farbe pro Teil via `batchId` bleibt möglich).
+  Erste Gegenmaßnahme (adaptive Auflösung bei Bewegung, 2026-07-02) ist drin — dieser
+  Punkt ist der nächste Hebel, falls es auf Zielhardware noch nicht flüssig reicht.
+  Eigenes Task-Briefing nötig (berührt modelLoader/raycaster/visibility).
 - **Kalibrierter Modell-Tausch** — die reprozessierten (glatteren) Meshes doch live
   bringen, ohne Positions-Bruch. Lösungsweg (Bbox-Match je Teil, numerisch prüfbar)
   liegt fertig in [tasks/model-recalibration-swap.md](tasks/model-recalibration-swap.md).
