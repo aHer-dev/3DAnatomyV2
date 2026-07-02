@@ -1,116 +1,93 @@
-/* InfoPanel React — replaces DOM-based #info-panel (Phase 3b) */
+/* InfoPanel — Sidebar-Tab „Info" (Layout B, Handoff §9.4).
+   Wohnt im Tab-Body (.shell-sidebar__body scrollt) — kein position:fixed,
+   kein eigenes Glas, kein Close-X (Tab-Kontext). BEM-Präfix `ip-`, nur Tokens. */
 
 .ip-panel {
-  position: fixed;
-  top: 60px;
-  right: 20px;
-  width: 300px;
-  max-height: calc(100vh - 160px);
   display: flex;
   flex-direction: column;
-  pointer-events: all;
-
-  background: var(--glass-bg-panel);
-  backdrop-filter: var(--glass-blur-strong);
-  -webkit-backdrop-filter: var(--glass-blur-strong);
-  border: 1px solid var(--glass-border);
-  border-radius: var(--radius-xl);
-  box-shadow: var(--glass-shadow);
-  overflow: hidden;
-
-  animation: ip-slide-in 0.22s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  gap: 14px;
 }
 
-@keyframes ip-slide-in {
-  from { opacity: 0; transform: translateY(20px) scale(0.97); }
-  to   { opacity: 1; transform: translateY(0)   scale(1); }
-}
-
-/* Header */
+/* ── Header: Titel (Sora 600 21px) + Gruppen-Badge ───────────────────── */
 .ip-header {
   display: flex;
-  align-items: flex-start;
-  gap: 8px;
-  padding: 14px var(--spacing-md) 10px;
-  border-bottom: 1px solid var(--glass-border);
-}
-.ip-title {
-  flex: 1;
-  min-width: 0;
-  display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 8px;
 }
 .ip-title__primary {
-  font-size: 0.9rem;
-  font-weight: 600;
+  margin: 0;
+  font: 600 var(--fs-panel-title)/1.2 var(--font-display);
   color: var(--text-primary);
-  line-height: 1.25;
 }
 .ip-title__side {
-  font-size: 0.72em;
+  font-size: 0.62em;
   font-style: italic;
   font-weight: 400;
   color: var(--text-secondary);
 }
-.ip-title__secondary {
-  font-size: 0.78rem;
-  color: var(--text-secondary);
-}
-.ip-title__group {
-  font-size: 0.68rem;
-  color: var(--accent);
-  background: var(--accent-dim);
-  border-radius: 8px;
-  padding: 1px 6px;
+.ip-badge {
   align-self: flex-start;
-  margin-top: 2px;
-}
-.ip-close {
-  flex-shrink: 0;
-  width: 24px; height: 24px;
-  border: none;
-  background: rgba(255,255,255,0.06);
-  border-radius: 6px;
-  cursor: pointer;
-  color: var(--text-muted);
-  font-size: 0.7rem;
-  display: flex; align-items: center; justify-content: center;
-  transition: background 0.15s;
-}
-.ip-close:hover { background: rgba(255,255,255,0.12); color: var(--text-primary); }
-
-/* Body */
-.ip-body {
-  overflow-y: auto;
-  padding: var(--spacing-md);
-  flex: 1;
-}
-.ip-body::-webkit-scrollbar { width: 4px; }
-.ip-body::-webkit-scrollbar-thumb { background: var(--glass-border); border-radius: 4px; }
-
-.ip-description {
-  font-size: 0.8rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 9px;
+  border-radius: var(--radius-pill);
+  background: color-mix(in srgb, var(--ip-group) 15%, transparent);
+  font: 600 11px/1 var(--font-ui);
   color: var(--text-secondary);
-  line-height: 1.5;
-  margin-bottom: var(--spacing-sm);
+}
+.ip-badge__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--ip-group);
 }
 
-/* Muskelfinder details */
-.ip-details { margin-top: var(--spacing-sm); }
+/* ── Body ────────────────────────────────────────────────────────────── */
+.ip-body {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.ip-description {
+  margin: 0;
+  font: 400 13px/1.5 var(--font-ui);
+  color: var(--text-secondary);
+}
+
+/* Muskelfinder-Details (aufklappbar) */
+.ip-details { margin: 0; }
 .ip-details__summary {
-  font-size: 0.78rem;
-  font-weight: 600;
-  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font: 600 12px/1 var(--font-ui);
+  color: var(--text-secondary);
   letter-spacing: 0.05em;
   text-transform: uppercase;
   cursor: pointer;
-  padding: 4px 0;
+  padding: 8px 10px;
+  border: 1px solid var(--hairline-soft);
+  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, 0.03);
   list-style: none;
+  transition: var(--transition-smooth);
 }
 .ip-details__summary::-webkit-details-marker { display: none; }
+.ip-details__summary:hover { color: var(--text-primary); background: var(--glass-bg-hover); }
+.ip-details__chevron {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+  transition: var(--transition-smooth);
+}
+.ip-details[open] .ip-details__chevron { transform: rotate(180deg); }
+.ip-details[open] .ip-details__summary {
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+}
 .ip-details__body { padding-top: 8px; }
-
 .ip-details__section { margin-bottom: 10px; }
 .ip-details__section-title {
   display: block;
@@ -121,99 +98,172 @@
   margin-bottom: 4px;
 }
 .ip-details__line {
-  font-size: 0.8rem;
+  font: 400 13px/1.5 var(--font-ui);
   color: var(--text-secondary);
-  line-height: 1.5;
   margin: 2px 0;
 }
 
-/* Model action controls */
+/* ── Aktionen-Container ──────────────────────────────────────────────── */
 .ip-actions {
-  margin-top: var(--spacing-sm);
-  padding-top: var(--spacing-sm);
-  border-top: 1px solid var(--glass-border);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* Deckkraft-Slider (Fill --accent, Knob 13px, Live-%) */
+.ip-opacity {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.ip-opacity__head {
+  display: flex;
+  justify-content: space-between;
+  font: 500 12px/1 var(--font-ui);
+  color: var(--text-secondary);
+}
+.ip-slider {
+  width: 100%;
+  height: 5px;
+  margin: 0;
+  appearance: none;
+  -webkit-appearance: none;
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  outline: none;
+  background: linear-gradient(
+    to right,
+    var(--accent) var(--ip-pct),
+    rgba(255, 255, 255, 0.14) var(--ip-pct)
+  );
+}
+.ip-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  background: #fff;
+  border: none;
+  cursor: pointer;
+}
+.ip-slider::-moz-range-thumb {
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  background: #fff;
+  border: none;
+  cursor: pointer;
+}
+
+/* 3 gleich breite Aktionen: Icon 19px + Label 11px */
+.ip-actions-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+.ip-act {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 11px 6px;
+  border: none;
+  border-radius: 11px;
+  background: rgba(255, 255, 255, 0.045);
+  color: var(--text-secondary);
+  font: 500 11px/1 var(--font-ui);
+  cursor: pointer;
+  transition: var(--transition-smooth);
+}
+.ip-act svg { width: 19px; height: 19px; }
+.ip-act:hover { background: var(--glass-bg-hover); color: var(--text-primary); }
+.ip-act.is-active { background: var(--accent-tint); color: var(--accent); }
+
+/* CTA „Zur Sammlung" — Outline-Akzent */
+.ip-cta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 11px;
+  border: 1.5px solid var(--accent-border);
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--accent);
+  font: 600 13px/1 var(--font-ui);
+  cursor: pointer;
+  transition: var(--transition-smooth);
+}
+.ip-cta svg { width: 17px; height: 17px; }
+.ip-cta:hover { background: var(--accent-dim); }
+.ip-cta.is-active { border-color: var(--glass-border); color: var(--text-secondary); }
+
+/* Farbe (sekundär — aus Layout A beibehalten, nicht Teil von §9.4) */
+.ip-color {
   display: flex;
   flex-direction: column;
   gap: 8px;
+  padding-top: 12px;
+  border-top: 1px solid var(--hairline-soft);
 }
-.ip-action-row {
+.ip-color__row {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 8px;
-  font-size: 0.78rem;
+  font: 500 12px/1 var(--font-ui);
   color: var(--text-secondary);
-  cursor: default;
 }
 .ip-color-input {
-  width: 32px; height: 24px;
-  border: none; border-radius: 4px;
-  cursor: pointer; background: none;
+  width: 32px;
+  height: 22px;
+  border: none;
+  border-radius: 4px;
+  background: none;
   padding: 0;
-}
-.ip-opacity-slider {
-  flex: 1;
-  accent-color: var(--accent);
   cursor: pointer;
 }
-.ip-action-btns {
+.ip-recent {
   display: flex;
   gap: 6px;
+  flex-wrap: wrap;
 }
-.ip-btn {
-  flex: 1;
-  padding: 5px 8px;
-  border: 1px solid var(--glass-border);
-  border-radius: var(--radius-sm);
-  background: rgba(255,255,255,0.04);
-  color: var(--text-secondary);
-  font-size: 0.75rem;
+.ip-recent-color {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 2px solid var(--hairline);
   cursor: pointer;
-  transition: background 0.15s;
+  padding: 0;
+  transition: var(--transition-smooth);
 }
-.ip-btn:hover { background: var(--glass-bg-hover); color: var(--text-primary); }
-.ip-btn--active { background: rgba(74,158,255,0.15); border-color: rgba(74,158,255,0.5); color: #4A9EFF; }
-.ip-btn--full { width: 100%; margin-top: 6px; justify-content: center; }
+.ip-recent-color:hover {
+  transform: scale(1.15);
+  border-color: var(--glass-border);
+}
 
-/* ── Toast-Feedback ────────────────────────────────────────────── */
+/* ── Toast-Feedback ──────────────────────────────────────────────────── */
 .ip-toast {
-  margin-top: 6px;
   padding: 6px 10px;
-  border-radius: 6px;
-  font-size: 0.78rem;
+  border-radius: var(--radius-sm);
+  font: 500 12px/1.4 var(--font-ui);
   text-align: center;
-  background: rgba(74, 158, 255, 0.15);
-  border: 1px solid rgba(74, 158, 255, 0.35);
-  color: #4A9EFF;
+  background: var(--accent-dim);
+  border: 1px solid var(--accent-border);
+  color: var(--accent);
   animation: ip-toast-in 0.15s ease both;
 }
 @keyframes ip-toast-in {
   from { opacity: 0; transform: translateY(-4px); }
   to   { opacity: 1; transform: translateY(0); }
 }
-
-/* ── Recent Colors ─────────────────────────────────────────────── */
-.ip-recent-colors {
-  display: flex;
-  gap: 6px;
-  flex-wrap: wrap;
-  padding: 2px 0;
-}
-.ip-recent-color {
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
-  border: 2px solid rgba(255,255,255,0.15);
-  cursor: pointer;
-  padding: 0;
-  transition: transform 0.15s, border-color 0.15s;
-}
-.ip-recent-color:hover {
-  transform: scale(1.2);
-  border-color: rgba(255,255,255,0.5);
+@keyframes ip-slide-in {
+  from { opacity: 0; transform: translateY(20px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0)   scale(1); }
 }
 
-/* ── MultiSelectPanel ───────────────────────────────────────────── */
+/* ═══ MultiSelectPanel (S7 baut dies in eine Info-Tab-Variante um) ═══════ */
 .msp-panel {
   position: fixed;
   bottom: 24px;
@@ -287,21 +337,4 @@
   display: flex;
   flex-direction: column;
   gap: 6px;
-}
-
-/* Mobile: bottom-sheet */
-@media (max-width: 768px) {
-  .ip-panel {
-    top: auto;
-    bottom: 0;
-    right: 0;
-    left: 0;
-    width: 100%;
-    border-radius: var(--radius-xl) var(--radius-xl) 0 0;
-    max-height: 60vh;
-  }
-  @keyframes ip-slide-in {
-    from { opacity: 0; transform: translateY(100%); }
-    to   { opacity: 1; transform: translateY(0); }
-  }
 }

@@ -28,10 +28,10 @@ Kopf der persistenten Sidebar** (nicht mehr floatend/eingeklappt). Fuzzy über L
 - Kein neuer Such-Algorithmus. Kein Mobile-Sheet (S10).
 
 ## Done-Kriterien
-- [ ] `npm run test` grün · `npm run build` sauber
-- [ ] Suchfeld sitzt im Sidebar-Kopf; Dropdown zeigt Treffer, Fuzzy-Highlight in Orange
-- [ ] Treffer-Auswahl selektiert Struktur + Tab springt auf „Info"
-- [ ] CHANGELOG-Eintrag
+- [x] `npm run test` grün · `npm run build` sauber
+- [x] Suchfeld sitzt im Sidebar-Kopf; Dropdown zeigt Treffer, Fuzzy-Highlight in Orange
+- [x] Treffer-Auswahl selektiert Struktur + Tab springt auf „Info"
+- [x] CHANGELOG-Eintrag
 
 ## Relevante Dateien
 `js/ui/react/components/SearchBar.tsx` · `css/components/search-bar.css` · `js/ui/react/components/AppShell.tsx`

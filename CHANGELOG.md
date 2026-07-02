@@ -7,6 +7,70 @@ Format: [Keep a Changelog](https://keepachangelog.com/de/1.0.0/)
 
 ## [Unreleased]
 
+### Changed (Performance-Untersuchung — Ruckeln bei Kamerabewegung, Layout B)
+- **Glas-Blur moderater:** `--glass-blur-strong` 22px → 14px, `--glass-blur` 12px → 10px
+  (`css/theme/variables.css`, dokumentierte Abweichung vom Handoff §8) — senkt die
+  Pro-Frame-Blur-Kosten der großen, dauerhaft sichtbaren Layout-B-Flächen (Rail + volle
+  Sidebar) über dem live rendernden Canvas; optisch bei 82 %-opaken Panels kaum unterscheidbar.
+  Auf echter Zielhardware (Schul-Laptop) war das der entscheidende Hebel gegen das Ruckeln.
+- **Labels ohne `backdrop-filter`** (`css/components/labels.css`): bei „alle Labels an" sind das
+  hunderte DOM-Boxen mit je einem Blur → pro Frame neu komponiert = Ruckeln. Blur entfernt
+  (Hintergrund war zu 78 % ohnehin deckend), Farben zugleich auf Marken-Schwarz/Hairline
+  statt Alt-Navy. Offener Folgehebel: Label-Renderer läuft in eigener 60-fps-Dauerschleife
+  ohne Culling (siehe `js/features/labels.js`).
+- **Zwei verworfene Ansätze zurückgebaut** (beide ohne Wirkung auf das Ruckeln, aber mit
+  sichtbaren Nebenwirkungen): Blur-Aussetzen während der Bewegung (Grau-Flackern) und
+  adaptive Auflösung 0.65× während der Geste (sichtbare Pixelation bei DPR 1).
+  Render-Loop/`startApp.js` wieder identisch zum Stand vor dem Redesign.
+- **Ursache noch offen** — Diagnose läuft (A/B: UI-Overlay aus vs. an); Draw-Call-Reduktion
+  (`BatchedMesh`) als struktureller Kandidat in `docs/BACKLOG.md` (P1) erfasst.
+
+### Changed (Redesign „Variante B" — S4 SearchBar → Sidebar-Kopf)
+- **Persistentes Suchfeld statt floatendem Lupe-Icon** (`js/ui/react/components/SearchBar.tsx`):
+  Einklapp-Logik + Fixed-Toggle entfernt; die Pille lebt jetzt dauerhaft im Sidebar-Kopf
+  (`.shell-searchhost`). `/` fokussiert, Esc leert.
+- **§9.2-Styling** (`css/components/search-bar.css`): Pille `padding:13px 15px; radius:14px`,
+  Lupe in `--accent`, Fokus-`border --accent-border`, **kein eigener Blur** (sitzt in der
+  Glas-Sidebar → spart verschachtelten `backdrop-filter`). Ergebnis-Dropdown als absolut
+  positioniertes Panel (Anker `.shell-searchhost`): Header „N Treffer" + „↑ ↓ · Enter"-Hinweis,
+  Zeilen mit **Farbpunkt** (`--group-*`) + Name (**Fuzzy-Treffer-Teil in `--accent` 600**) +
+  Gruppen-Tag; aktive Zeile `--accent-dim`.
+- Treffer-Auswahl lädt bei Bedarf die Gruppe, selektiert + fokussiert → Auto-Switch auf „Info"
+  (aus S1/S3). Tastatur ↑/↓/Enter/Esc. Emoji-Spinner `⏳` durch CSS-Spinner ersetzt
+  (reduced-motion-fest).
+- **Sichtprüfung nötig:** Pixel-/3D-Verhalten ist nicht unit-getestet.
+
+### Changed (Redesign „Variante B" — S3 InfoPanel → Tab „Info")
+- **InfoPanel im Tab-Body verankert** (`js/ui/react/components/InfoPanel.tsx`): kein
+  `position:fixed`/eigenes Glas/Close-X mehr (Tab-Kontext); `shell-host`-Override in
+  `AppShell.tsx` für den Info-Tab abgelöst (direktes Rendern). Auto-Switch auf „Info" bei
+  Auswahl war bereits seit S1 verdrahtet.
+- **§9.4-Layout** (`css/components/info-panel-react.css`): Titel Sora 600 21px (Latein via
+  `getStructureDisplayLabel`) + **Gruppen-Badge** (Farbpunkt 8px + Gruppenname, `background:
+  Gruppenfarbe @15%` aus `--group-*`) · **Deckkraft-Slider** (Fill `--accent`, Knob 13px,
+  Live-Prozent, jetzt controlled) · **3 gleich breite Aktionen** Ausblenden/Isolieren/Kontext
+  (Inline-SVG 19px + Label 11px) · **CTA „Zur Sammlung"** (Outline `--accent-border`). Alt-Navy
+  (`#4A9EFF`) in Buttons/Toast auf Marken-Orange-Tokens umgestellt.
+- **Farbwahl beibehalten** als sekundärer Block (nicht Teil von §9.4 — Layout-A-Feature, ggf.
+  später in Settings/S8 konsolidieren). `ModelActions` bekommt `key={meta.id}` → frischer
+  State pro Struktur (behebt latenten Stale-State bei Auswahlwechsel).
+- Mobile-`@media` für `.ip-panel` entfernt (Bottom-Sheet kommt in S10); `.msp-*` (S7) unberührt.
+- **Sichtprüfung nötig:** Pixel-/3D-Verhalten ist nicht unit-getestet.
+
+### Changed (Redesign „Variante B" — S2 StructureBrowser → Tab „Strukturen")
+- **StructureBrowser im Tab-Body verankert** (`js/ui/react/components/StructureBrowser.tsx`):
+  kein `position:fixed`/eigenes Glas/Panel-Header mehr — die Komponente füllt jetzt den
+  „Strukturen"-Tab (Default-Tab der Sidebar). `shell-host`-Override in `AppShell.tsx` für
+  diesen Tab abgelöst (direktes Rendern), `onClose`-Prop entfernt.
+- **Gruppen-Zeile auf §9.3-Maße umgezogen** (`css/components/structure-browser.css`):
+  Sichtbarkeits-Auge (17px) · Farbpunkt 11px (`--group-*`) · Label (flex 1) · Röntgen-Slider
+  (Track `60×4`, Fill in Gruppenfarbe, Knob 11px weiß) · Laden/Entladen-Button. Ausgeblendete
+  Gruppe gedimmt (`--text-faint`), aktive (geladen+sichtbar) `background:--accent-dim`, Label 600.
+  Farbpunkt + Slider-Fill aus `--group-*`-Tokens (statt Store-Farbnummer); nur Tokens, keine Hardcodes.
+- **Sichtbarkeits-Toggle als `role="switch"`** (`aria-checked`) — A11y-Grundlage (Feinschliff S11).
+- **Skaliert über 5 Gruppen** hinaus: vertikale Flex-Liste im scrollenden Tab-Body, kein festes Raster.
+- **Sichtprüfung nötig:** Pixel-/3D-Verhalten ist nicht unit-getestet.
+
 ### Changed (Redesign „Variante B" — S1 App-Shell: Icon-Rail + Tab-Sidebar)
 - **Layout B eingeführt** (`js/ui/react/components/AppShell.tsx` + `css/components/app-shell.css`):
   Icon-Rail links (Logo, Auswahl-Werkzeuge, Layer-Toggles Knochen/Muskeln, Labels/Foto/Reset,

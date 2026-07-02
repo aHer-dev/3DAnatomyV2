@@ -1,175 +1,147 @@
-/* Structure Browser — React overlay panel (Phase 3) */
+/* StructureBrowser — Sidebar-Tab „Strukturen" (Layout B, Handoff §9.3).
+   Wohnt im Tab-Body (.shell-sidebar__body scrollt) — kein position:fixed,
+   kein eigenes Glas. BEM-Präfix `sb-`, nur Tokens. */
 
 .sb-panel {
-  position: fixed;
-  bottom: 64px;
-  right: 20px;
-  width: 260px;
-  max-height: calc(100vh - 140px);
   display: flex;
   flex-direction: column;
-  pointer-events: all;           /* enable interaction inside the overlay */
-
-  background: var(--glass-bg-controls);
-  backdrop-filter: var(--glass-blur-strong);
-  -webkit-backdrop-filter: var(--glass-blur-strong);
-  border: 1px solid var(--glass-border);
-  border-radius: var(--radius-xl);
-  box-shadow: var(--glass-shadow);
-  overflow: hidden;
+  width: 100%;
 }
 
-/* ── Header ───────────────────────────────────────────────────────── */
-.sb-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 14px var(--spacing-md);
-  color: var(--text-primary);
-  font-size: 0.85rem;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  border-bottom: 1px solid var(--glass-border);
-}
-
-.sb-close {
-  background: none;
-  border: none;
-  cursor: pointer;
-  color: var(--text-secondary);
-  font-size: 1rem;
-  padding: 2px 4px;
-  line-height: 1;
-  border-radius: 4px;
-  transition: color 0.15s, background 0.15s;
-}
-.sb-close:hover { color: var(--text-primary); background: var(--glass-bg-hover); }
-.sb-chevron { font-size: 0.7em; opacity: 0.7; }
-
-/* ── Scrollable list ─────────────────────────────────────────────── */
 .sb-list {
-  overflow-y: auto;
-  overflow-x: hidden;
-  padding: 6px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
 }
-.sb-list::-webkit-scrollbar { width: 4px; }
-.sb-list::-webkit-scrollbar-track { background: transparent; }
-.sb-list::-webkit-scrollbar-thumb { background: var(--glass-border); border-radius: 4px; }
 
-/* ── Single group row ────────────────────────────────────────────── */
+/* ── Gruppen-Zeile (§9.3) ────────────────────────────────────────────── */
 .sb-row {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 6px var(--spacing-md);
-  transition: background 0.15s;
+  gap: 11px;
+  padding: 9px 10px;
+  border-radius: var(--radius-md);
+  transition: var(--transition-smooth);
 }
 .sb-row:hover { background: var(--glass-bg-hover); }
-.sb-row[data-pending="true"] { opacity: 0.6; }
-.sb-row[data-loaded="true"] .sb-label { color: var(--text-primary); }
-.sb-row[data-loaded="false"] .sb-label { color: var(--text-muted); }
 
+/* Aktiv/gewählt = geladen & sichtbar */
+.sb-row[data-loaded="true"][data-visible="true"] { background: var(--accent-dim); }
+.sb-row[data-loaded="true"][data-visible="true"] .sb-label {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+/* Ausgeblendet = geladen, nicht sichtbar → gedimmt */
+.sb-row[data-loaded="true"][data-visible="false"] .sb-label { color: var(--text-faint); }
+.sb-row[data-loaded="true"][data-visible="false"] .sb-swatch { opacity: 0.4; }
+/* Nicht geladen */
+.sb-row[data-loaded="false"] .sb-label { color: var(--text-muted); }
+.sb-row[data-pending="true"] { opacity: 0.6; }
+
+/* ── Sichtbarkeits-Auge (17px) ───────────────────────────────────────── */
+.sb-eye {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+  color: var(--text-secondary);
+  border-radius: var(--radius-sm);
+  transition: var(--transition-smooth);
+}
+.sb-eye svg { width: 17px; height: 17px; }
+.sb-eye:hover { background: var(--glass-bg-hover); color: var(--text-primary); }
+.sb-row[data-visible="false"] .sb-eye { color: var(--text-faint); }
+
+/* ── Farbpunkt (11px, Gruppenfarbe via --sb-fill) ────────────────────── */
 .sb-swatch {
   flex-shrink: 0;
-  width: 10px;
-  height: 10px;
+  width: 11px;
+  height: 11px;
   border-radius: 50%;
-  border: 1px solid rgba(255,255,255,0.15);
+  background: var(--sb-fill);
+  border: 1px solid var(--hairline);
 }
 
+/* ── Label ───────────────────────────────────────────────────────────── */
 .sb-label {
   flex: 1;
-  font-size: 0.82rem;
+  min-width: 0;
+  font: 500 13px/1.2 var(--font-ui);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  transition: color 0.2s;
+  color: var(--text-secondary);
+  transition: var(--transition-smooth);
 }
 
-.sb-count {
-  font-size: 0.7rem;
-  color: var(--text-muted);
-  background: rgba(255,255,255,0.06);
-  border-radius: 10px;
-  padding: 1px 6px;
-}
-
-/* ── Röntgen: Transparenz-Slider ─────────────────────────────────── */
-.sb-opacity {
+/* ── Röntgen-Slider (Track 60×4, Fill = Gruppenfarbe, Knob 11px weiß) ── */
+.sb-slider {
   flex-shrink: 0;
-  width: 48px;
+  width: 60px;
   height: 4px;
   margin: 0;
+  appearance: none;
+  -webkit-appearance: none;
+  border-radius: var(--radius-pill);
   cursor: pointer;
-  appearance: none;
-  -webkit-appearance: none;
-  background: rgba(255,255,255,0.14);
-  border-radius: 2px;
   outline: none;
+  background: linear-gradient(
+    to right,
+    var(--sb-fill) var(--sb-pct),
+    rgba(255, 255, 255, 0.14) var(--sb-pct)
+  );
 }
-.sb-opacity::-webkit-slider-thumb {
+.sb-slider::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
-  width: 12px;
-  height: 12px;
+  width: 11px;
+  height: 11px;
   border-radius: 50%;
-  background: var(--accent);
+  background: #fff;
   border: none;
   cursor: pointer;
 }
-.sb-opacity::-moz-range-thumb {
-  width: 12px;
-  height: 12px;
+.sb-slider::-moz-range-thumb {
+  width: 11px;
+  height: 11px;
   border-radius: 50%;
-  background: var(--accent);
+  background: #fff;
   border: none;
   cursor: pointer;
 }
 
-/* ── Icon buttons ────────────────────────────────────────────────── */
-.sb-btn {
+/* ── Laden / Entladen ────────────────────────────────────────────────── */
+.sb-load {
   flex-shrink: 0;
-  width: 24px;
-  height: 24px;
+  width: 22px;
+  height: 22px;
   display: flex;
   align-items: center;
   justify-content: center;
   border: none;
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   cursor: pointer;
   font-size: 0.75rem;
-  background: rgba(255,255,255,0.06);
-  color: var(--text-secondary);
-  transition: background 0.15s, opacity 0.15s;
-}
-.sb-btn:hover:not(:disabled) { background: rgba(255,255,255,0.12); }
-.sb-btn:disabled { opacity: 0.4; cursor: not-allowed; }
-
-.sb-btn--load.is-loaded {
-  color: var(--accent);
-  background: rgba(255,122,74,0.12);
-}
-.sb-btn--load:not(.is-loaded) {
-  color: var(--accent);
   background: var(--accent-dim);
+  color: var(--accent);
+  transition: var(--transition-smooth);
 }
-
-.sb-btn--vis.is-hidden { opacity: 0.4; }
+.sb-load:hover:not(:disabled) { background: var(--accent-tint); }
+.sb-load:disabled { opacity: 0.4; cursor: not-allowed; }
+.sb-load.is-loaded {
+  background: var(--glass-bg-hover);
+  color: var(--text-secondary);
+}
 
 .sb-empty {
   padding: var(--spacing-md);
-  font-size: 0.8rem;
+  font: 500 13px/1.5 var(--font-ui);
   color: var(--text-muted);
   text-align: center;
-}
-
-/* ── Mobile: panel goes to top, narrower ────────────────────────── */
-@media (max-width: 768px) {
-  .sb-panel {
-    bottom: 80px;
-    right: 12px;
-    width: 220px;
-    max-height: 50vh;
-  }
 }

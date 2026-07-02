@@ -31,16 +31,30 @@ function buildFuse(entries: MetaEntry[]): Fuse<MetaEntry> {
   })
 }
 
+// Fuzzy-Treffer-Teil im Anzeigenamen hervorheben (Teilstring, case-insensitive).
+function HighlightedLabel({ label, query }: { label: string; query: string }) {
+  const q = query.trim()
+  if (!q) return <>{label}</>
+  const idx = label.toLowerCase().indexOf(q.toLowerCase())
+  if (idx === -1) return <>{label}</>
+  return (
+    <>
+      {label.slice(0, idx)}
+      <mark className="sb-search__hl">{label.slice(idx, idx + q.length)}</mark>
+      {label.slice(idx + q.length)}
+    </>
+  )
+}
+
 export function SearchBar() {
   const listboxId = useId()
   const inputRef = useRef<HTMLInputElement>(null)
-  const listRef  = useRef<HTMLUListElement>(null)
+  const panelRef = useRef<HTMLDivElement>(null)
 
-  const [query, setQuery]       = useState('')
-  const [results, setResults]   = useState<SearchResult[]>([])
-  const [active, setActive]     = useState(-1)
-  const [loading, setLoading]   = useState(false)
-  const [expanded, setExpanded] = useState(false)
+  const [query, setQuery]     = useState('')
+  const [results, setResults] = useState<SearchResult[]>([])
+  const [active, setActive]   = useState(-1)
+  const [loading, setLoading] = useState(false)
 
   const metaById = useReactStore(s => s.metaById)
   const fuseRef  = useRef<Fuse<MetaEntry> | null>(null)
@@ -53,37 +67,7 @@ export function SearchBar() {
     setQuery('')
   }, [metaById])
 
-  // Focus input when expanded
-  useEffect(() => {
-    if (expanded) inputRef.current?.focus()
-  }, [expanded])
-
-  const collapse = useCallback(() => {
-    setExpanded(false)
-    setQuery('')
-    setResults([])
-  }, [])
-
-  // Keyboard shortcut: / opens search
-  useEffect(() => {
-    const handler = (e: KeyboardEvent) => {
-      const tag = (document.activeElement as HTMLElement)?.tagName
-      if (tag === 'INPUT' || tag === 'TEXTAREA') return
-      if (e.key === '/') {
-        e.preventDefault()
-        setExpanded(true)
-      }
-      if (e.key === 'Escape') {
-        collapse()
-      }
-    }
-    window.addEventListener('keydown', handler)
-    return () => window.removeEventListener('keydown', handler)
-  }, [collapse])
-
-  const search = useCallback((q: string) => {
-    setQuery(q)
-    setActive(-1)
+  const runSearch = useCallback((q: string) => {
     if (!q.trim() || !fuseRef.current) { setResults([]); return }
     const raw = fuseRef.current.search(q, { limit: MAX_RESULTS * 3 })
       .filter(r => ENABLED_GROUPS.has(r.item.classification?.group ?? ''))
@@ -91,9 +75,36 @@ export function SearchBar() {
     setResults(raw as SearchResult[])
   }, [])
 
+  const search = useCallback((q: string) => {
+    setQuery(q)
+    setActive(-1)
+    runSearch(q)
+  }, [runSearch])
+
+  const clear = useCallback(() => {
+    setQuery('')
+    setResults([])
+    setActive(-1)
+    inputRef.current?.blur()
+  }, [])
+
+  // Tastatur-Shortcut: „/" fokussiert die Suche, Esc leert sie
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      const tag = (document.activeElement as HTMLElement)?.tagName
+      if (e.key === '/' && tag !== 'INPUT' && tag !== 'TEXTAREA') {
+        e.preventDefault()
+        inputRef.current?.focus()
+      }
+    }
+    window.addEventListener('keydown', handler)
+    return () => window.removeEventListener('keydown', handler)
+  }, [])
+
   const selectEntry = useCallback(async (entry: MetaEntry) => {
     setQuery('')
     setResults([])
+    setActive(-1)
     inputRef.current?.blur()
     setLoading(true)
     try {
@@ -115,6 +126,7 @@ export function SearchBar() {
   }, [])
 
   const onKeyDown = useCallback((e: React.KeyboardEvent) => {
+    if (e.key === 'Escape') { clear(); return }
     if (!results.length) return
     if (e.key === 'ArrowDown') {
       e.preventDefault()
@@ -125,36 +137,24 @@ export function SearchBar() {
     } else if (e.key === 'Enter' && active >= 0) {
       e.preventDefault()
       selectEntry(results[active].item)
-    } else if (e.key === 'Escape') {
-      collapse()
     }
-  }, [results, active, selectEntry, collapse])
+  }, [results, active, selectEntry, clear])
 
+  // Beim Klick außerhalb das Dropdown schließen (Query bleibt erhalten)
   const handleBlur = useCallback(() => {
     setTimeout(() => {
-      if (!listRef.current?.contains(document.activeElement)) {
-        collapse()
+      if (!panelRef.current?.contains(document.activeElement)) {
+        setResults([])
+        setActive(-1)
       }
     }, 150)
-  }, [collapse])
+  }, [])
+
+  const onFocus = useCallback(() => {
+    if (query.trim()) runSearch(query)
+  }, [query, runSearch])
 
   const open = results.length > 0
-
-  if (!expanded) {
-    return (
-      <button
-        className="sb-search__toggle"
-        title="Struktur suchen (/ zum Öffnen)"
-        aria-label="Suche öffnen"
-        onClick={() => setExpanded(true)}
-      >
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round">
-          <circle cx="11" cy="11" r="7"/>
-          <line x1="16.5" y1="16.5" x2="22" y2="22"/>
-        </svg>
-      </button>
-    )
-  }
 
   return (
     <div className="sb-search" role="search" aria-label="Anatomische Strukturen durchsuchen">
@@ -172,6 +172,7 @@ export function SearchBar() {
           value={query}
           onChange={e => search(e.target.value)}
           onKeyDown={onKeyDown}
+          onFocus={onFocus}
           onBlur={handleBlur}
           placeholder="Struktur suchen…"
           aria-label="Struktur suchen"
@@ -182,36 +183,45 @@ export function SearchBar() {
           autoComplete="off"
           spellCheck={false}
         />
-        {loading && <span className="sb-search__spinner" aria-hidden="true">⏳</span>}
+        {loading && <span className="sb-search__spinner" aria-hidden="true" />}
       </div>
 
       {open && (
-        <ul
-          ref={listRef}
-          id={listboxId}
-          className="sb-search__results"
-          role="listbox"
-          aria-label="Suchergebnisse"
-        >
-          {results.map(({ item }, i) => {
-            const displayLabel = getStructureDisplayLabel(item)
-            const group = item.classification?.group ?? 'other'
-            return (
-              <li
-                key={item.id}
-                id={`sr-item-${i}`}
-                role="option"
-                aria-selected={i === active}
-                className={`sb-search__item ${i === active ? 'is-active' : ''}`}
-                onMouseDown={e => { e.preventDefault(); selectEntry(item) }}
-                onMouseEnter={() => setActive(i)}
-              >
-                <span className="sb-search__item-primary">{displayLabel}</span>
-                <span className="sb-search__item-group">{getGroupLabel(group)}</span>
-              </li>
-            )
-          })}
-        </ul>
+        <div className="sb-search__panel" ref={panelRef}>
+          <div className="sb-search__meta">
+            <span>{results.length} Treffer</span>
+            <span className="sb-search__hint">↑ ↓ · Enter</span>
+          </div>
+          <ul
+            id={listboxId}
+            className="sb-search__results"
+            role="listbox"
+            aria-label="Suchergebnisse"
+          >
+            {results.map(({ item }, i) => {
+              const displayLabel = getStructureDisplayLabel(item)
+              const group = item.classification?.group ?? 'other'
+              const dotStyle = { background: `var(--group-${group}, var(--group-default))` }
+              return (
+                <li
+                  key={item.id}
+                  id={`sr-item-${i}`}
+                  role="option"
+                  aria-selected={i === active}
+                  className={`sb-search__item ${i === active ? 'is-active' : ''}`}
+                  onMouseDown={e => { e.preventDefault(); selectEntry(item) }}
+                  onMouseEnter={() => setActive(i)}
+                >
+                  <span className="sb-search__item-dot" style={dotStyle} aria-hidden="true" />
+                  <span className="sb-search__item-primary">
+                    <HighlightedLabel label={displayLabel} query={query} />
+                  </span>
+                  <span className="sb-search__item-group">{getGroupLabel(group)}</span>
+                </li>
+              )
+            })}
+          </ul>
+        </div>
       )}
     </div>
   )

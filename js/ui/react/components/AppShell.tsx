@@ -192,16 +192,14 @@ export function AppShell() {
         </div>
 
         <div className="shell-sidebar__body" role="tabpanel">
-          {sidebarTab === 'structures' && (
-            <div className="shell-host"><StructureBrowser onClose={() => {}} /></div>
-          )}
+          {sidebarTab === 'structures' && <StructureBrowser />}
           {sidebarTab === 'collection' && (
             <div className="shell-host"><CollectionPanel onClose={() => setSidebarTab('structures')} /></div>
           )}
           {sidebarTab === 'info' && (
             selectedRoot
-              ? <div className="shell-host"><InfoPanel /></div>
-              : <p className="shell-empty">Wähle eine Struktur, um Details zu sehen.</p>
+              ? <InfoPanel />
+              : <p className="shell-empty">Struktur auswählen, um Details zu sehen.</p>
           )}
         </div>
 

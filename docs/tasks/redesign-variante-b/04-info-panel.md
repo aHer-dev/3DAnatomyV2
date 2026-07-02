@@ -33,10 +33,10 @@ Store). Titel ist der Latein-Name via `getStructureDisplayLabel()`.
 - Keine Änderung an Selektions-/Isolations-Logik im Three.js.
 
 ## Done-Kriterien
-- [ ] `npm run test` grün · `npm run build` sauber
-- [ ] Auswahl → Tab „Info" zeigt Latein-Titel, Gruppen-Badge, Deckkraft, 3 Aktionen, CTA
-- [ ] Deckkraft-Slider verändert Opazität live über den Store
-- [ ] CHANGELOG-Eintrag
+- [x] `npm run test` grün · `npm run build` sauber
+- [x] Auswahl → Tab „Info" zeigt Latein-Titel, Gruppen-Badge, Deckkraft, 3 Aktionen, CTA
+- [x] Deckkraft-Slider verändert Opazität live (`setModelOpacity`, Live-Prozent)
+- [x] CHANGELOG-Eintrag
 
 ## Relevante Dateien
 `js/ui/react/components/InfoPanel.tsx` · `css/components/info-panel-react.css` ·

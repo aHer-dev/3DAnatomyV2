@@ -31,10 +31,10 @@ nur Verankerung + Marken-Styling ändern sich.
 - Kein Mobile-Sheet (S10).
 
 ## Done-Kriterien
-- [ ] `npm run test` grün · `npm run build` sauber
-- [ ] „Strukturen" ist Default-Tab, zeigt Gruppen mit Auge/Farbpunkt/Röntgen-Slider
-- [ ] Skaliert sichtbar über 5 Gruppen hinaus (Scroll statt Bruch)
-- [ ] CHANGELOG-Eintrag
+- [x] `npm run test` grün · `npm run build` sauber
+- [x] „Strukturen" ist Default-Tab, zeigt Gruppen mit Auge/Farbpunkt/Röntgen-Slider
+- [x] Skaliert sichtbar über 5 Gruppen hinaus (Scroll statt Bruch)
+- [x] CHANGELOG-Eintrag
 
 ## Relevante Dateien
 `js/ui/react/components/StructureBrowser.tsx` · `css/components/structure-browser.css` ·
