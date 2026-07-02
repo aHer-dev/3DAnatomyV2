@@ -13,6 +13,24 @@ rechts). Three.js/Canvas und der Store-Kontrakt bleiben unangetastet (nur Store 
 
 ---
 
+## ▶ Stand & hier weiter (für die nächste Session)
+
+- **Branch:** `refactor/ui-consolidation`. **Erledigt & committet** (`79df56a`): **S0** (Tokens/
+  Fonts/Cleanup) + **S1** (App-Shell Layout B, ADR 0006). Fonts liegen in `public/fonts/`,
+  Logo in `public/assets/`. lint · `tsc --noEmit` · 34 Tests · build sind grün.
+- **Sichtprüfung S1:** vom Nutzer als „passt erstmal" bestätigt (Rail + Tab-Sidebar + Ansichts-
+  Cluster stehen; gehostete Panels zeigen bewusst noch Bestands-Header/✕).
+- **NÄCHSTER SCHRITT: S2** — `03-structure-browser.md` (StructureBrowser im „Strukturen"-Tab:
+  `shell-host`-Positionierungs-Override ablösen, §9.3-Styling, Röntgen-Slider, bis-16-Gruppen).
+- **Bewusste Roh-Kanten aus S1** (jeweils in eigener Session): gehostete Panels haben noch
+  eigenes Glas/Header (S2/S3/S6), Suche = alte Klappform (S4), Ansichts-Cluster noch inline in
+  `AppShell.tsx` statt eigener `ViewCluster.tsx` (S5), Multi/Isolation floaten (S7), Settings
+  öffnet als Panel statt Rail-Flyout (S8). `photoMode.js` hat noch `toolbarH=72` (Mobile, S10).
+- **Arbeitsweise:** immer nur die im jeweiligen `NN-*.md` genannten Dateien anfassen, Abschluss =
+  test+build grün + CHANGELOG + Kästchen unten abhaken.
+
+---
+
 ## Wie eine Session läuft (Protokoll für jede frische KI-Session)
 
 1. **Diesen Index lesen** + das eigene Session-Briefing `NN-*.md`.
