@@ -19,7 +19,7 @@
 @import 'controls/search.css';
 
 /* 5. Components */
-@import 'components/loading.css';
+@import 'components/loading-screen.css';
 @import 'components/photo-mode.css';
 
 /* Layout B — Overlay-Shell (Rail + Tab-Sidebar) + Ansichts-Cluster */
@@ -34,4 +34,6 @@
 @import 'components/isolation-bar.css';
 @import 'components/collection-panel.css';
 @import 'components/settings-panel.css';
+@import 'components/footer.css';
+@import 'components/license-modal.css';
 @import 'components/labels.css';

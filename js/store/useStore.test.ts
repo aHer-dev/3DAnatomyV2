@@ -23,6 +23,7 @@ const emptyState = () => ({
   metaByFile: {},
   collection: [],
   clickCounts: {},
+  loading: { active: false, progress: 0, label: '' },
 })
 
 beforeEach(() => {
@@ -324,5 +325,40 @@ describe('Overlay-UI', () => {
     expect(store.getState().openFlyout).toBe('settings')
     store.getState().closeFlyout()
     expect(store.getState().openFlyout).toBeNull()
+  })
+})
+
+// ─── Laden (§9.11 / ADR 0008) ──────────────────────────────────────────────────
+
+describe('Loading', () => {
+  it('showLoading aktiviert mit Label und Fortschritt 0', () => {
+    store.setState({ loading: { active: false, progress: 55, label: '' } })
+    store.getState().showLoading('Testlabel')
+    expect(store.getState().loading).toEqual({ active: true, progress: 0, label: 'Testlabel' })
+  })
+
+  it('showLoading nutzt das Default-Label', () => {
+    store.getState().showLoading()
+    expect(store.getState().loading.label).toBe('3D-Modell wird geladen …')
+  })
+
+  it('setLoadingProgress klemmt auf 0..100', () => {
+    store.getState().showLoading('x')
+    store.getState().setLoadingProgress(65)
+    expect(store.getState().loading.progress).toBe(65)
+    store.getState().setLoadingProgress(150)
+    expect(store.getState().loading.progress).toBe(100)
+    store.getState().setLoadingProgress(-10)
+    expect(store.getState().loading.progress).toBe(0)
+  })
+
+  it('hideLoading deaktiviert, behält aber Fortschritt/Label', () => {
+    store.getState().showLoading('x')
+    store.getState().setLoadingProgress(100)
+    store.getState().hideLoading()
+    const { loading } = store.getState()
+    expect(loading.active).toBe(false)
+    expect(loading.progress).toBe(100)
+    expect(loading.label).toBe('x')
   })
 })

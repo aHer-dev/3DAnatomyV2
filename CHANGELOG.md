@@ -7,6 +7,43 @@ Format: [Keep a Changelog](https://keepachangelog.com/de/1.0.0/)
 
 ## [Unreleased]
 
+### Changed (Redesign „Variante B" — S9 Footer + LicenseModal + LoadingScreen + Branding)
+- **LoadingScreen im Marken-Look** (`LoadingScreen.tsx` + `loading-screen.css` neu, §9.11):
+  vollflächig `--stage-gradient`, Logo 132px mit rotierendem Akzent-Ring (SVG r98,
+  `dasharray 100 520`, 1.5s linear; `prefers-reduced-motion` → statisch), Wortmarke
+  „Anatomie **Fokus**" (Sora 600 46px), Tagline „Anatomie verstehen. Wissen anwenden.",
+  Fortschritt 320×4 `--accent-gradient` + „3D-Modell wird geladen … NN %".
+- **Neuer Store-Slice `loading`** (`{active, progress, label}` + `showLoading`/
+  `setLoadingProgress`/`hideLoading`, ADR 0008): `progress.js` ist jetzt reiner
+  Store-Adapter — DOM-Kreis-Overlay (Alt-Blau) + 2,2-s-„Willkommen!"-Verweilzeit
+  entfernt, App startet entsprechend schneller. Event-Kontrakt `circleOverlayHidden`
+  (Canvas sichtbar + Render-Loop) unverändert. React mountet jetzt auch im
+  Muskelfinder-Preview-Modus — dort rendert `App.tsx` nur den LoadingScreen.
+- **LicenseModal nach §9.10** (`LicenseModal.tsx` + neues `license-modal.css`):
+  zentrierte Card 600px/`radius 20px` (`--modal-bg`-Token neu), Backdrop
+  `rgba(6,6,7,.66)` + Blur, Header „Lizenzen & Attribution" (Sora 600 18px),
+  Attributions-Zeilen mit Lizenz-Tag-Pille rechts, Footer-CTA „Schließen" (gefüllt
+  `--accent`), **Fokus-Trap** (Tab zirkuliert, Fokus kehrt zum Auslöser zurück) + ESC.
+  **Fix:** Modal rendert per Portal an `document.body` — die `backdrop-filter`-Panels
+  (Sidebar/Flyout) bildeten einen Containing Block, der das `position:fixed`-Modal
+  einfing (bisher vom gelöschten `!important`-Override kaschiert).
+- **Footer im Sidebar-Fuß** (§9.9, neues `footer.css`): `Lernen · Lizenz · Quellen ·
+  Datenschutz` (Manrope 500 12px `--text-faint`, Trenner `·` mit `opacity .4`) +
+  BodyParts3D-Attributionszeile (CC BY 4.0 — Pflicht, ADR 0005). Glas-Floating-Bar,
+  Blau-Hardcode und der `shell-sidebar__foot`-Override entfernt.
+- **Branding/Favicon (§15):** `favicon.png` (512) + `favicon-16/32/64` aus
+  `af-logo-white` (flach/transparent), `apple-touch-icon` 180px (Squircle-Look,
+  Primär-Logo auf dunklem Radial-Verlauf), Maskable-Icons 192/512 (`af-logo-black`
+  auf Akzent-Orange) + `site.webmanifest`; Links + `theme-color` in `index.html`.
+- **Tote CSS entfernt:** `css/components/loading.css` gelöscht (Styles für nie
+  existierende `#initial-loading-screen`/`#loading-bar`-DOM-Knoten); `.ft-`/`.lic-`-
+  Blöcke aus `settings-panel.css` in die neuen Komponenten-Dateien überführt.
+- Headless verifiziert: Start → Marken-LoadingScreen (45→100 %) → Canvas sichtbar ·
+  Footer-Links + Attribution im Sidebar-Fuß · Modal zentriert (auch aus dem
+  Settings-Flyout), Fokus-Trap zirkuliert, ESC/CTA schließen, Fokus kehrt zurück ·
+  alle Icon-/Manifest-URLs 200 · Preview-Modus: nur LoadingScreen, keine Shell ·
+  keine Konsolen-Fehler.
+
 ### Changed (Redesign „Variante B" — S8 SettingsPanel als Rail-Flyout)
 - **SettingsPanel = Flyout links neben der Rail** (`SettingsPanel.tsx` +
   `settings-panel.css` neu geschrieben, §9.7/§10 Frame 2f): `left:100px; top/bottom:20px;

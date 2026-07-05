@@ -1,0 +1,138 @@
+/* =========================================================================
+   LicenseModal — zentriertes Modal (Handoff §9.10)  ·  Präfix: lic-
+   Backdrop dimmt + leichter Blur (transient, kein Dauer-backdrop-filter).
+   Card 600px, radius 20px. Nur Tokens (variables.css).
+   ========================================================================= */
+
+.lic-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-modal);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  pointer-events: all;
+  background: rgba(6, 6, 7, 0.66);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  animation: lic-fade 0.15s var(--ease-smooth) both;
+}
+@keyframes lic-fade { from { opacity: 0; } to { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) {
+  .lic-backdrop { animation: none; }
+}
+
+.lic-card {
+  width: min(600px, 100%);
+  max-height: 82vh;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  padding: 20px 22px;
+  background: var(--modal-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--glass-shadow-lg);
+  color: var(--text-primary);
+  outline: none;
+}
+
+/* ── Header ── */
+.lic-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+.lic-header h2 {
+  margin: 0;
+  font: 600 18px/1.2 var(--font-display);
+  color: var(--text-primary);
+}
+.lic-close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: var(--glass-bg-hover);
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: var(--transition-smooth);
+}
+.lic-close svg { width: 14px; height: 14px; }
+.lic-close:hover { color: var(--text-primary); }
+
+/* ── Attributions-Zeilen (Titel + Quelle · Lizenz-Tag rechts) ── */
+.lic-rows {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+.lic-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 11px 0;
+}
+.lic-row + .lic-row { border-top: 1px solid var(--hairline-soft); }
+.lic-row__text {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.lic-row__title { font: 600 var(--fs-body)/1.3 var(--font-ui); }
+.lic-row__source {
+  font: 500 12px/1.5 var(--font-ui);
+  color: var(--text-tertiary);
+}
+.lic-row__source a { color: var(--accent); text-decoration: none; }
+.lic-row__source a:hover { text-decoration: underline; }
+.lic-tag {
+  flex: none;
+  padding: 3px 9px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--glass-border);
+  background: var(--glass-bg);
+  font: 600 11px/1.4 var(--font-ui);
+  color: var(--text-secondary);
+  text-decoration: none;
+  white-space: nowrap;
+  transition: var(--transition-smooth);
+}
+.lic-tag:hover { color: var(--accent); border-color: var(--accent-border); }
+
+/* ── Hinweis + Footer-CTA ── */
+.lic-note {
+  margin: 14px 0 0;
+  padding-top: 14px;
+  border-top: 1px solid var(--hairline-soft);
+  font: 500 12px/1.6 var(--font-ui);
+  color: var(--text-tertiary);
+}
+.lic-note a { color: var(--accent); text-decoration: none; }
+.lic-note a:hover { text-decoration: underline; }
+
+.lic-foot {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 18px;
+}
+.lic-cta {
+  padding: 9px 22px;
+  border: none;
+  border-radius: var(--radius-md);
+  background: var(--accent);
+  color: var(--accent-on);
+  font: 600 var(--fs-body)/1 var(--font-ui);
+  cursor: pointer;
+  transition: var(--transition-smooth);
+}
+.lic-cta:hover { background: var(--accent-hi); }

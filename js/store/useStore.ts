@@ -37,6 +37,19 @@ const emptyIsolation: IsolationState = { model: null, actionBar: null }
 export type SidebarTab = 'structures' | 'collection' | 'info'
 export type Flyout = 'settings' | null
 
+// ─── Laden (Initial-/Preset-Fortschritt) ─────────────────────────────────────
+// Gefüllt von js/modelLoader/progress.js (Adapter der Lade-Pipeline),
+// gerendert von LoadingScreen.tsx (§9.11, ADR 0008).
+
+export interface LoadingState {
+  active: boolean
+  /** 0..100 */
+  progress: number
+  label: string
+}
+
+const emptyLoading: LoadingState = { active: false, progress: 0, label: '' }
+
 // ─── State-Form ──────────────────────────────────────────────────────────────
 
 export interface StoreState {
@@ -79,6 +92,9 @@ export interface StoreState {
   // ─── Overlay-UI (Layout B) ────────────────────────────────────────────────
   sidebarTab: SidebarTab
   openFlyout: Flyout
+
+  // ─── Laden ────────────────────────────────────────────────────────────────
+  loading: LoadingState
 
   // ─── Actions: Selection ───────────────────────────────────────────────────
   setSelection: (s: Partial<SelectionState>) => void
@@ -131,6 +147,11 @@ export interface StoreState {
   openFlyoutExclusive: (name: Exclude<Flyout, null>) => void
   closeFlyout: () => void
 
+  // ─── Actions: Laden ───────────────────────────────────────────────────────
+  showLoading: (label?: string) => void
+  setLoadingProgress: (pct: number) => void
+  hideLoading: () => void
+
   // ─── Actions: Reset ───────────────────────────────────────────────────────
   resetVisibility: () => void
   resetAll: () => void
@@ -168,6 +189,7 @@ const useStore = createStore<StoreState>((set, get) => ({
   clickCounts: {},
   sidebarTab: 'structures',
   openFlyout: null,
+  loading: emptyLoading,
 
   // Selection
   setSelection: (s) =>
@@ -291,6 +313,18 @@ const useStore = createStore<StoreState>((set, get) => ({
   setSidebarTab: (tab) => set({ sidebarTab: tab }),
   openFlyoutExclusive: (name) => set({ openFlyout: name }),
   closeFlyout: () => set({ openFlyout: null }),
+
+  // Laden
+  showLoading: (label = '3D-Modell wird geladen …') =>
+    set({ loading: { active: true, progress: 0, label } }),
+
+  setLoadingProgress: (pct) =>
+    set((state) => ({
+      loading: { ...state.loading, progress: Math.max(0, Math.min(100, pct)) },
+    })),
+
+  hideLoading: () =>
+    set((state) => ({ loading: { ...state.loading, active: false } })),
 
   // Reset: nur Sichtbarkeit zurücksetzen, Modelle bleiben geladen
   resetVisibility: () =>

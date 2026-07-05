@@ -17,6 +17,7 @@
   --glass-bg-hover:       rgba(255,255,255,0.06);
   --glass-bg-panel:       rgba(15,16,20,0.82);   /* Info/Browser/Collection/Settings */
   --glass-bg-controls:    rgba(13,14,17,0.82);   /* Toolbar / Rail / kontextuelle Bars */
+  --modal-bg:             rgba(18,19,23,0.94);   /* LicenseModal-Card (§9.10, fast opak) */
   --glass-border:         rgba(255,255,255,0.08);
   --glass-shadow:         0 12px 40px rgba(0,0,0,0.50);
   --glass-shadow-lg:      0 16px 48px rgba(0,0,0,0.55);

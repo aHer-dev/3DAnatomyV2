@@ -149,12 +149,8 @@
   font: 500 13px/1.5 var(--font-ui);
 }
 
-/* Footer-Fuß */
+/* Footer-Fuß (Inhalt: footer.css, §9.9) */
 .shell-sidebar__foot {
   padding: 10px 12px;
   border-top: 1px solid var(--hairline-soft);
-}
-.shell-sidebar__foot > * {
-  position: static !important;
-  inset: auto !important;
 }

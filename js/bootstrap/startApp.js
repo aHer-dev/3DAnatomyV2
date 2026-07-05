@@ -123,7 +123,7 @@ window.addEventListener('beforeunload', () => {
 export async function startApp() {
     const previewMode = isMuskelfinderPreviewMode();
     window.__DISABLE_PROGRESS_OVERLAY = true;
-    showLoadingCircle({ label: 'Strukturen werden geladen…' });
+    showLoadingCircle({ label: '3D-Modell wird geladen …' });
     renderer.domElement.style.visibility = 'hidden';
     updateLoadingCircle(5);   // kleiner Startwert, damit man den Kreis sieht
     initStaticAssets();

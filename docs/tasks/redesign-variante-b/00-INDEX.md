@@ -15,14 +15,15 @@ rechts). Three.js/Canvas und der Store-Kontrakt bleiben unangetastet (nur Store 
 
 ## ▶ Stand & hier weiter (für die nächste Session)
 
-- **Branch:** `refactor/ui-consolidation`. **Erledigt & committet** (bis inkl. S8): **S0–S4**
+- **Branch:** `refactor/ui-consolidation`. **Erledigt & committet** (bis inkl. S9): **S0–S4**
   (Tokens/Fonts, App-Shell Layout B mit ADR 0006, StructureBrowser, InfoPanel, SearchBar) +
   Perf-Fixes (Glas-Blur 22→14px, Labels ohne `backdrop-filter`) + ADR 0007/BatchedMesh-Plan,
-  **S5–S7** (`3dcaa0a`: ViewCluster, Sammlung-Tab, Multi/Isolation in der Sidebar) und
-  **S8** (SettingsPanel als Rail-Flyout, Frame 2f).
-  lint · `tsc` · 34 Tests · build grün; S6–S8 zusätzlich headless End-to-End verifiziert.
-- **Sichtprüfung:** S1–S6 vom Nutzer abgenommen („bisher alles okay", 2026-07-05). **S7+S8
-  Sichtprüfung offen.** Bewusste Beibehaltung aus §-Specs: S2-Zeile hat zusätzlich einen
+  **S5–S7** (`3dcaa0a`: ViewCluster, Sammlung-Tab, Multi/Isolation in der Sidebar),
+  **S8** (`1e3b18d`: SettingsPanel als Rail-Flyout, Frame 2f) und **S9** (Footer §9.9,
+  LicenseModal §9.10 mit Fokus-Trap, Marken-LoadingScreen §9.11 + `loading`-Slice/ADR 0008,
+  Favicons/Manifest §15). lint · `tsc` · 38 Tests · build grün; S6–S9 headless verifiziert.
+- **Sichtprüfung:** S1–S8 vom Nutzer abgenommen (S1–S6 „bisher alles okay", S7+S8 „sieht gut
+  aus", beides 2026-07-05). **S9 Sichtprüfung offen.** Bewusste Beibehaltung aus §-Specs: S2-Zeile hat zusätzlich einen
   Laden/Entladen-Button (`+`/`✕`); S3-InfoPanel hat zusätzlich einen Farbwahl-Block (beides
   nicht in §9.3/§9.4 — Funktions-Erhalt; S8-Prüfung: Farbwahl ist **pro Struktur**, gehört
   nicht in globale Settings → bleibt im InfoPanel). S5: Cluster hat zusätzlich „Unten"/kaudal;
@@ -40,16 +41,20 @@ rechts). Three.js/Canvas und der Store-Kontrakt bleiben unangetastet (nur Store 
 - **Perf-Kontext (wichtig für alle folgenden Sessions):** Die App ist auf schwacher Hardware
   Draw-Call-/Blur-limitiert. **Keine neuen dauerhaft sichtbaren `backdrop-filter`-Flächen**
   oder Viele-DOM-Blur-Elemente über dem Canvas einführen. Details: ADR 0007 + `project_perf_glass_blur`.
-- **NÄCHSTER SCHRITT: S9** — `10-footer-modal-loading.md` (Footer + LicenseModal +
-  LoadingScreen + Branding/Favicon; Lizenz-Trigger aus dem S8-Flyout existiert schon).
+- **NÄCHSTER SCHRITT: S10** — `11-mobile-sheets.md` (Mobile: Bottom-Sheets + Tab-Leiste +
+  Safe-Area; dort auch `photoMode.js` `toolbarH=72`).
+- **S9-Notizen:** `loading`-Slice + `progress.js` als Adapter (ADR 0008), „Willkommen!"-
+  Verweilzeit entfällt; React mountet jetzt **auch im Muskelfinder-Preview-Modus** (nur
+  LoadingScreen — sonst kein Ladeindikator im Preview); LicenseModal als **Portal an
+  `document.body`** (backdrop-filter-Panels = Containing Block für `position:fixed`);
+  Footer behält BP3D-Attributionszeile (CC-BY-Pflicht, ADR 0005).
 - **Bewusste Roh-Kanten** (jeweils in eigener Session): `photoMode.js` hat noch `toolbarH=72`
   (Mobile, S10). Esc-Shortcut nach Multi-Auswahl lässt die Geister-Selektion aus `pickAt()`
   stehen (Info-Tab bleibt leer offen — Panel-Aktionen sind gefixt, `interaction/index.js`
   bewusst nicht angefasst). Offenes Settings-Flyout überlappt auf 1440px den linken Rand des
   ViewClusters um ~19px (Cluster `left:41%` aus 2a–2e vs. Flyout-Breite aus 2f — 2f zeigt
-  keinen Cluster; Kandidat S11-Feinschliff). Das alte Lade-Overlay („Strukturen werden
-  geladen", Blau) + „Willkommen!"-Label liegen z-mäßig über dem LicenseModal — beides S9.
-  (Muskelfinder-Preview-Modus ist unkritisch: dort wird die React-UI gar nicht gemountet.)
+  keinen Cluster; Kandidat S11-Feinschliff). Reset-Overlay in `ui-reset.js` ist noch
+  Alt-Styling (grün/Arial, injiziertes CSS) — Kandidat S11/Mini-Task.
 - **Arbeitsweise:** immer nur die im jeweiligen `NN-*.md` genannten Dateien anfassen, Abschluss =
   test+build grün + CHANGELOG + Kästchen unten abhaken.
 
@@ -106,7 +111,7 @@ Reihenfolge folgt Handoff §17. Später-Sessions bauen auf früheren auf — **n
 - [x] **S6** — CollectionPanel → Tab „Sammlung" — `07-collection-panel.md` ✅ (Frame 2c: „Gespeichert · N", flache Zeilen mit Fokus/Trash, CTA „Alle fokussieren"; Fokus ohne Selection-Yank; `shell-host` entfernt; Sichtprüfung offen)
 - [x] **S7** — MultiSelect + IsolationBar (Info-Tab-Varianten + Banner) — `08-multiselect-isolation.md` ✅ (Frame 2d/2e: Sammel-Ansicht im Info-Tab, Isolation-Banner + Untertitel statt Floating-Bars, `isolation.label` additiv, `panels.css` gelöscht; Sichtprüfung offen)
 - [x] **S8** — SettingsPanel → Rail-Flyout — `09-settings-flyout.md` ✅ (Frame 2f: `left:100px`, Raum-Slider/Swatches, Manifest-Presets, Key-Caps, Footer mit Farben-Reset + Lizenzen→LicenseModal; kein `room`-Slice; Sichtprüfung offen)
-- [ ] **S9** — Footer + LicenseModal + LoadingScreen + Branding/Favicon — `10-footer-modal-loading.md`
+- [x] **S9** — Footer + LicenseModal + LoadingScreen + Branding/Favicon — `10-footer-modal-loading.md` ✅ (§9.9-Fuß + BP3D-Zeile, §9.10-Modal mit Fokus-Trap als Body-Portal, §9.11-LoadingScreen + `loading`-Slice/ADR 0008, §15-Favicons + Manifest; Sichtprüfung offen)
 - [ ] **S10** — Mobile: Bottom-Sheets + Tab-Leiste + Safe-Area — `11-mobile-sheets.md`
 - [ ] **S11** — A11y- & Motion-Feinschliff (Querschnitt) — `12-a11y-motion.md`
 

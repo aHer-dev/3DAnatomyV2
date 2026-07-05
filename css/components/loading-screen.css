@@ -1,0 +1,101 @@
+/* =========================================================================
+   LoadingScreen — Marken-Ladebildschirm (Handoff §9.11)  ·  Präfix: lds-
+   Vollflächig über allem (auch über --z-modal), Marken-Schwarz +
+   Bühnen-Verlauf. Nur Tokens (variables.css); Maße aus §9.11.
+   ========================================================================= */
+
+.lds-screen {
+  position: fixed;
+  inset: 0;
+  z-index: calc(var(--z-modal) + 100);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  pointer-events: all;
+  background: var(--color-bg-dark);
+  background-image: var(--stage-gradient);
+  transition: opacity 0.4s var(--ease-smooth);
+}
+.lds-screen--done { opacity: 0; }
+
+/* ── Logo (132px) mit rotierendem Akzent-Ring (SVG r98) ── */
+.lds-emblem {
+  position: relative;
+  width: 200px;
+  height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.lds-ring {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  animation: lds-spin 1.5s linear infinite;
+}
+.lds-ring circle {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-dasharray: 100 520;
+}
+@keyframes lds-spin { to { transform: rotate(360deg); } }
+.lds-logo {
+  width: 132px;
+  height: 132px;
+  object-fit: contain;
+  user-select: none;
+}
+
+/* ── Wortmarke + Tagline ── */
+.lds-wordmark {
+  margin: 28px 0 0;
+  font: 600 46px/1.1 var(--font-display);
+  letter-spacing: -0.01em;
+  color: var(--text-primary);
+}
+.lds-wordmark span { color: var(--accent); }
+.lds-tagline {
+  margin: 14px 0 0;
+  font: 600 12px/1 var(--font-ui);
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+
+/* ── Fortschritt (320×4, Akzent-Verlauf) ── */
+.lds-progress {
+  margin-top: 42px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+.lds-progress__track {
+  width: 320px;
+  max-width: 76vw;
+  height: 4px;
+  border-radius: var(--radius-pill);
+  background: rgba(255, 255, 255, 0.10);
+  overflow: hidden;
+}
+.lds-progress__fill {
+  height: 100%;
+  border-radius: var(--radius-pill);
+  background: var(--accent-gradient);
+  transition: width 0.25s var(--ease-smooth);
+}
+.lds-progress__label {
+  margin: 0;
+  font: 500 12px/1 var(--font-ui);
+  color: var(--text-tertiary);
+  font-variant-numeric: tabular-nums;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lds-ring { animation: none; }
+  .lds-screen { transition: none; }
+}

@@ -2,7 +2,6 @@
    SettingsPanel — Rail-Flyout (Handoff §9.7/§10, Frame 2f)  ·  Präfix: stp-
    left:100px neben der Rail (20+68+12), Sidebar bleibt als Kontext sichtbar.
    Nur Tokens (variables.css); Maße/Größen aus dem 2f-Frame.
-   Footer (.ft-) + LicenseModal (.lic-) unten: eigener Block, Umbau in S9.
    ========================================================================= */
 
 .stp-flyout {
@@ -303,97 +302,3 @@
   transition: var(--transition-smooth);
 }
 .stp-foot__licenses:hover { color: var(--text-secondary); }
-
-/* ── Footer (React) ── */
-.ft-bar {
-  position: fixed;
-  bottom: 10px;
-  left: 16px;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  flex-wrap: wrap;
-  padding: 6px 12px;
-  pointer-events: all;
-
-  background: var(--glass-bg-panel);
-  backdrop-filter: var(--glass-blur-strong);
-  -webkit-backdrop-filter: var(--glass-blur-strong);
-  border: 1px solid var(--glass-border);
-  border-radius: var(--radius-xl);
-  box-shadow: var(--glass-shadow);
-  font-size: 0.74rem;
-}
-.ft-link {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  background: none;
-  border: none;
-  cursor: pointer;
-  color: var(--text-secondary);
-  text-decoration: none;
-  font-size: inherit;
-  padding: 2px 0;
-  transition: color 0.15s;
-}
-.ft-link:hover { color: var(--text-primary); }
-.ft-link--learn { color: #4A9EFF; font-weight: 600; }
-.ft-link--learn svg { width: 14px; height: 14px; }
-.ft-sep { width: 1px; height: 14px; background: var(--glass-border); }
-.ft-attribution { color: var(--text-secondary); opacity: 0.7; }
-
-@media (max-width: 768px) {
-  .ft-bar { display: none; } /* auf Mobile ausgeblendet — Platz für Toolbar */
-}
-
-/* ── License Modal ── */
-.lic-backdrop {
-  position: fixed;
-  inset: 0;
-  z-index: 50;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 20px;
-  pointer-events: all;
-  background: rgba(0, 0, 0, 0.6);
-  backdrop-filter: blur(4px);
-  animation: lic-fade 0.15s ease both;
-}
-@keyframes lic-fade { from { opacity: 0; } to { opacity: 1; } }
-.lic-panel {
-  width: min(560px, 100%);
-  max-height: 80vh;
-  overflow-y: auto;
-  padding: 18px 20px;
-  background: var(--glass-bg-panel);
-  backdrop-filter: var(--glass-blur-strong);
-  -webkit-backdrop-filter: var(--glass-blur-strong);
-  border: 1px solid var(--glass-border);
-  border-radius: var(--radius-xl);
-  box-shadow: var(--glass-shadow);
-  color: var(--text-primary);
-}
-.lic-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 12px;
-}
-.lic-header h4 { margin: 0; font-size: 1rem; }
-.lic-close {
-  background: none;
-  border: none;
-  cursor: pointer;
-  color: var(--text-secondary);
-  font-size: 1.1rem;
-  line-height: 1;
-  padding: 2px 4px;
-  border-radius: 4px;
-}
-.lic-close:hover { color: var(--text-primary); background: var(--glass-bg-hover); }
-.lic-list { padding-left: 18px; margin: 0 0 8px 0; font-size: 0.84rem; line-height: 1.5; }
-.lic-list li { margin-bottom: 8px; }
-.lic-list a, .lic-note a { color: #4A9EFF; }
-.lic-note { margin: 8px 0 0 0; font-size: 0.8rem; opacity: 0.85; line-height: 1.5; }

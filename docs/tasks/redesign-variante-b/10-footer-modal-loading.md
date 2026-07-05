@@ -39,10 +39,23 @@ in `docs/design_handoff_anatomie_3d/assets/` und müssen nach `assets/`/`public/
 - Keine Lade-Pipeline/Modell-Logik ändern. Kein Mobile-Layout (S10).
 
 ## Done-Kriterien
-- [ ] `npm run test` grün · `npm run build` sauber
-- [ ] Footer im Sidebar-Fuß; LicenseModal zentriert mit Fokus-Trap + ESC + BP3D-Attribution
-- [ ] LoadingScreen im Marken-Look, Fortschritt läuft, reduced-motion respektiert
-- [ ] Favicon/Apple-Touch/Maskable gesetzt · CHANGELOG-Eintrag
+- [x] `npm run test` grün · `npm run build` sauber (38 Tests, +4 für `loading`-Slice)
+- [x] Footer im Sidebar-Fuß; LicenseModal zentriert mit Fokus-Trap + ESC + BP3D-Attribution
+- [x] LoadingScreen im Marken-Look, Fortschritt läuft (echte Pipeline-Meilensteine),
+      reduced-motion respektiert
+- [x] Favicon/Apple-Touch/Maskable gesetzt (+ `site.webmanifest`) · CHANGELOG · ADR 0008
+
+## Umsetzungs-Notizen (2026-07-05)
+- `loading`-Store-Slice + `progress.js` als Adapter (ADR 0008); `circleOverlayHidden`-
+  Kontrakt unverändert; „Willkommen!"-Verweilzeit (2,2 s) entfällt.
+- React mountet jetzt auch im Muskelfinder-Preview-Modus (nur LoadingScreen) —
+  sonst hätte der Preview keinen Ladeindikator mehr.
+- LicenseModal als Portal an `document.body`: `backdrop-filter`-Panels bilden einen
+  Containing Block für `position:fixed` (Modal war sonst in der Sidebar gefangen).
+- Footer behält die BodyParts3D-Attributionszeile zusätzlich zu den §9.9-Links
+  (CC-BY-Pflicht, ADR 0005). „Quellen & Lizenzen"-Link heißt jetzt „Quellen" (§9.9).
+- Icons per Headless-Chromium aus den Handoff-PNGs gerendert (kein ImageMagick da);
+  Rezept: Scratchpad `gen-icons.mjs`.
 
 ## Relevante Dateien
 `js/ui/react/components/Footer.tsx` · `LicenseModal.tsx` · `LoadingScreen.tsx` (ggf. neu) ·
