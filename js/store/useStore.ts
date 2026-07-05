@@ -24,6 +24,8 @@ export interface IsolationActionBar {
 export interface IsolationState {
   model: THREE.Object3D | null
   actionBar: IsolationActionBar | null
+  /** Anzeige-Label statt Struktur-Name, z. B. „3 Strukturen" bei Mehrfach-Isolation */
+  label?: string | null
 }
 
 const emptyIsolation: IsolationState = { model: null, actionBar: null }

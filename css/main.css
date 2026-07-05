@@ -19,17 +19,19 @@
 @import 'controls/search.css';
 
 /* 5. Components */
-@import 'components/panels.css';
 @import 'components/loading.css';
 @import 'components/photo-mode.css';
 
-/* Layout B — Overlay-Shell (Rail + Tab-Sidebar) */
+/* Layout B — Overlay-Shell (Rail + Tab-Sidebar) + Ansichts-Cluster */
 @import 'components/app-shell.css';
+@import 'components/view-cluster.css';
 
 /* Phase 3 — React overlay components */
 @import 'components/structure-browser.css';
 @import 'components/search-bar.css';
 @import 'components/info-panel-react.css';
+@import 'components/multi-select.css';
+@import 'components/isolation-bar.css';
 @import 'components/collection-panel.css';
 @import 'components/settings-panel.css';
 @import 'components/labels.css';

@@ -7,6 +7,80 @@ Format: [Keep a Changelog](https://keepachangelog.com/de/1.0.0/)
 
 ## [Unreleased]
 
+### Changed (Redesign „Variante B" — S7 MultiSelect + Isolation ohne Floating-Bars)
+- **MultiSelectPanel = Sammel-Ansicht des Info-Tabs** (`MultiSelectPanel.tsx` +
+  neues `css/components/multi-select.css`, Frame 2d): Zähler-Badge (`--accent`/`--accent-on`,
+  Sora) + „N Strukturen gewählt" + Chip-Liste (Farbpunkt + Latein-Name + ✕) + „Für alle N"-
+  Aktionen **Isolieren · Ausblenden · Zur Sammlung hinzufügen** (Outline-CTA) + „Auswahl
+  aufheben" am Tab-Fuß. Keine floatende Bottom-Bar mehr; Auto-Switch öffnet den Info-Tab
+  jetzt auch bei Mehrfachauswahl (ab 1 Struktur — Briefing sagt >1, aber sonst wäre der
+  Info-Tab im Multi-Modus anfangs leer). Batch-Farbe/-Deckkraft als Sekundär-Block erhalten.
+- **Neue Sammel-Aktionen** an Bestands-Logik gebunden (kein Three.js-Umbau): Isolieren =
+  `enterIsolatedView(erste, {structuralGroups: []})` + restliche sichtbar schalten;
+  Ausblenden = `setModelVisibility(…, false)` je Struktur; Zur Sammlung = `addToCollection`
+  je Struktur (Duplikate übersprungen, Toast „N hinzugefügt"/„Bereits in der Sammlung").
+- **Isolation = Sidebar-Banner + Untertitel** (`IsolationBar.tsx` → exportiert jetzt
+  `IsolationBanner` + `IsolationSubtitle`, neues `css/components/isolation-bar.css`, §9.6/
+  Frame 2e): Banner „Isolation aktiv · Nur <X> sichtbar" (Target `--accent`, `--accent-dim`-
+  Fläche, `--accent-border`) + Ghost „Kontext einblenden" (`enterGhostContext`) + gefülltes
+  „Isolation beenden" (`actionBar.onPrimary` — Deeplink-Label „← Zurück zum Muskelfinder"
+  bleibt erhalten). Unten-mittig ersetzt der **Untertitel** (Struktur + Gruppe, `left:41%`)
+  den ViewCluster, solange die Isolation aktiv ist (Frame 2e zeigt dort keinen Cluster).
+- **Store additiv erweitert:** `isolation.label?` (Anzeige-Label, z. B. „3 Strukturen" bei
+  Mehrfach-Isolation); `isolationView.js` reicht `options.label` durch, Default-Primary-Label
+  „← Zurück zur Gesamtansicht" → „Isolation beenden" (§-Wortlaut).
+- **Bugfix Geister-Selektion:** `pickAt()` (raycaster.js) setzt bei jedem Canvas-Klick
+  `selected.root` als Nebeneffekt — nach „Auswahl aufheben"/„Ausblenden" blieb der Info-Tab
+  dadurch leer offen. Beide Aktionen rufen jetzt zusätzlich `clearSelection()` auf.
+  (Gleiche Kante beim Esc-Shortcut in `interaction/index.js` bewusst offen gelassen.)
+- **Tote CSS entfernt:** `css/components/panels.css` komplett gelöscht (Shortcuts-Tip ohne
+  DOM-Gegenstück, `#isolation-actions`-Float, Muskelfinder-Preview-Regeln — im Preview-Modus
+  mountet die React-UI nicht); `.msp-*`-Float-Block + `ip-slide-in` aus
+  `info-panel-react.css` entfernt (neue Datei ist selbstständig).
+- Headless verifiziert: Multi-Tool → 2 Klicks → Sammel-Ansicht (Badge/Chips/Aktionen) ·
+  Chip-✕ · Isolieren → Banner/Untertitel/Cluster-Swap · Beenden → Rückbau · Zur Sammlung
+  (Badge 2, Duplikat-Toast) · Ausblenden → Tab zurück auf „Strukturen" · Einzel-Isolation
+  über InfoPanel → Banner mit Struktur-Name + Gruppen-Untertitel. **Pixel-Sichtprüfung offen.**
+
+### Changed (Redesign „Variante B" — S6 CollectionPanel → Tab „Sammlung")
+- **CollectionPanel im Tab-Body verankert** (`js/ui/react/components/CollectionPanel.tsx`):
+  kein Float/eigenes Glas/Close-X mehr; `onClose`-Prop entfällt. Der letzte
+  `shell-host`-Override in `AppShell.tsx`/`app-shell.css` ist damit abgelöst und gelöscht.
+- **Frame-2c-Layout** (`css/components/collection-panel.css`): Sektions-Label
+  „GESPEICHERT · N Einträge" (Klinik-Stil) · flache Zeilenliste (Farbpunkt 10px +
+  Latein-Name + Fokus-Target + Trash 16px, Gruppen-Abschnitte entfallen — Gruppe bleibt
+  über den Farbpunkt ablesbar) · **CTA „Alle fokussieren"** gefüllt `--accent`/`--accent-on`
+  mit `margin-top:auto` am Tab-Fuß. Alt-Navy (`#4A9EFF`)-Hardcodes durch Tokens ersetzt.
+- **Zeilen-Klick/Target fokussiert** (Highlight + `focusOnObject`) **ohne `setSelection`** —
+  bewusste Abweichung vom alten Verhalten: Selektion würde per Auto-Switch (ADR 0006)
+  sofort auf den Info-Tab springen und die Sammlung verlassen (Frame 2c: „Klick fokussiert").
+- **„Alle fokussieren"** = bisheriges „Nur Sammlung anzeigen" (`showCollectionInScene()`,
+  §-Wortlaut) · **Leeren/Export/Import als Sekundär-Reihe beibehalten** (Nicht-Ziel:
+  Export/Import unverändert). Toast auf Orange-Tokens; Timer wird bei Unmount aufgeräumt.
+- Mobile-`@media` entfernt (Bottom-Sheet kommt in S10).
+- Headless verifiziert (Chromium/Swiftshader): Canvas-Klick → Info-Tab → „Zur Sammlung" →
+  Tab „Sammlung" (Badge 1, Zeile, CTA) · Zeilen-Klick bleibt im Sammlung-Tab und fährt die
+  Kamera auf die Struktur · „Alle fokussieren" isoliert die Sammlung sichtbar · Entfernen →
+  „0 Einträge" + Leer-Hinweis + CTA disabled. **Pixel-Sichtprüfung trotzdem offen.**
+
+### Changed (Redesign „Variante B" — S5 Ansichts-Cluster als eigene Leiste)
+- **`ViewCluster.tsx` neu** (`js/ui/react/components/`): Kamera-Richtungen + Reset aus
+  `AppShell.tsx` in eine eigenständige schwebende Leiste ausgelagert (Handoff §9.1/§10,
+  Frames `2a`–`2e`). Kamera-Actions unverändert (`setCameraDirection`/`resetApp`).
+- **§-Styling** (`css/components/view-cluster.css`, Präfix `vc-`): Glas-Rezept `.bar`,
+  `left:41%` (Mitte des freien Canvas) `bottom:26px`, `radius:16px`; „Ansicht"-Label
+  (Manrope 600 10px, Klinik-Tracking); Buttons 38px/`radius:10px` mit deutschen
+  Richtungs-Labels **Vorne/Hinten/Links/Rechts/Oben/Unten** (Frame-Wortlaut statt
+  bisher „Ant/Post/…"; anatomische Begriffe bleiben im Tooltip); Trenner + Reset-Icon.
+  Kein neuer Blur — die eine `backdrop-filter`-Fläche des Clusters bestand schon (ADR 0007).
+- **Reset aus der Rail entfernt** — laut §10-Mapping gehört „Ansicht zurücksetzen" zum
+  Ansichts-Cluster, nicht zur Rail; Aktion (`resetApp()`) unverändert, keine Dublette.
+- **Tote `#toolbar-dir-panel`/`#anatomy-toolbar`-Regel** in `panels.css`
+  (Muskelfinder-Preview) entfernt: im Preview-Modus wird die React-UI gar nicht
+  gemountet (`app.js`), eine Hide-Regel für Rail/Cluster kann nie greifen
+  (headless verifiziert: `.shell-rail`/`.vc-bar` fehlen dort im DOM).
+- **Sichtprüfung nötig:** Pixel-/3D-Verhalten ist nicht unit-getestet.
+
 ### Changed (Performance-Untersuchung — Ruckeln bei Kamerabewegung, Layout B)
 - **Glas-Blur moderater:** `--glass-blur-strong` 22px → 14px, `--glass-blur` 12px → 10px
   (`css/theme/variables.css`, dokumentierte Abweichung vom Handoff §8) — senkt die

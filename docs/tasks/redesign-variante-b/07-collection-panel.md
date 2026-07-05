@@ -27,9 +27,9 @@ fokussiert die Struktur im Canvas.
 - Kein Export-/Import-Feature ändern. Kein Mobile-Sheet (S10).
 
 ## Done-Kriterien
-- [ ] `npm run test` grün · `npm run build` sauber
-- [ ] Tab „Sammlung" listet Einträge; Zeilen-Klick fokussiert; Entfernen funktioniert
-- [ ] „Alle fokussieren" vorhanden · CHANGELOG-Eintrag
+- [x] `npm run test` grün · `npm run build` sauber
+- [x] Tab „Sammlung" listet Einträge; Zeilen-Klick fokussiert; Entfernen funktioniert
+- [x] „Alle fokussieren" vorhanden · CHANGELOG-Eintrag
 
 ## Relevante Dateien
 `js/ui/react/components/CollectionPanel.tsx` · `css/components/collection-panel.css` · `AppShell.tsx`

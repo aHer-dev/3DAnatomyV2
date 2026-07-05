@@ -37,10 +37,10 @@ In A waren das floatende Bottom-/Top-Bars. In B:
 - Kein Mobile-Sheet (S10).
 
 ## Done-Kriterien
-- [ ] `npm run test` grün · `npm run build` sauber
-- [ ] Mehrfachauswahl → Info-Tab zeigt Zähler + Chips + Sammel-Aktionen (keine Bottom-Bar)
-- [ ] Isolation → Sidebar-Banner + Untertitel unten (keine floatende Top-Bar); Beenden funktioniert
-- [ ] CHANGELOG-Eintrag
+- [x] `npm run test` grün · `npm run build` sauber
+- [x] Mehrfachauswahl → Info-Tab zeigt Zähler + Chips + Sammel-Aktionen (keine Bottom-Bar)
+- [x] Isolation → Sidebar-Banner + Untertitel unten (keine floatende Top-Bar); Beenden funktioniert
+- [x] CHANGELOG-Eintrag
 
 ## Relevante Dateien
 `js/ui/react/components/MultiSelectPanel.tsx` · `js/ui/react/components/IsolationBar.tsx` ·

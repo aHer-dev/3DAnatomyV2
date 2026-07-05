@@ -39,7 +39,7 @@ function restoreVisibilitySnapshot(snapshot) {
 function normalizeActionBar(actionBar) {
   const base = actionBar || {};
   return {
-    primaryLabel: base.primaryLabel || '← Zurück zur Gesamtansicht',
+    primaryLabel: base.primaryLabel || 'Isolation beenden',
     onPrimary: typeof base.onPrimary === 'function' ? base.onPrimary : () => exitIsolatedView(),
     secondaryLabel: base.secondaryLabel || '',
     onSecondary: typeof base.onSecondary === 'function' ? base.onSecondary : null,
@@ -53,7 +53,8 @@ export function enterIsolatedView(model, options = {}) {
     structuralGroups = DEFAULT_STRUCTURAL_GROUPS,
     storeSnapshot = true,
     showBackButton = true,
-    actionBar = null
+    actionBar = null,
+    label = null
   } = options;
 
   if (storeSnapshot && !isolationSnapshot) {
@@ -77,6 +78,7 @@ export function enterIsolatedView(model, options = {}) {
   getStore().setIsolation({
     model,
     actionBar: showBackButton ? normalizeActionBar(actionBar) : null,
+    label,
   });
 
   renderer.render(scene, camera);

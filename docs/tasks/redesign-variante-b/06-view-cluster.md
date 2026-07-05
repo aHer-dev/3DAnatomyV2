@@ -26,10 +26,10 @@ unten-mittig im freien Canvas** — **nicht** Teil der Rail.
 - Keine Kamera-Logik ändern. Kein Mobile-Layout (S10, dort in die Tab-Leiste).
 
 ## Done-Kriterien
-- [ ] `npm run test` grün · `npm run build` sauber
-- [ ] Ansichts-Cluster schwebt unten mittig, getrennt von der Rail; alle Richtungen + Reset
-- [ ] Kein `#toolbar-dir-panel`/Richtungs-Rest mehr in Toolbar/CSS
-- [ ] CHANGELOG-Eintrag
+- [x] `npm run test` grün · `npm run build` sauber
+- [x] Ansichts-Cluster schwebt unten mittig, getrennt von der Rail; alle Richtungen + Reset
+- [x] Kein `#toolbar-dir-panel`/Richtungs-Rest mehr in Toolbar/CSS
+- [x] CHANGELOG-Eintrag
 
 ## Relevante Dateien
 `js/ui/react/components/ViewCluster.tsx` (neu) · `css/components/view-cluster.css` (neu) ·

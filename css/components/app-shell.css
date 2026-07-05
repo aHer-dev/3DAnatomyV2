@@ -1,8 +1,9 @@
 /* =========================================================================
    Layout B — Overlay-Shell  ·  Präfix: shell-
-   Icon-Rail links + persistente Tab-Sidebar rechts + Ansichts-Cluster unten.
-   Nur Tokens (variables.css). #ui-root ist pointer-events:none → jedes
-   interaktive Element setzt pointer-events:all selbst.
+   Icon-Rail links + persistente Tab-Sidebar rechts. (Ansichts-Cluster:
+   eigene Komponente, view-cluster.css.) Nur Tokens (variables.css).
+   #ui-root ist pointer-events:none → jedes interaktive Element setzt
+   pointer-events:all selbst.
    ========================================================================= */
 
 /* ── Icon-Rail (links) ─────────────────────────────────────────────────── */
@@ -148,26 +149,6 @@
   font: 500 13px/1.5 var(--font-ui);
 }
 
-/* Gehostete Bestands-Panels (StructureBrowser/InfoPanel/CollectionPanel):
-   ihre floatende Positionierung + eigenes Glas neutralisieren, damit sie im
-   Tab-Body andocken. Temporär — S2/S3/S6 bauen die Panels selbst um und
-   entfernen dieses Override. */
-.shell-host { display: block; }
-.shell-host > * {
-  position: static !important;
-  inset: auto !important;
-  width: 100% !important;
-  max-width: none !important;
-  max-height: none !important;
-  margin: 0 !important;
-  background: transparent !important;
-  border: none !important;
-  border-radius: 0 !important;
-  box-shadow: none !important;
-  backdrop-filter: none !important;
-  -webkit-backdrop-filter: none !important;
-}
-
 /* Footer-Fuß */
 .shell-sidebar__foot {
   padding: 10px 12px;
@@ -177,34 +158,3 @@
   position: static !important;
   inset: auto !important;
 }
-
-/* ── Ansichts-Cluster (unten mittig) ───────────────────────────────────── */
-.shell-viewcluster {
-  position: fixed;
-  bottom: 20px;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: var(--z-controls);
-  pointer-events: all;
-  display: flex;
-  gap: 6px;
-  padding: 8px;
-  background: var(--glass-bg-controls);
-  backdrop-filter: var(--glass-blur-strong);
-  -webkit-backdrop-filter: var(--glass-blur-strong);
-  border: 1px solid var(--glass-border);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--glass-shadow-lg);
-}
-.shell-viewbtn {
-  min-width: 40px;
-  padding: 8px 12px;
-  border: none;
-  border-radius: var(--radius-md);
-  background: transparent;
-  color: var(--text-secondary);
-  font: 600 12.5px/1 var(--font-ui);
-  cursor: pointer;
-  transition: var(--transition-smooth);
-}
-.shell-viewbtn:hover { background: var(--glass-bg-hover); color: var(--text-primary); }

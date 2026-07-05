@@ -1,6 +1,9 @@
-import React, { useState, useRef, useCallback } from 'react'
+// CollectionPanel — Sidebar-Tab „Sammlung" (Layout B, Handoff §9.8 / Frame 2c).
+// Wohnt im Tab-Body: kein Float, kein eigenes Glas. Zeilen-Klick fokussiert die
+// Struktur (Kamera + Highlight) OHNE setSelection — sonst würde der Auto-Switch
+// (ADR 0006) den Tab sofort auf „Info" umschalten.
+import React, { useState, useRef, useCallback, useEffect } from 'react'
 import { useReactStore } from '../useReactStore.js'
-import { getGroupLabel, sortGroups } from '../groupLabels.js'
 import { getStore } from '../../../store/useStore.js'
 import { showCollectionInScene, clearCollectionAndRestore } from '../../../features/collectionView.js'
 import { highlightModel } from '../../../interaction/highlightModel.js'
@@ -15,16 +18,27 @@ function colorHex(n: number | undefined): string {
   return '#' + n.toString(16).padStart(6, '0')
 }
 
-interface CollectionPanelProps {
-  onClose: () => void
-}
+const FocusIcon = (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
+    <circle cx="12" cy="12" r="3" /><path d="M3 12h2M19 12h2M12 3v2M12 19v2" />
+  </svg>
+)
+const TrashIcon = (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <path d="M3 6h18" /><path d="M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2" /><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" /><line x1="10" y1="11" x2="10" y2="17" /><line x1="14" y1="11" x2="14" y2="17" />
+  </svg>
+)
 
-export function CollectionPanel({ onClose }: CollectionPanelProps) {
+export function CollectionPanel() {
   const collection = useReactStore(s => s.collection) as CollectionItem[]
   const [busy, setBusy] = useState(false)
   const [toast, setToast] = useState<string | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  useEffect(() => () => {
+    if (toastTimer.current) clearTimeout(toastTimer.current)
+  }, [])
 
   const flash = useCallback((msg: string) => {
     if (toastTimer.current) clearTimeout(toastTimer.current)
@@ -32,10 +46,9 @@ export function CollectionPanel({ onClose }: CollectionPanelProps) {
     toastTimer.current = setTimeout(() => setToast(null), 2200)
   }, [])
 
-  const handleSelect = useCallback((item: CollectionItem) => {
+  const handleFocus = useCallback((item: CollectionItem) => {
     if (!item.model?.parent) return
     highlightModel(item.model)
-    getStore().setSelection({ meta: item.meta as any })
     focusOnObject(camera, controls, item.model)
   }, [])
 
@@ -44,14 +57,14 @@ export function CollectionPanel({ onClose }: CollectionPanelProps) {
     document.dispatchEvent(new CustomEvent('collectionUpdated'))
   }, [])
 
-  const handleShow = useCallback(async () => {
+  const handleFocusAll = useCallback(async () => {
     if (busy) return
     setBusy(true)
     try {
       const n = await showCollectionInScene()
-      flash(`${n} Objekt${n === 1 ? '' : 'e'} angezeigt`)
+      flash(`${n} Objekt${n === 1 ? '' : 'e'} fokussiert`)
     } catch {
-      flash('Fehler beim Anzeigen')
+      flash('Fehler beim Fokussieren')
     }
     setBusy(false)
   }, [busy, flash])
@@ -66,57 +79,40 @@ export function CollectionPanel({ onClose }: CollectionPanelProps) {
     collectionManager.importCollection(e.nativeEvent)
   }, [])
 
-  // Gruppieren nach Anatomie-Gruppe
-  const grouped = new Map<string, CollectionItem[]>()
-  for (const item of collection) {
-    const g = item.group || 'other'
-    if (!grouped.has(g)) grouped.set(g, [])
-    grouped.get(g)!.push(item)
-  }
-  const sortedGroups = sortGroups([...grouped.keys()])
-
   return (
-    <aside className="cp-panel" aria-label="Meine Sammlung">
-      <div className="cp-header">
-        <span>Sammlung{collection.length > 0 ? ` (${collection.length})` : ''}</span>
-        <button className="cp-close" onClick={onClose} aria-label="Schließen">✕</button>
+    <div className="cp-panel" aria-label="Sammlung">
+      <div className="cp-sectionhead">
+        <span>Gespeichert</span>
+        <span className="cp-count">{collection.length} {collection.length === 1 ? 'Eintrag' : 'Einträge'}</span>
       </div>
 
-      <div className="cp-list" role="list">
-        {collection.length === 0 && (
-          <p className="cp-empty">Leer — wähle eine Struktur und füge sie über das Info-Panel hinzu.</p>
-        )}
+      {collection.length === 0 && (
+        <p className="cp-empty">Leer — wähle eine Struktur und füge sie über den Info-Tab hinzu.</p>
+      )}
 
-        {sortedGroups.map(group => (
-          <div key={group} className="cp-group">
-            <div className="cp-group-title">
-              {getGroupLabel(group)} ({grouped.get(group)!.length})
-            </div>
-            {grouped.get(group)!.map(item => (
-              <div key={item.id} className="cp-item" role="listitem">
-                <button className="cp-item-main" onClick={() => handleSelect(item)} title="Auswählen & fokussieren">
-                  <span className="cp-dot" style={{ background: colorHex(item.color) }} />
-                  <span className="cp-item-name">{item.name}</span>
-                </button>
-                <button
-                  className="cp-item-remove"
-                  onClick={() => handleRemove(item.id)}
-                  aria-label="Aus Sammlung entfernen"
-                  title="Entfernen"
-                >
-                  ✕
-                </button>
-              </div>
-            ))}
+      <div className="cp-list" role="list">
+        {collection.map(item => (
+          <div key={item.id} className="cp-row" role="listitem">
+            <button className="cp-row-main" onClick={() => handleFocus(item)} title="Struktur fokussieren">
+              <span className="cp-dot" style={{ background: colorHex(item.color) }} />
+              <span className="cp-name">{item.name}</span>
+            </button>
+            <button className="cp-iconbtn" onClick={() => handleFocus(item)} aria-label="Fokussieren" title="Fokussieren">
+              {FocusIcon}
+            </button>
+            <button className="cp-iconbtn cp-iconbtn--dim" onClick={() => handleRemove(item.id)} aria-label="Aus Sammlung entfernen" title="Entfernen">
+              {TrashIcon}
+            </button>
           </div>
         ))}
       </div>
 
-      {toast && <div className="cp-toast">{toast}</div>}
+      {toast && <div className="cp-toast" role="status">{toast}</div>}
 
       <div className="cp-actions">
-        <button className="cp-btn cp-btn--primary" onClick={handleShow} disabled={busy || collection.length === 0}>
-          {busy ? 'Lädt…' : 'Nur Sammlung anzeigen'}
+        <button className="cp-cta" onClick={handleFocusAll} disabled={busy || collection.length === 0}>
+          {FocusIcon}
+          <span>{busy ? 'Lädt…' : 'Alle fokussieren'}</span>
         </button>
         <div className="cp-btn-row">
           <button className="cp-btn" onClick={handleClear} disabled={collection.length === 0}>Leeren</button>
@@ -132,6 +128,6 @@ export function CollectionPanel({ onClose }: CollectionPanelProps) {
         style={{ display: 'none' }}
         onChange={handleImportFile}
       />
-    </aside>
+    </div>
   )
 }
