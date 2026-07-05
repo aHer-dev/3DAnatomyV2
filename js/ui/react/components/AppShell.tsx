@@ -194,7 +194,7 @@ export function AppShell() {
       {/* ── Unten-mittig: Ansichts-Cluster, in der Isolation der Untertitel (Frame 2e) ── */}
       {isolationActive ? <IsolationSubtitle /> : <ViewCluster />}
 
-      {/* ── Settings-Flyout (S8 dockt es an die Rail) ── */}
+      {/* ── Settings-Flyout links neben der Rail (S8, Frame 2f) ── */}
       {openFlyout === 'settings' && <SettingsPanel onClose={closeFlyout} />}
     </>
   )

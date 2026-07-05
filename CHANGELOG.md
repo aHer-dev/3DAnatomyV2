@@ -7,6 +7,31 @@ Format: [Keep a Changelog](https://keepachangelog.com/de/1.0.0/)
 
 ## [Unreleased]
 
+### Changed (Redesign „Variante B" — S8 SettingsPanel als Rail-Flyout)
+- **SettingsPanel = Flyout links neben der Rail** (`SettingsPanel.tsx` +
+  `settings-panel.css` neu geschrieben, §9.7/§10 Frame 2f): `left:100px; top/bottom:20px;
+  width:324px`, Glas-Panel `radius:20px`, Slide-in mit `--ease-smooth` (reduced-motion:
+  aus). Rechte Sidebar bleibt als Kontext sichtbar; Exklusivität weiter über den
+  `openFlyout`-Slice aus S1 (⚙ togglet, `closeFlyout` schließt).
+- **Sektionen nach 2f:** Uppercase-Header 10.5px/`.12em` (`--text-faint`). **Raum:**
+  „Helligkeit"-Slider (Sonnen-Icon, = Beleuchtung 0–200 %) · „Umgebungslicht"-Slider
+  (= Raumhelligkeit) · „Hintergrund"-Swatches (Schwarz `#0b0b0b` · Anthrazit `#34373c` ·
+  Navy `#0a0e27`, aktiv mit `--accent`-Ring) + Custom-Farbwähler und „Raum zurücksetzen"
+  als Ghost (Funktions-Erhalt). **Presets:** bestehende Manifest-Liste im neuen Zeilen-Stil —
+  die Handoff-Segmented „Studio/Klinisch/Kontrast" wären neue Beleuchtungs-Presets, die es
+  nicht gibt (Nicht-Ziel „kein Preset-Algorithmus"). **Tastenkürzel:** Key-Caps rechts
+  (Label links), echte App-Shortcuts statt der 2f-Beispiele. **Flyout-Footer:** „Farben
+  zurücksetzen" (`--accent` + Reset-Icon, = `resetColors()`) · „Lizenzen"-Link öffnet das
+  bestehende LicenseModal (Umbau des Modals folgt in S9).
+- **Kein `room`-Store-Slice** (Briefing-Option geprüft): Raum-Zustand lebt weiter in
+  `roomSettings.js`, einziger Konsument ist das Panel — lokal belassen, kein ADR nötig.
+  S3-Farbwahl-Konsolidierung geprüft: InfoPanel-Farbwahl ist **pro Struktur**, Settings sind
+  global — bleibt im InfoPanel.
+- Alt-Blau raus: Spinner/Sektions-Titel `#4A9EFF` → Tokens; Fehlertext → `--accent-strong`.
+- Headless verifiziert: ⚙ → Flyout bei exakt `left:100px` (Sidebar sichtbar) · Slider
+  85→95 % · Navy-Swatch aktiv · Preset „Hand" lädt (Overlay + 27 in Sammlung) ·
+  Lizenz-Modal auf/zu · ⚙-Toggle schließt · keine Konsolen-Fehler.
+
 ### Changed (Redesign „Variante B" — S7 MultiSelect + Isolation ohne Floating-Bars)
 - **MultiSelectPanel = Sammel-Ansicht des Info-Tabs** (`MultiSelectPanel.tsx` +
   neues `css/components/multi-select.css`, Frame 2d): Zähler-Badge (`--accent`/`--accent-on`,

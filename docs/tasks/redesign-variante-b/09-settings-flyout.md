@@ -33,10 +33,20 @@ Rail** (`left:100px`), während die rechte Sidebar als Kontext bestehen bleibt. 
 - Kein Preset-/Beleuchtungs-Algorithmus ändern. Kein Mobile-Sheet (S10).
 
 ## Done-Kriterien
-- [ ] `npm run test` grün · `npm run build` sauber
-- [ ] ⚙ öffnet Flyout links neben der Rail; Sidebar bleibt sichtbar
-- [ ] Raum/Preset/Kürzel/Reset funktionieren; „Lizenzen"-Link vorhanden
-- [ ] CHANGELOG-Eintrag (+ ADR falls `room`-Slice)
+- [x] `npm run test` grün · `npm run build` sauber
+- [x] ⚙ öffnet Flyout links neben der Rail; Sidebar bleibt sichtbar (headless verifiziert: `left:100px`)
+- [x] Raum/Preset/Kürzel/Reset funktionieren; „Lizenzen"-Link vorhanden (öffnet Bestands-Modal)
+- [x] CHANGELOG-Eintrag (kein `room`-Slice → kein ADR: Zustand bleibt in `roomSettings.js`,
+      einziger Konsument ist das Panel)
+
+## Umsetzungs-Notizen (2026-07-05)
+- Presets: Manifest-Anatomie-Presets als Liste beibehalten — die 2f-Segmented
+  „Studio/Klinisch/Kontrast" wären neue Beleuchtungs-Presets (Nicht-Ziel).
+- Slider-Mapping: „Helligkeit" (Sonne) = `lighting` (Beleuchtung, 0–200 %),
+  „Umgebungslicht" = `brightness` (Raumhelligkeit).
+- Funktions-Erhalt: Custom-Farbwähler als 4. Swatch + „Raum zurücksetzen" als Ghost.
+- Tastenkürzel: echte App-Shortcuts (/, G, H, S, Esc, Strg+Klick) statt der 2f-Beispiele.
+- S3-Farbwahl-Konsolidierung geprüft: pro-Struktur-Farbe bleibt im InfoPanel.
 
 ## Relevante Dateien
 `js/ui/react/components/SettingsPanel.tsx` · `css/components/settings-panel.css` ·
