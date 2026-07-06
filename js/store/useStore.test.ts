@@ -328,6 +328,38 @@ describe('Overlay-UI', () => {
   })
 })
 
+// ─── Mobile-Sheets (§13 / S10) ──────────────────────────────────────────────────
+
+describe('Mobile-Sheets', () => {
+  beforeEach(() => {
+    store.setState({ mobileSheet: null, openFlyout: null })
+  })
+
+  it('startet ohne offenes Sheet', () => {
+    expect(store.getState().mobileSheet).toBeNull()
+  })
+
+  it('öffnet und schließt ein Sheet', () => {
+    store.getState().openMobileSheet('panel')
+    expect(store.getState().mobileSheet).toBe('panel')
+    store.getState().openMobileSheet('view')
+    expect(store.getState().mobileSheet).toBe('view')
+    store.getState().closeMobileSheet()
+    expect(store.getState().mobileSheet).toBeNull()
+  })
+
+  it('Sheet und Settings-Flyout schließen sich gegenseitig aus', () => {
+    store.getState().openFlyoutExclusive('settings')
+    store.getState().openMobileSheet('panel')
+    expect(store.getState().mobileSheet).toBe('panel')
+    expect(store.getState().openFlyout).toBeNull()
+
+    store.getState().openFlyoutExclusive('settings')
+    expect(store.getState().openFlyout).toBe('settings')
+    expect(store.getState().mobileSheet).toBeNull()
+  })
+})
+
 // ─── Laden (§9.11 / ADR 0008) ──────────────────────────────────────────────────
 
 describe('Loading', () => {

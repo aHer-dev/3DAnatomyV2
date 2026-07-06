@@ -31,10 +31,26 @@ Tab-Leiste** die Rail. `viewport-fit=cover` ist gesetzt → Safe-Area-Insets bea
 - Kein Three.js-Eingriff.
 
 ## Done-Kriterien
-- [ ] `npm run test` grün · `npm run build` sauber
-- [ ] Schmal-Screen: Panels als Bottom-Sheets, untere Tab-Leiste statt Rail
-- [ ] Touch-Targets ≥44px, Safe-Area-Insets greifen, Gruppen-Chips scrollen horizontal
-- [ ] CHANGELOG-Eintrag
+- [x] `npm run test` grün (41) · `npm run build` sauber · lint · tsc
+- [x] Schmal-Screen: Panels als Bottom-Sheets, untere Tab-Leiste statt Rail
+- [x] Touch-Targets ≥44px, Safe-Area-Insets greifen, Gruppen-/Auswahl-Chips scrollen horizontal
+- [x] CHANGELOG-Eintrag
+
+## Umsetzungs-Notizen (S10)
+- **Ein Breakpoint** `max-width:768px` (wie photo-mode.css), zentral in `css/layout/responsive.css`
+  (zuletzt in `main.css` importiert → gewinnt bei gleicher Spezifität).
+- **Sheets = Media-Query-Umformung der Bestandspanels** (kein Duplikat): `.shell-sidebar`
+  (Panel), `.stp-flyout` (Settings), neuer `.vc-sheet` (Ansicht) teilen ein Sheet-Rezept;
+  Grabber als `::before` (kein Markup). Store additiv um `mobileSheet` erweitert (ADR-0006-
+  Nachtrag), Settings bleibt der `openFlyout`-Kanal.
+- **Tab-Leiste** `Auswählen · Strukturen · Labels · Ansicht · ⚙` (52px), in `AppShell.tsx`;
+  Desktop via `.shell-tabbar{display:none}` aus.
+- **Bewusste Abweichungen:** kein oberer Marken-/Such-Balken (Frame zeigt ihn, aber Perf-Regel
+  „keine neuen Dauer-Blur-Flächen über Canvas" + Suche ist im Panel-Sheet erreichbar);
+  auf Mobile nur „Auswählen" statt aller Werkzeuge (Multi/Box/Fokus). „Gruppen-Chips"
+  konkretisiert als die Mehrfachauswahl-Chips (`.msp-chips`) — einzige Chip-Reihe im Bestand.
+- **Nicht angefasst** (Briefing-Dateiliste): `js/ui/photoMode.js` `toolbarH=72` bleibt; die
+  neue Tab-Leiste ist ~68px hoch, also weiterhin passend. Kandidat für S11, falls Feinschliff.
 
 ## Relevante Dateien
 Sheet-Container (neu) + `css/components/…` · alle Panel-CSS (Media-Queries) ·

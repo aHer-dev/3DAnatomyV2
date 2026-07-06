@@ -154,3 +154,7 @@
   padding: 10px 12px;
   border-top: 1px solid var(--hairline-soft);
 }
+
+/* Untere Tab-Leiste: nur mobil (§13, responsive.css). Auf Desktop ausgeblendet,
+   die Icon-Rail übernimmt. */
+.shell-tabbar { display: none; }

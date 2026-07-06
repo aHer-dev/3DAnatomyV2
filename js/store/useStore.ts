@@ -37,6 +37,12 @@ const emptyIsolation: IsolationState = { model: null, actionBar: null }
 export type SidebarTab = 'structures' | 'collection' | 'info'
 export type Flyout = 'settings' | null
 
+// Mobile-Only: welches Bottom-Sheet offen ist (§13, S10). `panel` hostet die
+// Sidebar-Tabs (Strukturen/Sammlung/Info), `view` den Ansichts-Cluster. Das
+// Settings-Sheet bleibt der bestehende `openFlyout`-Kanal (nur mobil als Sheet
+// umgeformt). Auf Desktop ohne Effekt (Media-Query neutralisiert es).
+export type MobileSheet = 'panel' | 'view' | null
+
 // ─── Laden (Initial-/Preset-Fortschritt) ─────────────────────────────────────
 // Gefüllt von js/modelLoader/progress.js (Adapter der Lade-Pipeline),
 // gerendert von LoadingScreen.tsx (§9.11, ADR 0008).
@@ -92,6 +98,7 @@ export interface StoreState {
   // ─── Overlay-UI (Layout B) ────────────────────────────────────────────────
   sidebarTab: SidebarTab
   openFlyout: Flyout
+  mobileSheet: MobileSheet
 
   // ─── Laden ────────────────────────────────────────────────────────────────
   loading: LoadingState
@@ -146,6 +153,8 @@ export interface StoreState {
   setSidebarTab: (tab: SidebarTab) => void
   openFlyoutExclusive: (name: Exclude<Flyout, null>) => void
   closeFlyout: () => void
+  openMobileSheet: (sheet: Exclude<MobileSheet, null>) => void
+  closeMobileSheet: () => void
 
   // ─── Actions: Laden ───────────────────────────────────────────────────────
   showLoading: (label?: string) => void
@@ -189,6 +198,7 @@ const useStore = createStore<StoreState>((set, get) => ({
   clickCounts: {},
   sidebarTab: 'structures',
   openFlyout: null,
+  mobileSheet: null,
   loading: emptyLoading,
 
   // Selection
@@ -309,10 +319,13 @@ const useStore = createStore<StoreState>((set, get) => ({
       clickCounts: { ...state.clickCounts, [id]: (state.clickCounts[id] ?? 0) + 1 },
     })),
 
-  // Overlay-UI (Layout B)
+  // Overlay-UI (Layout B). Flyout und Mobile-Sheet teilen sich auf Schmal-Screens
+  // die untere Bühne → gegenseitig exklusiv (nur eines gleichzeitig offen).
   setSidebarTab: (tab) => set({ sidebarTab: tab }),
-  openFlyoutExclusive: (name) => set({ openFlyout: name }),
+  openFlyoutExclusive: (name) => set({ openFlyout: name, mobileSheet: null }),
   closeFlyout: () => set({ openFlyout: null }),
+  openMobileSheet: (sheet) => set({ mobileSheet: sheet, openFlyout: null }),
+  closeMobileSheet: () => set({ mobileSheet: null }),
 
   // Laden
   showLoading: (label = '3D-Modell wird geladen …') =>

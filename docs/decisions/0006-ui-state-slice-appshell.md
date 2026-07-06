@@ -49,4 +49,25 @@ Lokaler `useState` in `App.tsx` skaliert für diese geteilte Navigation nicht me
   Kamera-Richtungen im Ansichts-Cluster). Keine toten Klassen — die Toolbar-Klassen wurden
   nirgends sonst referenziert.
 - Pixel-/3D-Verhalten ist nicht unit-getestet → **manuelle Sichtprüfung** im Browser nötig.
+
+## Nachtrag (S10, 2026-07-06): Mobile-Sheet-Zustand `mobileSheet`
+
+Der Overlay-Slice wird um genau **ein** additives Feld erweitert: `mobileSheet:
+'panel' | 'view' | null` (+ `openMobileSheet`/`closeMobileSheet`). Es fällt unter dieselbe
+Kategorie wie `sidebarTab`/`openFlyout` (reiner Navigations-/Chrome-Zustand, kein Three.js-
+Bezug) — daher **kein neuer Slice/keine neue ADR**, sondern Erweiterung dieser Entscheidung.
+
+- **Warum überhaupt Zustand?** Auf Schmal-Screens (≤768px) wird die persistente Sidebar zum
+  Bottom-Sheet, das im Gegensatz zum Desktop einen Auf/Zu-Zustand braucht. `panel` hostet die
+  bestehenden Sidebar-Tabs, `view` den Ansichts-Cluster. Das Settings-Sheet bleibt bewusst der
+  vorhandene `openFlyout`-Kanal (mobil nur per CSS zum Sheet umgeformt) — kein zweiter Zustand
+  für dieselbe Sache.
+- **Exklusivität:** Flyout und Mobile-Sheet teilen sich mobil die untere Bühne, deshalb
+  räumen `openFlyoutExclusive`/`openMobileSheet` das jeweils andere ab (in den Store-Actions,
+  nicht in den Komponenten).
+- **CSS-first (kein Panel-Duplikat):** Die Sheets entstehen per Media-Query aus den
+  Bestandspanels (`css/layout/responsive.css`); React kennt nur „welches Sheet offen" +
+  das Umschalten. So bleibt die Panel-Logik unverändert bestehen (Briefing-Nicht-Ziel
+  „kein Duplikat der Panel-Logik"). Desktop ist unberührt, da die Media-Query den
+  `mobileSheet`-Effekt neutralisiert.
 </content>

@@ -68,6 +68,14 @@
   /* ---- z-index-Ebenen (aus Brief) ---- */
   --z-canvas: 1;  --z-controls: 100;  --z-info-panel: 1000;  --z-menu-icon: 1100;  --z-modal: 2000;
 
+  /* ---- Mobile Bottom-Sheets (§13, S10) ---- */
+  --radius-sheet:      28px;                    /* Sheet-Oberkante */
+  --sheet-bg:          rgba(15, 16, 20, 0.94);  /* deckender als Panel-Glas — sitzt über Backdrop */
+  --sheet-grabber:     rgba(255, 255, 255, 0.22);
+  --sheet-backdrop-bg: rgba(6, 7, 9, 0.5);
+  --z-sheet-backdrop:  1400;   /* > Tab-Leiste (--z-controls), < Sheet */
+  --z-sheet:           1500;   /* < LicenseModal (--z-modal) */
+
   /* ---- Motion (eine Kurve für alles) ---- */
   --ease-smooth:        cubic-bezier(0.4, 0, 0.2, 1);
   --transition-smooth:  all 0.28s cubic-bezier(0.4, 0, 0.2, 1);

@@ -37,3 +37,7 @@
 @import 'components/footer.css';
 @import 'components/license-modal.css';
 @import 'components/labels.css';
+
+/* 6. Responsive / Mobile — MUSS zuletzt laden: Sheet-Overrides gewinnen bei
+      gleicher Spezifität per Quellreihenfolge über die Komponenten-Basisregeln. */
+@import 'layout/responsive.css';

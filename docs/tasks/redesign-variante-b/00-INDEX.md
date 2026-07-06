@@ -15,7 +15,8 @@ rechts). Three.js/Canvas und der Store-Kontrakt bleiben unangetastet (nur Store 
 
 ## ▶ Stand & hier weiter (für die nächste Session)
 
-- **Branch:** `refactor/ui-consolidation`. **Erledigt & committet** (bis inkl. S9): **S0–S4**
+- **Branch:** `refactor/ui-consolidation`. **Erledigt & committet** (bis inkl. S9), **S10 fertig
+  (noch zu committen):** **S0–S4**
   (Tokens/Fonts, App-Shell Layout B mit ADR 0006, StructureBrowser, InfoPanel, SearchBar) +
   Perf-Fixes (Glas-Blur 22→14px, Labels ohne `backdrop-filter`) + ADR 0007/BatchedMesh-Plan,
   **S5–S7** (`3dcaa0a`: ViewCluster, Sammlung-Tab, Multi/Isolation in der Sidebar),
@@ -41,15 +42,27 @@ rechts). Three.js/Canvas und der Store-Kontrakt bleiben unangetastet (nur Store 
 - **Perf-Kontext (wichtig für alle folgenden Sessions):** Die App ist auf schwacher Hardware
   Draw-Call-/Blur-limitiert. **Keine neuen dauerhaft sichtbaren `backdrop-filter`-Flächen**
   oder Viele-DOM-Blur-Elemente über dem Canvas einführen. Details: ADR 0007 + `project_perf_glass_blur`.
-- **NÄCHSTER SCHRITT: S10** — `11-mobile-sheets.md` (Mobile: Bottom-Sheets + Tab-Leiste +
-  Safe-Area; dort auch `photoMode.js` `toolbarH=72`).
+- **NÄCHSTER SCHRITT: S11** — `12-a11y-motion.md` (A11y- & Motion-Feinschliff, Querschnitt;
+  letzte Session der Serie).
+- **S10-Notizen:** ein Breakpoint `≤768px` zentral in neuer `css/layout/responsive.css`
+  (zuletzt in `main.css` importiert). Sheets = **Media-Query-Umformung der Bestandspanels**
+  (kein Panel-Duplikat): `.shell-sidebar`/`.stp-flyout`/neuer `.vc-sheet` teilen ein Sheet-
+  Rezept, Grabber als `::before`. Store additiv `mobileSheet: 'panel'|'view'|null`
+  (ADR-0006-Nachtrag), Settings weiter über `openFlyout`. Untere Tab-Leiste `Auswählen ·
+  Strukturen · Labels · Ansicht · ⚙` (52px) in `AppShell.tsx`. **Bewusste Abweichungen:**
+  kein oberer Marken-/Such-Balken (Perf-Regel + Suche im Panel-Sheet); mobil nur „Auswählen"
+  statt aller Werkzeuge; „Gruppen-Chips" = Mehrfachauswahl-`.msp-chips` (einzige Chip-Reihe).
+  `photoMode.js` `toolbarH=72` **bewusst nicht angefasst** (nicht in der Briefing-Dateiliste;
+  neue Tab-Leiste ~68px → weiterhin passend; Kandidat S11).
 - **S9-Notizen:** `loading`-Slice + `progress.js` als Adapter (ADR 0008), „Willkommen!"-
   Verweilzeit entfällt; React mountet jetzt **auch im Muskelfinder-Preview-Modus** (nur
   LoadingScreen — sonst kein Ladeindikator im Preview); LicenseModal als **Portal an
   `document.body`** (backdrop-filter-Panels = Containing Block für `position:fixed`);
   Footer behält BP3D-Attributionszeile (CC-BY-Pflicht, ADR 0005).
 - **Bewusste Roh-Kanten** (jeweils in eigener Session): `photoMode.js` hat noch `toolbarH=72`
-  (Mobile, S10). Esc-Shortcut nach Multi-Auswahl lässt die Geister-Selektion aus `pickAt()`
+  (in S10 **bewusst nicht angefasst** — nicht in der Briefing-Dateiliste; die neue Tab-Leiste
+  ist ~68px, daher weiterhin passend; Kandidat S11). Esc-Shortcut nach Multi-Auswahl lässt die
+  Geister-Selektion aus `pickAt()`
   stehen (Info-Tab bleibt leer offen — Panel-Aktionen sind gefixt, `interaction/index.js`
   bewusst nicht angefasst). Offenes Settings-Flyout überlappt auf 1440px den linken Rand des
   ViewClusters um ~19px (Cluster `left:41%` aus 2a–2e vs. Flyout-Breite aus 2f — 2f zeigt
@@ -112,7 +125,7 @@ Reihenfolge folgt Handoff §17. Später-Sessions bauen auf früheren auf — **n
 - [x] **S7** — MultiSelect + IsolationBar (Info-Tab-Varianten + Banner) — `08-multiselect-isolation.md` ✅ (Frame 2d/2e: Sammel-Ansicht im Info-Tab, Isolation-Banner + Untertitel statt Floating-Bars, `isolation.label` additiv, `panels.css` gelöscht; Sichtprüfung offen)
 - [x] **S8** — SettingsPanel → Rail-Flyout — `09-settings-flyout.md` ✅ (Frame 2f: `left:100px`, Raum-Slider/Swatches, Manifest-Presets, Key-Caps, Footer mit Farben-Reset + Lizenzen→LicenseModal; kein `room`-Slice; Sichtprüfung offen)
 - [x] **S9** — Footer + LicenseModal + LoadingScreen + Branding/Favicon — `10-footer-modal-loading.md` ✅ (§9.9-Fuß + BP3D-Zeile, §9.10-Modal mit Fokus-Trap als Body-Portal, §9.11-LoadingScreen + `loading`-Slice/ADR 0008, §15-Favicons + Manifest; Sichtprüfung offen)
-- [ ] **S10** — Mobile: Bottom-Sheets + Tab-Leiste + Safe-Area — `11-mobile-sheets.md`
+- [x] **S10** — Mobile: Bottom-Sheets + Tab-Leiste + Safe-Area — `11-mobile-sheets.md` ✅ (≤768px: Sidebar/Settings/Ansicht als Bottom-Sheets per Media-Query aus den Bestandspanels, untere Tab-Leiste statt Rail, `mobileSheet`-Store-Feld/ADR-0006-Nachtrag, Safe-Area-Insets, `responsive.css`; Sichtprüfung offen)
 - [ ] **S11** — A11y- & Motion-Feinschliff (Querschnitt) — `12-a11y-motion.md`
 
 ## Abhängigkeits-Graph (kurz)

@@ -7,6 +7,37 @@ Format: [Keep a Changelog](https://keepachangelog.com/de/1.0.0/)
 
 ## [Unreleased]
 
+### Changed (Redesign „Variante B" — S10 Mobile: Bottom-Sheets + Tab-Leiste + Safe-Area)
+- **Schmal-Screen ≤768px (§13, Pflicht):** seitliche Sidebar → **Bottom-Sheet**, Icon-Rail →
+  **untere Tab-Leiste**, `viewport-fit=cover`-Safe-Area-Insets greifen. Neue zentrale
+  `css/layout/responsive.css` (zuletzt in `main.css` importiert, damit die Sheet-Overrides
+  per Quellreihenfolge über die Komponenten-Basisregeln gewinnen).
+- **Sheets per Media-Query aus den Bestandspanels** (kein Panel-Logik-Duplikat, Briefing-
+  Vorgabe): dieselben `.shell-sidebar` (Strukturen/Sammlung/Info + Suche + Footer),
+  `.stp-flyout` (Settings) und ein neuer `.vc-sheet` (Ansichts-Cluster) teilen ein Sheet-
+  Rezept — bündig unten, `radius:28px 28px 0 0`, `--sheet-bg` (`rgba(15,16,20,.94)`),
+  Grabber `42×5` als `::before` (kein Extra-Markup), Slide-in von unten (`sheet-rise`
+  bzw. `--open`-Transform), `prefers-reduced-motion` → ohne Slide. Neue Tokens:
+  `--radius-sheet`, `--sheet-bg`, `--sheet-grabber`, `--sheet-backdrop-bg`, `--z-sheet`,
+  `--z-sheet-backdrop` (< `--z-modal`, damit das LicenseModal über dem Settings-Sheet bleibt).
+- **Untere Tab-Leiste** (`AppShell.tsx`, Frame „Mobile · Default"): Glas-Floating-Bar
+  `left/right:16px`, Buttons `52px` (≥`--touch-min`) — `Auswählen · Strukturen · Labels ·
+  Ansicht · ⚙`. Neue Icons `layers`/`cube`. Werkzeug/Toggle-Logik aus der Rail
+  wiederverwendet; `Strukturen`/`Ansicht` togglen die Sheets, `⚙` das bestehende Flyout.
+- **Neuer additiver UI-Store-Zustand `mobileSheet`** (`'panel' | 'view' | null`, ADR 0006-
+  Nachtrag) mit `openMobileSheet`/`closeMobileSheet`. Sheet und Settings-Flyout schließen
+  sich **gegenseitig aus** (teilen mobil die untere Bühne). Auf Schmal-Screens poppt eine
+  Auswahl zusätzlich das Panel-Sheet auf (Frame „Info-Sheet", `matchMedia`-Guard — sonst
+  CSS-only). Desktop unverändert: `mobileSheet` ohne Wirkung (Rail/Sidebar wie gehabt).
+- **Backdrop** hinter offenen Sheets (dimmt Canvas, schließt per Tap); auf Desktop
+  `display:none`. **Auswahl-Chips** der Mehrfachauswahl (`.msp-chips`) werden mobil zur
+  horizontal scrollbaren Reihe; Slider-Knobs 15px; Struktur-Zeilen mit mehr Touch-Höhe.
+  **Isolation-Untertitel** über die Tab-Leiste gehoben, Float-`ViewCluster` mobil aus.
+- **Perf:** netto **eine** dauerhaft sichtbare Blur-Fläche weniger auf Mobile — Rail- und
+  Sidebar-Glas entfallen, es bleibt nur die Tab-Leiste (Sheets sind nur bei Bedarf sichtbar).
+- Verifiziert: `npm run test` (41 grün, +3 Store-Tests für `mobileSheet`/Exklusivität) ·
+  `lint` · `tsc` · `build` sauber; Sheet-Regeln + alle neuen Tokens im Bundle, Assets 200.
+
 ### Changed (Redesign „Variante B" — S9 Footer + LicenseModal + LoadingScreen + Branding)
 - **LoadingScreen im Marken-Look** (`LoadingScreen.tsx` + `loading-screen.css` neu, §9.11):
   vollflächig `--stage-gradient`, Logo 132px mit rotierendem Akzent-Ring (SVG r98,
