@@ -7,6 +7,21 @@ Format: [Keep a Changelog](https://keepachangelog.com/de/1.0.0/)
 
 ## [Unreleased]
 
+### Added (Perf — BatchedMesh-Rendering pro Gruppe, ADR 0007 Phase 1)
+- **`js/core/groupBatch.js`**: `GroupBatch` kapselt ein `THREE.BatchedMesh` pro Gruppe
+  (Geometrie-Normalisierung auf position+normal, `addGeometry`/`addInstance`, Gruppenfarbe
+  per Instanz via `setColorAt`) plus die **`batchId ↔ Teil`-Registry** für spätere
+  Picking-Phasen. Modul-Registry `getGroupBatch/setGroupBatch/removeGroupBatch`.
+- **Loader-Zweig hinter Flag** `performance.batchedGroups` (Default **aus**): baut beim
+  Laden aus einem Bundle ein einziges BatchedMesh (Draw-Calls ~Teilanzahl → ~1) statt N
+  Einzel-Meshes. `unloadGroupSilent` entfernt das Batch sauber. **Phase 1 = reines
+  Rendering, keine Interaktion** (Picking/Selektion/Opacity folgen laut Task-Plan).
+- **Bestätigt** (PoC + Headless): Materialien sind texturlos → gemeinsames Material tragfähig;
+  `BatchedMesh` headless konstruierbar → Registry per Vitest getestet (4 neue Tests, 45 gesamt).
+- **Offen — der Phase-1-Gate:** FPS-Messung mit allen Muskeln auf Zielhardware
+  (Flag `performance.batchedGroups: true`, `npm run dev`). Nur bei bestätigtem Gewinn geht
+  es zu Phase 2 (Picking) und ADR 0007 auf „akzeptiert".
+
 ### Added (Perf — Asset-Bündelung pro Gruppe, ADR 0009)
 - **`scripts/bundle-groups.mjs`** (npm: `bundle:groups`): packt die Einzel-Draco-GLB einer
   Gruppe zu **einer `<group>.bundle.glb`** + `<group>.bundle.json` (Manifest der Teil-IDs).

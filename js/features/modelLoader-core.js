@@ -11,6 +11,7 @@ import { fitCameraToScene } from '../core/cameraUtils.js';
 import { modelPath, withBase } from '../core/path.js';
 import { registerPickables, unregisterPickables } from '../features/selection.js';
 import { disposeObject3D } from '../modelLoader/cleanup.js';
+import { GroupBatch, setGroupBatch, getGroupBatch, removeGroupBatch } from '../core/groupBatch.js';
 import { getShadowFlagsForGroup, setGroupOpacity } from '../features/appearance.js';
 import { updateModelColors } from '../modelLoader/color.js';
 import { getStore, INITIAL_COLORS, DEFAULT_COLOR } from '../store/useStore.js';
@@ -258,6 +259,32 @@ async function loadGroupBundle(groupName, bundleUrl, loader) {
   const gltf = await loader.loadAsync(bundleUrl);
   updateLoadingBar(60);
 
+  // Phase 1 (ADR 0007): Gruppe als EIN BatchedMesh rendern — nur Messung, keine
+  // Interaktion (Picking/Selektion folgen in späteren Phasen über die Registry).
+  if (getConfig('performance.batchedGroups', false)) {
+    if (getGroupBatch(groupName)) { hideLoadingBar(); return; } // bereits gebatcht
+    gltf.scene.updateMatrixWorld(true);
+    const batchParts = [];
+    for (const wrapper of [...(gltf?.scene?.children ?? [])]) {
+      const entry = byBase.get(wrapper.name) ?? null;
+      if (!entry) continue;
+      wrapper.traverse((ch) => {
+        if (ch.isMesh && ch.geometry) {
+          batchParts.push({ geometry: ch.geometry, matrixWorld: ch.matrixWorld.clone(), entry });
+        }
+      });
+    }
+    const groupColor = getStore().colors?.[groupName] ?? INITIAL_COLORS[groupName] ?? DEFAULT_COLOR;
+    const gb = new GroupBatch(groupName);
+    const mesh = gb.build(batchParts, { color: groupColor });
+    setGroupBatch(groupName, gb);
+    scene.add(mesh);
+    updateLoadingBar(100);
+    hideLoadingBar();
+    console.log(`✅ Bundle "${groupName}" als BatchedMesh (${gb.size} Instanzen, ~1 Draw-Call)`);
+    return;
+  }
+
   // Snapshot: scene.add() hängt die Nodes um → Kinder-Liste würde sonst mutieren.
   const parts = [...(gltf?.scene?.children ?? [])];
   let loaded = 0;
@@ -352,6 +379,15 @@ export async function loadGroupByName(groupName, { centerCamera = false, loaderR
  * die React-UI stellt den Fortschritt selbst dar.
  */
 export async function unloadGroupSilent(groupName) {
+  // Batched-Pfad (ADR 0007 Phase 1): das Gruppen-BatchedMesh entfernen.
+  const batch = getGroupBatch(groupName);
+  if (batch) {
+    if (batch.mesh) scene.remove(batch.mesh);
+    removeGroupBatch(groupName);
+    getStore().setGroupVisible(groupName, false);
+    return;
+  }
+
   const models = getStore().groups[groupName] ?? [];
   if (!models.length) return;
 

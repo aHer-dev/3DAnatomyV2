@@ -30,6 +30,8 @@ interface AppConfig {
     adaptiveQuality: boolean
     /** Gruppen aus gepackter <group>.bundle.glb laden, falls vorhanden (ADR 0009) */
     useBundles: boolean
+    /** Gruppen als EIN BatchedMesh rendern (ADR 0007 Phase 1, nur Messung — Interaktion aus) */
+    batchedGroups: boolean
     memoryWarningThreshold: number
     autoGarbageCollection: boolean
     networkOptimization: {
@@ -91,6 +93,7 @@ export const APP_CONFIG: AppConfig = {
     maxFPS: 60,
     adaptiveQuality: true,
     useBundles: true,
+    batchedGroups: false,
     memoryWarningThreshold: 80,
     autoGarbageCollection: true,
     networkOptimization: {
