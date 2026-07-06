@@ -155,6 +155,8 @@
   border: none;
   cursor: pointer;
 }
+/* Tastatur-Fokus: konsistenter Ring (base.css schaltet outline sonst ab) */
+.ip-slider:focus-visible { outline: 2px solid var(--focus-ring); outline-offset: 2px; }
 
 /* 3 gleich breite Aktionen: Icon 19px + Label 11px */
 .ip-actions-grid {

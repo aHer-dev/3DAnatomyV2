@@ -29,11 +29,29 @@ gelegt — hier konsolidiert und geprüft.
 - Keine neuen Features/Panels. Keine Layout-Änderung. Kein Three.js-Eingriff.
 
 ## Done-Kriterien
-- [ ] `npm run test` grün · `npm run build` sauber
-- [ ] Vollständige Tastatur-Bedienung; sichtbarer, konsistenter Fokus-Ring
-- [ ] `prefers-reduced-motion` schaltet alle Animationen inkl. Loading-Ring ab
-- [ ] Icon-Buttons haben `aria-label`; Toggles `role="switch"`; Modal Fokus-Trap+ESC
-- [ ] CHANGELOG-Eintrag; Index-Serie vollständig abgehakt
+- [x] `npm run test` grün (41) · `npm run build` sauber · lint · tsc
+- [x] Vollständige Tastatur-Bedienung; sichtbarer, konsistenter Fokus-Ring (`2px --focus-ring`, blau, `:focus-visible`)
+- [x] `prefers-reduced-motion` schaltet alle Animationen inkl. Loading-Ring ab (universelle base.css-Regel)
+- [x] Icon-Buttons haben `aria-label`/Text; Toggle `role="switch"` (StructureBrowser); Modal Fokus-Trap+ESC (LicenseModal)
+- [x] CHANGELOG-Eintrag; Index-Serie vollständig abgehakt
+
+## Umsetzungs-Notizen (S11)
+- **Fokus-Ring-Entscheidung:** `2px solid var(--focus-ring)` (Blau `#4a9eff`), `:focus-visible`,
+  projektweit in `base.css`. Blau (nicht `--accent`) = klare Trennung vom orangen Aktiv-Zustand
+  und §14 nennt `--focus-ring` explizit. Slider/Suche setzen den Ring lokal neu (sie schalten
+  `outline` selbst ab). Vorher war `--focus-ring` definiert aber ungenutzt.
+- **Motion:** universelle `@media (prefers-reduced-motion: reduce)`-Regel in `base.css`
+  (`*` mit `animation-/transition-duration` fast 0, `!important`) als Sicherheitsnetz — fängt
+  auch hartkodierte `ease`-Transitions (Foto-Modus/Loading/Toasts). Bestehende Per-Komponenten-
+  Blöcke bleiben (explizite Intention, redundant aber harmlos).
+- **ESC:** schließt Flyout/Mobile-Sheet + Fokus-Rückgabe an das sichtbare Auslöser-Element
+  (`focusVisible()`-Helfer in AppShell). Bestehender ESC-Deselect (interaction/index.js) bleibt.
+- **Audit-Ergebnis:** aria-labels/Text-Labels durchgängig vorhanden (Vorsessions), `role="switch"`
+  bereits am Eye-Toggle — kein zusätzlicher Markup-Bedarf. Kontrast der `--text-*` auf Glas
+  stichprobenartig okay (nicht verändert).
+- **Bewusst nicht angefasst** (außerhalb A11y/Motion-Scope): `controls/search.css` (`#search-bar`,
+  ungenutzte Alt-Suche); die in früheren Sessions notierten Roh-Kanten (Multi-Highlight Alt-Blau,
+  Reset-Overlay, `photoMode.js toolbarH`) sind 3D-/Alt-Styling-Themen, kein A11y/Motion.
 
 ## Relevante Dateien
 Querschnitt: alle `js/ui/react/components/*.tsx` + `css/components/*` + `variables.css`

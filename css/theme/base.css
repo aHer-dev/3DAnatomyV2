@@ -16,3 +16,25 @@ body {
 
 .hidden { display: none !important; }
 .visible { display: block !important; }
+
+/* ── A11y: sichtbarer, konsistenter Fokus-Ring (Handoff §14) ──────────────────
+   Genau EINE projektweite Wahl: 2px var(--focus-ring) (Blau), nur für Tastatur
+   (:focus-visible) — Mausklicks zeigen keinen Ring. Komponenten, die outline
+   selbst abschalten (Slider/Suchfeld), setzen den Ring lokal neu. */
+:focus-visible {
+   outline: 2px solid var(--focus-ring);
+   outline-offset: 2px;
+}
+
+/* ── Motion: prefers-reduced-motion schaltet ALLE Animationen/Transitions ab
+   (Handoff §11/§14). Fängt auch hartkodierte ease-Kurven (Foto-Modus, Loading-
+   Fade, Toasts) — ergänzt die token-basierte Abschaltung (--transition-smooth:
+   none) als Sicherheitsnetz. */
+@media (prefers-reduced-motion: reduce) {
+   *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+   }
+}

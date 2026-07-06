@@ -68,6 +68,14 @@ function isNarrowScreen(): boolean {
     && window.matchMedia(MOBILE_QUERY).matches
 }
 
+// Fokus auf das erste SICHTBARE Element eines Selektors (Rail vs. Tab-Leiste sind
+// je nach Breakpoint display:none). Für die Fokus-Rückgabe beim ESC-Schließen.
+function focusVisible(selector: string): void {
+  const el = Array.from(document.querySelectorAll<HTMLElement>(selector))
+    .find(e => e.offsetParent !== null)
+  el?.focus()
+}
+
 // ─── Komponente ─────────────────────────────────────────────────────────────
 export function AppShell() {
   const activeTool = useActiveTool()
@@ -95,6 +103,21 @@ export function AppShell() {
     setSidebarTab(selecting ? 'info' : 'structures')
     if (selecting && isNarrowScreen()) openMobileSheet('panel')
   }, [selectedRoot, multiCount, setSidebarTab, openMobileSheet])
+
+  // A11y (§14): ESC schließt das offene Settings-Flyout bzw. Mobile-Sheet und gibt
+  // den Fokus an das auslösende Bedienelement zurück (Rail-⚙ / Tab-Leiste). Nur aktiv,
+  // solange etwas offen ist. Das LicenseModal hat einen eigenen Trap (fängt ESC vorher ab).
+  useEffect(() => {
+    if (openFlyout !== 'settings' && mobileSheet === null) return
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== 'Escape') return
+      if (openFlyout === 'settings')       { closeFlyout();      focusVisible('[aria-label="Einstellungen"]') }
+      else if (mobileSheet === 'panel')    { closeMobileSheet(); focusVisible('[aria-label="Strukturen"]') }
+      else if (mobileSheet === 'view')     { closeMobileSheet(); focusVisible('[aria-label="Ansicht"]') }
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [openFlyout, mobileSheet, closeFlyout, closeMobileSheet])
 
   async function handleLayerToggle(system: string) {
     if (loadingLayer) return

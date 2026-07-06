@@ -15,8 +15,8 @@ rechts). Three.js/Canvas und der Store-Kontrakt bleiben unangetastet (nur Store 
 
 ## ▶ Stand & hier weiter (für die nächste Session)
 
-- **Branch:** `refactor/ui-consolidation`. **Erledigt & committet** (bis inkl. S9), **S10 fertig
-  (noch zu committen):** **S0–S4**
+- **Serie S0–S11 KOMPLETT.** **Branch:** `refactor/ui-consolidation`. **Erledigt & committet**
+  (bis inkl. S10 = `b5edf33`), **S11 fertig (noch zu committen):** **S0–S4**
   (Tokens/Fonts, App-Shell Layout B mit ADR 0006, StructureBrowser, InfoPanel, SearchBar) +
   Perf-Fixes (Glas-Blur 22→14px, Labels ohne `backdrop-filter`) + ADR 0007/BatchedMesh-Plan,
   **S5–S7** (`3dcaa0a`: ViewCluster, Sammlung-Tab, Multi/Isolation in der Sidebar),
@@ -42,8 +42,17 @@ rechts). Three.js/Canvas und der Store-Kontrakt bleiben unangetastet (nur Store 
 - **Perf-Kontext (wichtig für alle folgenden Sessions):** Die App ist auf schwacher Hardware
   Draw-Call-/Blur-limitiert. **Keine neuen dauerhaft sichtbaren `backdrop-filter`-Flächen**
   oder Viele-DOM-Blur-Elemente über dem Canvas einführen. Details: ADR 0007 + `project_perf_glass_blur`.
-- **NÄCHSTER SCHRITT: S11** — `12-a11y-motion.md` (A11y- & Motion-Feinschliff, Querschnitt;
-  letzte Session der Serie).
+- **NÄCHSTER SCHRITT: keiner mehr** — Serie S0–S11 abgeschlossen. Offen: Nutzer-Sichtprüfung
+  S9–S11; danach Branch `refactor/ui-consolidation` → `main` mergen. Restliche Roh-Kanten
+  (Multi-Highlight Alt-Blau `0x1a1a4a`, Reset-Overlay-Styling, `photoMode.js toolbarH`,
+  ungenutzte `controls/search.css`) sind separate Mini-Tasks außerhalb der Serie.
+- **Fokus-Ring-Entscheidung (S11, §14):** projektweit **`2px solid var(--focus-ring)` (Blau
+  `#4a9eff`), nur `:focus-visible`**, global in `base.css`. Blau statt `--accent` = klare Trennung
+  vom orangen Aktiv-Zustand; §14 nennt `--focus-ring` explizit. Kein neuer ADR (kleine
+  Entscheidung, hier festgehalten). reduced-motion: universelle `*`-Abschaltung in `base.css`.
+- **S11-Notizen:** Fokus-Ring headless nicht per Screenshot prüfbar (nativer Ring am Compositor,
+  außerhalb der CSS-Kaskade) → per CSSOM verifiziert (Regel matcht, Token löst auf). ESC schließt
+  Flyout/Sheet mit Fokus-Rückgabe (`focusVisible()`-Helfer, wählt sichtbares Rail-/Tab-Element).
 - **S10-Notizen:** ein Breakpoint `≤768px` zentral in neuer `css/layout/responsive.css`
   (zuletzt in `main.css` importiert). Sheets = **Media-Query-Umformung der Bestandspanels**
   (kein Panel-Duplikat): `.shell-sidebar`/`.stp-flyout`/neuer `.vc-sheet` teilen ein Sheet-
@@ -126,7 +135,7 @@ Reihenfolge folgt Handoff §17. Später-Sessions bauen auf früheren auf — **n
 - [x] **S8** — SettingsPanel → Rail-Flyout — `09-settings-flyout.md` ✅ (Frame 2f: `left:100px`, Raum-Slider/Swatches, Manifest-Presets, Key-Caps, Footer mit Farben-Reset + Lizenzen→LicenseModal; kein `room`-Slice; Sichtprüfung offen)
 - [x] **S9** — Footer + LicenseModal + LoadingScreen + Branding/Favicon — `10-footer-modal-loading.md` ✅ (§9.9-Fuß + BP3D-Zeile, §9.10-Modal mit Fokus-Trap als Body-Portal, §9.11-LoadingScreen + `loading`-Slice/ADR 0008, §15-Favicons + Manifest; Sichtprüfung offen)
 - [x] **S10** — Mobile: Bottom-Sheets + Tab-Leiste + Safe-Area — `11-mobile-sheets.md` ✅ (≤768px: Sidebar/Settings/Ansicht als Bottom-Sheets per Media-Query aus den Bestandspanels, untere Tab-Leiste statt Rail, `mobileSheet`-Store-Feld/ADR-0006-Nachtrag, Safe-Area-Insets, `responsive.css`; Sichtprüfung offen)
-- [ ] **S11** — A11y- & Motion-Feinschliff (Querschnitt) — `12-a11y-motion.md`
+- [x] **S11** — A11y- & Motion-Feinschliff (Querschnitt) — `12-a11y-motion.md` ✅ (Fokus-Ring `2px --focus-ring` blau via `:focus-visible` projektweit in base.css + Slider/Suche; universelle reduced-motion-Abschaltung; ESC schließt Flyout/Sheet mit Fokus-Rückgabe; aria/role/Modal-Trap auditiert; **Serie S0–S11 komplett**; Sichtprüfung offen)
 
 ## Abhängigkeits-Graph (kurz)
 

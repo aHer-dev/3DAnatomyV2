@@ -7,6 +7,30 @@ Format: [Keep a Changelog](https://keepachangelog.com/de/1.0.0/)
 
 ## [Unreleased]
 
+### Changed (Redesign „Variante B" — S11 A11y- & Motion-Feinschliff, Serien-Abschluss)
+- **Sichtbarer, konsistenter Fokus-Ring (§14):** genau EINE projektweite Wahl —
+  `2px solid var(--focus-ring)` (Blau `#4a9eff`), nur bei Tastatur-Fokus (`:focus-visible`),
+  global in `base.css`. Elemente, die `outline` selbst abschalten (Slider in Struktur-/Info-/
+  Settings-Panel, Suchpille), setzen den Ring lokal neu (`:focus-visible` bzw.
+  `.sb-search__wrap:has(.sb-search__input:focus-visible)`). Ring-Entscheidung im Index festgehalten.
+- **`prefers-reduced-motion:reduce` schaltet ALLE Bewegung ab (§11/§14):** universelle Regel in
+  `base.css` (`*,*::before,*::after { animation-duration:.01ms; transition-duration:.01ms;
+  animation-iteration-count:1 !important }`) als Sicherheitsnetz über der token-basierten
+  Abschaltung — fängt auch hartkodierte `ease`-Kurven (Foto-Modus, Loading-Fade/Fortschritt,
+  Toasts), die `--transition-smooth:none` bisher nicht erreichte. Loading-Ring bleibt aus.
+- **Tastatur-Bedienung/Fokus-Management:** ESC schließt das Settings-Flyout bzw. das offene
+  Mobile-Sheet und gibt den Fokus an das auslösende Bedienelement zurück (Rail-⚙ / Tab-Leiste,
+  je nach Breakpoint sichtbar). LicenseModal-Trap (role=dialog/aria-modal, Tab-Zirkel, ESC,
+  Fokus-Rückgabe) fängt ESC weiterhin zuerst ab.
+- **Audit bestätigt (kein Code nötig):** alle Icon-Buttons haben `aria-label` oder Text-Label;
+  Sichtbarkeits-Toggle (StructureBrowser) ist `role="switch"` + `aria-checked`; genau eine
+  Motion-Kurve. `--focus-ring` war bislang definiert, aber ungenutzt — jetzt projektweit aktiv.
+- Verifiziert: `test` 41 grün · `lint` · `tsc` · `build` sauber. Headless: reduced-motion
+  schaltet Transitions/Animationen auf `~0s`; ESC schließt Flyout + Fokus kehrt zum ⚙ zurück;
+  Fokus-Ring-Regel matcht + `--focus-ring` löst auf (Ring-Rendering headless nicht per Pixel
+  prüfbar — nativer Fokus-Ring wird am Compositor gezeichnet; in echten Browsern greift die Regel).
+- **Redesign-Serie „Variante B" (S0–S11) abgeschlossen.**
+
 ### Changed (Redesign „Variante B" — S10 Mobile: Bottom-Sheets + Tab-Leiste + Safe-Area)
 - **Schmal-Screen ≤768px (§13, Pflicht):** seitliche Sidebar → **Bottom-Sheet**, Icon-Rail →
   **untere Tab-Leiste**, `viewport-fit=cover`-Safe-Area-Insets greifen. Neue zentrale
