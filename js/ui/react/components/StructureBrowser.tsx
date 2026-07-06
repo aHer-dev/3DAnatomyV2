@@ -1,8 +1,7 @@
 import React, { useCallback, useTransition } from 'react'
 import { useReactStore } from '../useReactStore.js'
 import { getGroupLabel, sortGroups, ENABLED_GROUPS } from '../groupLabels.js'
-import { loadGroupByName } from '../../../features/modelLoader-core.js'
-import { unloadGroupSilent } from '../../../bootstrap/initGroupLoader.js'
+import { loadGroupByName, unloadGroupSilent } from '../../../features/modelLoader-core.js'
 import { setGroupOpacity } from '../../../features/appearance.js'
 import { getStore } from '../../../store/useStore.js'
 

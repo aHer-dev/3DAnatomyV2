@@ -28,6 +28,8 @@ interface AppConfig {
     maxModelsInMemory: number
     maxFPS: number
     adaptiveQuality: boolean
+    /** Gruppen aus gepackter <group>.bundle.glb laden, falls vorhanden (ADR 0009) */
+    useBundles: boolean
     memoryWarningThreshold: number
     autoGarbageCollection: boolean
     networkOptimization: {
@@ -88,6 +90,7 @@ export const APP_CONFIG: AppConfig = {
     maxModelsInMemory: 100,
     maxFPS: 60,
     adaptiveQuality: true,
+    useBundles: true,
     memoryWarningThreshold: 80,
     autoGarbageCollection: true,
     networkOptimization: {

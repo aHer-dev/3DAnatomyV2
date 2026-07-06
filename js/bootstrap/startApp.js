@@ -30,14 +30,11 @@ import { initCameraView } from './initCameraView.js';
 import { handleMuskelfinderDeeplink } from '../integration/muskelfinderDeeplink.js';
 import { processDeeplink, setupDeeplinkSync } from '../integration/deeplink.js';
 
-import { initDynamicGroupLoading } from './initGroupLoader.js';
-
 import { initRoomSettings } from '../features/roomSettings.js';
 import { updateModelColors } from '../modelLoader/color.js';
 
 import { updatePerformanceMonitor } from '../debug/performanceMonitor.js';
 import { showLoadingCircle, updateLoadingCircle } from '../modelLoader/progress.js';
-import '../utils/migration-helper.js';
 import { lifecycle } from '../core/lifecycle.js';
 import { registerRequestRender } from '../core/renderScheduler.js';
 
@@ -205,12 +202,7 @@ export async function startApp() {
         setupDeeplinkSync();
         await processDeeplink();
 
-        // 9) Button-Animationen erst ganz am Ende
-        if (!previewMode) {
-            initDynamicGroupLoading();
-        }
-
-        // 10) Render-Loop (zentral)
+        // 9) Render-Loop (zentral)
         // ✅ Jetzt ist wirklich alles fertig → 100 % setzen
         updateLoadingCircle(100);
 

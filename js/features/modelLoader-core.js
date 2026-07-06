@@ -9,7 +9,8 @@ import { renderer } from '../core/renderer.js';
 import { controls } from '../core/controls.js';
 import { fitCameraToScene } from '../core/cameraUtils.js';
 import { modelPath, withBase } from '../core/path.js';
-import { registerPickables } from '../features/selection.js';
+import { registerPickables, unregisterPickables } from '../features/selection.js';
+import { disposeObject3D } from '../modelLoader/cleanup.js';
 import { getShadowFlagsForGroup, setGroupOpacity } from '../features/appearance.js';
 import { updateModelColors } from '../modelLoader/color.js';
 import { getStore, INITIAL_COLORS, DEFAULT_COLOR } from '../store/useStore.js';
@@ -226,7 +227,75 @@ export function loadSingleModel(entry, group, scene, loader) {
 }
 
 /**
- * Gruppe per Namen laden (nutzt Meta/State)
+ * Existenz-Probe für ein Gruppen-Bundle. HEAD-Request, damit ein fehlendes
+ * Bundle keinen 404-Ladefehler im Loader auslöst (ADR 0009).
+ */
+async function bundleExists(url) {
+  try {
+    const res = await fetch(url, { method: 'HEAD' });
+    return res.ok;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Gruppe aus einer gepackten <group>.bundle.glb laden (1 Request statt N, ADR 0009).
+ * Jeder Wrapper-Node (Name = Teil-Basename) wird exakt wie ein einzeln geladenes
+ * Modell eingerichtet und in Szene + Store gehängt — der Szenegraph ist äquivalent
+ * zum Einzel-Ladepfad, Picking/Farbe/Deckkraft pro Teil bleiben erhalten.
+ */
+async function loadGroupBundle(groupName, bundleUrl, loader) {
+  const entries = getStore().groupedMeta?.[groupName] ?? [];
+  const byBase = new Map();
+  for (const e of entries) {
+    const variant = e?.model?.variants?.[e?.model?.current || 'draco'];
+    const fn = variant?.filename || e?.filename;
+    if (fn) byBase.set(fn.replace(/\.[^/.]+$/, ''), e);
+  }
+
+  showLoadingBar();
+  const gltf = await loader.loadAsync(bundleUrl);
+  updateLoadingBar(60);
+
+  // Snapshot: scene.add() hängt die Nodes um → Kinder-Liste würde sonst mutieren.
+  const parts = [...(gltf?.scene?.children ?? [])];
+  let loaded = 0;
+  let unmapped = 0;
+
+  for (const model of parts) {
+    const entry = byBase.get(model.name) ?? null;
+    if (!entry) { unmapped++; continue; }
+
+    model.name = entry.id || model.name;
+    model.userData.meta = entry;
+    model.userData.group = groupName;
+    model.userData.isModelRoot = true;
+    model.userData.entry = entry;
+
+    prepareForShadows(model, groupName);
+    model.traverse((ch) => {
+      if (!ch.isObject3D) return;
+      ch.layers.enable(0);
+      ch.layers.enable(1);
+    });
+
+    registerPickables(model);
+    getStore().addGroupModel(groupName, model);
+    scene.add(model);
+    loaded++;
+  }
+
+  updateLoadingBar(100);
+  hideLoadingBar();
+
+  if (unmapped) console.warn(`⚠️ Bundle "${groupName}": ${unmapped} Teile ohne Meta übersprungen.`);
+  console.log(`✅ Bundle "${groupName}" geladen (${loaded} Teile, 1 Request)`);
+}
+
+/**
+ * Gruppe per Namen laden (nutzt Meta/State). Bevorzugt ein gepacktes Gruppen-Bundle
+ * (ADR 0009), fällt sonst auf den Einzel-Datei-Pfad zurück.
  */
 export async function loadGroupByName(groupName, { centerCamera = false, loaderReuse = null } = {}) {
   try {
@@ -239,7 +308,22 @@ export async function loadGroupByName(groupName, { centerCamera = false, loaderR
     }
 
     const loader = loaderReuse ?? createGLTFLoader();
-    await loadModels(entries, groupName, centerCamera, scene, loader, camera, controls, renderer);
+
+    const useBundles = getConfig('performance.useBundles', true);
+    const bundleUrl = useBundles ? modelPath(`${groupName}.bundle.glb`, groupName) : null;
+
+    if (bundleUrl && (await bundleExists(bundleUrl))) {
+      await loadGroupBundle(groupName, bundleUrl, loader);
+      if (centerCamera) {
+        try {
+          await fitCameraToScene(camera, controls, renderer, scene);
+        } catch (err) {
+          console.error('❌ Kamera-Fit (Bundle) fehlgeschlagen:', err);
+        }
+      }
+    } else {
+      await loadModels(entries, groupName, centerCamera, scene, loader, camera, controls, renderer);
+    }
 
     // ✅ FIX: Farbe für ALLE Gruppen anwenden, nicht nur bones/teeth
     const hex = getStore().colors?.[groupName] ?? INITIAL_COLORS[groupName] ?? DEFAULT_COLOR;
@@ -259,6 +343,25 @@ export async function loadGroupByName(groupName, { centerCamera = false, loaderR
   } catch (err) {
     console.error(`❌ loadGroupByName: Fehler beim Laden von "${groupName}":`, err);
   }
+}
+
+
+/**
+ * Gruppe geräuschlos entladen – aus Szene entfernen, Ressourcen freigeben,
+ * Pickables abmelden und State aktualisieren. Ohne UI-Feedback (Toasts/Buttons);
+ * die React-UI stellt den Fortschritt selbst dar.
+ */
+export async function unloadGroupSilent(groupName) {
+  const models = getStore().groups[groupName] ?? [];
+  if (!models.length) return;
+
+  for (const model of models) {
+    unregisterPickables(model);
+    scene.remove(model);
+    disposeObject3D(model);
+  }
+  getStore().unloadGroup(groupName);
+  getStore().setGroupVisible(groupName, false);
 }
 
 
