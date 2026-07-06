@@ -27,6 +27,11 @@ const DIRS = [
   { id: 'right',     label: 'Re',   title: 'Von rechts'             },
 ];
 
+// Unten reservierter Streifen auf Mobile = Footprint der Tab-Leiste (S10):
+// bottom-Abstand 16 + Bar-Höhe (Button 52 + 2×8 Padding = 68) = 84px. Damit
+// bleiben Rahmen/Auslöser/Vignette über der Tab-Leiste (Safe-Area vernachlässigt).
+const MOBILE_TABBAR_H = 84;
+
 // ─── Zustand ─────────────────────────────────────────────────────────────────
 
 let _active        = false;
@@ -203,9 +208,9 @@ function _updateFrame() {
   let margin, topOffset, rightBound, bottomBound;
 
   if (mobile) {
-    // Sidebar oben → freier Bereich: unter der Sidebar, über der Toolbar-Bar
+    // Sidebar oben → freier Bereich: unter der Sidebar, über der Tab-Leiste
     const sbH      = _sidebar ? (_sidebar.offsetHeight || 60) : 60;
-    const toolbarH = 72; // Toolbar-Bar Höhe auf Mobile
+    const toolbarH = MOBILE_TABBAR_H;
     margin      = 16;
     topOffset   = sbH + margin;
     bottomBound = vh - toolbarH - margin;
@@ -240,8 +245,8 @@ function _updateFrame() {
   const vLeft   = _overlay.querySelector('.photo-vignette-left');
   const vRight  = _overlay.querySelector('.photo-vignette-right');
 
-  // Auf Mobile: untere Vignette stoppt vor der Toolbar-Bar, damit ☰ sichtbar bleibt
-  const toolbarH = mobile ? 72 : 0;
+  // Auf Mobile: untere Vignette stoppt vor der Tab-Leiste, damit sie sichtbar bleibt
+  const toolbarH = mobile ? MOBILE_TABBAR_H : 0;
   if (vTop)    { vTop.style.cssText    = `left:0;right:0;top:0;height:${frameTop}px`; }
   if (vBottom) { vBottom.style.cssText = mobile
     ? `left:0;right:0;top:${frameTop + frameH}px;height:${Math.max(0, vh - toolbarH - (frameTop + frameH))}px`
@@ -263,7 +268,7 @@ function _updateFrame() {
   const shutterGap = mobile ? 14 : 18;
   if (shutter) {
     let sy = frameTop + frameH + shutterGap;
-    const maxY = mobile ? (vh - 72 - shutterH - 8) : (vh - 12 - shutterH);
+    const maxY = mobile ? (vh - MOBILE_TABBAR_H - shutterH - 8) : (vh - 12 - shutterH);
     if (sy + shutterH > maxY) {
       sy = Math.max(frameTop + 10, frameTop + frameH - shutterH - 12);
     }

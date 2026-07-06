@@ -22,9 +22,9 @@ function handleDir(id: string) {
   requestRender(4)
 }
 
-export function ViewCluster() {
+export function ViewCluster({ flyoutOpen = false }: { flyoutOpen?: boolean } = {}) {
   return (
-    <div className="vc-bar" role="toolbar" aria-label="Kamera-Ansichten">
+    <div className={`vc-bar${flyoutOpen ? ' vc-bar--flyout-open' : ''}`} role="toolbar" aria-label="Kamera-Ansichten">
       <span className="vc-label">Ansicht</span>
       {VIEW_DIRS.map(({ id, label, title }) => (
         <button key={id} className="vc-btn" title={title} onClick={() => handleDir(id)}>{label}</button>

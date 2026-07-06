@@ -15,9 +15,6 @@
 /* 3. Layout */
 @import 'layout/app.css';
 
-/* 4. Controls sidebar */
-@import 'controls/search.css';
-
 /* 5. Components */
 @import 'components/loading-screen.css';
 @import 'components/photo-mode.css';

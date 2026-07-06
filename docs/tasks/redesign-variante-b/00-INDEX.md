@@ -42,10 +42,14 @@ rechts). Three.js/Canvas und der Store-Kontrakt bleiben unangetastet (nur Store 
 - **Perf-Kontext (wichtig für alle folgenden Sessions):** Die App ist auf schwacher Hardware
   Draw-Call-/Blur-limitiert. **Keine neuen dauerhaft sichtbaren `backdrop-filter`-Flächen**
   oder Viele-DOM-Blur-Elemente über dem Canvas einführen. Details: ADR 0007 + `project_perf_glass_blur`.
-- **NÄCHSTER SCHRITT: keiner mehr** — Serie S0–S11 abgeschlossen. Offen: Nutzer-Sichtprüfung
-  S9–S11; danach Branch `refactor/ui-consolidation` → `main` mergen. Restliche Roh-Kanten
-  (Multi-Highlight Alt-Blau `0x1a1a4a`, Reset-Overlay-Styling, `photoMode.js toolbarH`,
-  ungenutzte `controls/search.css`) sind separate Mini-Tasks außerhalb der Serie.
+- **NÄCHSTER SCHRITT: keiner mehr** — Serie S0–S11 abgeschlossen + Feinschliff-Reste aufgeräumt.
+  Offen: Nutzer-Sichtprüfung S9–S11; danach Branch `refactor/ui-consolidation` → `main` mergen.
+- **Feinschliff nach der Serie (erledigt, außerhalb S0–S11):** Reset-Overlay entbrandet →
+  gebrandeter LoadingScreen via `loading`-Slice (`ui-reset.js`); Multi-Highlight `0x1a1a4a` →
+  `0x662a00` (Accent, `multiSelect.js`); Settings-Flyout↔ViewCluster-Überlappung behoben
+  (Cluster weicht rechts aus, `left: calc((444px + 100vw)/2)`); `photoMode.js` `toolbarH`
+  72 → `MOBILE_TABBAR_H = 84`; tote `css/controls/search.css` entfernt. Verbleibend als echte
+  Roh-Kanten: Esc-Geister-Selektion aus `pickAt()` (siehe unten).
 - **Fokus-Ring-Entscheidung (S11, §14):** projektweit **`2px solid var(--focus-ring)` (Blau
   `#4a9eff`), nur `:focus-visible`**, global in `base.css`. Blau statt `--accent` = klare Trennung
   vom orangen Aktiv-Zustand; §14 nennt `--focus-ring` explizit. Kein neuer ADR (kleine
@@ -68,15 +72,11 @@ rechts). Three.js/Canvas und der Store-Kontrakt bleiben unangetastet (nur Store 
   LoadingScreen — sonst kein Ladeindikator im Preview); LicenseModal als **Portal an
   `document.body`** (backdrop-filter-Panels = Containing Block für `position:fixed`);
   Footer behält BP3D-Attributionszeile (CC-BY-Pflicht, ADR 0005).
-- **Bewusste Roh-Kanten** (jeweils in eigener Session): `photoMode.js` hat noch `toolbarH=72`
-  (in S10 **bewusst nicht angefasst** — nicht in der Briefing-Dateiliste; die neue Tab-Leiste
-  ist ~68px, daher weiterhin passend; Kandidat S11). Esc-Shortcut nach Multi-Auswahl lässt die
-  Geister-Selektion aus `pickAt()`
-  stehen (Info-Tab bleibt leer offen — Panel-Aktionen sind gefixt, `interaction/index.js`
-  bewusst nicht angefasst). Offenes Settings-Flyout überlappt auf 1440px den linken Rand des
-  ViewClusters um ~19px (Cluster `left:41%` aus 2a–2e vs. Flyout-Breite aus 2f — 2f zeigt
-  keinen Cluster; Kandidat S11-Feinschliff). Reset-Overlay in `ui-reset.js` ist noch
-  Alt-Styling (grün/Arial, injiziertes CSS) — Kandidat S11/Mini-Task.
+- **Verbleibende Roh-Kante:** Esc-Shortcut nach Multi-Auswahl lässt die Geister-Selektion aus
+  `pickAt()` stehen (Info-Tab bleibt leer offen — Panel-Aktionen sind gefixt, `interaction/index.js`
+  bewusst nicht angefasst). *(Erledigt im Feinschliff: `photoMode.js toolbarH` → 84,
+  Flyout↔ViewCluster-Überlappung, Reset-Overlay entbrandet, Multi-Highlight Accent,
+  tote `controls/search.css` — siehe Feinschliff-Bullet oben.)*
 - **Arbeitsweise:** immer nur die im jeweiligen `NN-*.md` genannten Dateien anfassen, Abschluss =
   test+build grün + CHANGELOG + Kästchen unten abhaken.
 

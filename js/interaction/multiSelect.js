@@ -3,7 +3,10 @@ import * as THREE from 'three';
 import { getStore } from '../store/useStore.js';
 import { getStructureDisplayLabel } from '../utils/anatomyLabels.js';
 
-const HIGHLIGHT_MULTI = 0x1a1a4a;
+// Emissiver Highlight für Mehrfachauswahl = Marken-Accent (#ff6a00), auf ~40 %
+// gedämpft für die Selbstleuchtung (Intensität ~ wie der neutrale Einzel-
+// Highlight 0x222222). Ersetzt das Alt-Blau 0x1a1a4a (Variante-B-Rebranding).
+const HIGHLIGHT_MULTI = 0x662a00;
 
 function _getName(model) {
     return getStructureDisplayLabel(model) || model.name || '?';

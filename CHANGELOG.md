@@ -7,6 +7,33 @@ Format: [Keep a Changelog](https://keepachangelog.com/de/1.0.0/)
 
 ## [Unreleased]
 
+### Changed (Redesign „Variante B" — Feinschliff nach der Serie: Alt-Styling-Reste)
+- **Reset-Overlay entbrandet → gebrandeter LoadingScreen wiederverwendet** (`ui-reset.js`):
+  das injizierte Alt-Overlay (grüner `#4CAF50`-Spinner, Arial, hartkodiertes `<style>`) entfällt;
+  `resetApp()` treibt jetzt den `loading`-Store-Slice (`showLoading`/`setLoadingProgress`/
+  `hideLoading`, §9.11/ADR 0008) → derselbe Marken-Ladebildschirm wie beim Start. Store-Actions
+  direkt (nicht `progress.js`) → kein `circleOverlayHidden`-Dispatch, keine Kollision mit dem
+  Initial-Load. ~65 Zeilen injiziertes DOM/CSS gelöscht.
+- **Multi-Highlight im Canvas auf Marken-Accent** (`multiSelect.js`): emissiver
+  Mehrfachauswahl-Highlight `0x1a1a4a` (Alt-Blau) → `0x662a00` (Accent `#ff6a00`, ~40 % gedämpft,
+  Intensität ~ wie der neutrale Einzel-Highlight `0x222222`).
+- **Settings-Flyout ↔ ViewCluster-Überlappung behoben** (`ViewCluster.tsx` + `view-cluster.css`):
+  bei offenem Flyout (rechte Kante 424px) weicht der Cluster breitenunabhängig in die freie
+  Canvas-Fläche rechts davon aus (`left: calc((444px + 100vw)/2)`, animiert) — vorher ~19px
+  Überlappung auf 1440px. Prop `flyoutOpen` aus `AppShell` (nur Desktop-Float; mobiles
+  Ansicht-Sheet unberührt).
+- **Fotomodus an die neue Tab-Leiste angepasst** (`photoMode.js`): mobile Reserve-Höhe
+  `toolbarH` `72` → Konstante `MOBILE_TABBAR_H = 84` (Tab-Leiste: 16px Abstand + 68px Höhe),
+  an allen drei Stellen (Frei-Bereich, untere Vignette, Auslöser-Grenze).
+- **Tote `css/controls/search.css` entfernt** (nur `#search-bar`-Regeln der abgelösten
+  Alt-Suche, inkl. hartkodiertem Blau `#4A9EFF`) + Import aus `main.css`; leerer `css/controls/`.
+- **Fotomodus von Alt-Blau auf Marken-Accent umgebrandet** (`photo-mode.css`): alle
+  `rgba(74,158,255,…)`/`#4A9EFF` (Rahmen, Glow, Eck-Marken, Format-Label, Sidebar-Buttons,
+  Auslöser-Blitz) → `color-mix(in srgb, var(--accent) N%, transparent)` bzw. `var(--accent)`.
+- Verifiziert: `test` 41 grün · `lint` · `tsc` · `build` sauber (CSS/JS kleiner). Headless:
+  Reset zeigt den Marken-LoadingScreen (kein Alt-Overlay), ViewCluster weicht dem Flyout aus
+  (clusterLeft 688 > 424) und stellt sich beim Schließen zurück.
+
 ### Changed (Redesign „Variante B" — S11 A11y- & Motion-Feinschliff, Serien-Abschluss)
 - **Sichtbarer, konsistenter Fokus-Ring (§14):** genau EINE projektweite Wahl —
   `2px solid var(--focus-ring)` (Blau `#4a9eff`), nur bei Tastatur-Fokus (`:focus-visible`),

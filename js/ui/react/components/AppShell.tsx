@@ -235,8 +235,9 @@ export function AppShell() {
       </aside>
 
       {/* ── Unten-mittig: Ansichts-Cluster, in der Isolation der Untertitel (Frame 2e).
-             Mobil ist der Float-Cluster ausgeblendet (→ „Ansicht"-Sheet). ── */}
-      {isolationActive ? <IsolationSubtitle /> : <ViewCluster />}
+             Mobil ist der Float-Cluster ausgeblendet (→ „Ansicht"-Sheet). Bei offenem
+             Settings-Flyout weicht der Cluster nach rechts aus (sonst ~19px Überlappung). ── */}
+      {isolationActive ? <IsolationSubtitle /> : <ViewCluster flyoutOpen={openFlyout === 'settings'} />}
 
       {/* ── Settings-Flyout links neben der Rail (S8, Frame 2f) · mobil als Sheet ── */}
       {openFlyout === 'settings' && <SettingsPanel onClose={closeFlyout} />}
