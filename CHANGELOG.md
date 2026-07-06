@@ -7,6 +7,51 @@ Format: [Keep a Changelog](https://keepachangelog.com/de/1.0.0/)
 
 ## [Unreleased]
 
+### Added (Perf — Asset-Bündelung pro Gruppe, ADR 0009)
+- **`scripts/bundle-groups.mjs`** (npm: `bundle:groups`): packt die Einzel-Draco-GLB einer
+  Gruppe zu **einer `<group>.bundle.glb`** + `<group>.bundle.json` (Manifest der Teil-IDs).
+  Jede Quell-Datei → ein benannter Wrapper-Node (Name = Basename = Teil-ID); Materialien
+  **nicht** dedupliziert → per-Teil-Farbe/Deckkraft bleibt. `@gltf-transform` + Draco-CLI.
+- **Loader-Bundle-Pfad** (`modelLoader-core.js`): `loadGroupByName` prüft per HEAD, ob ein
+  Bundle existiert → lädt es in **1 Request** und richtet jeden Wrapper-Node exakt wie ein
+  einzeln geladenes Modell ein (Meta, Pickable, Store, Schatten, Layers). Szenegraph
+  äquivalent zum Einzel-Ladepfad → **Picking/Selektion/Farbe unverändert** (Pick-Auflösung
+  läuft über `isModelRoot` zum Wrapper). Fehlt ein Bundle → unveränderter Einzel-Datei-Pfad.
+  Kill-Switch `performance.useBundles` (Default `true`) in `config.ts`.
+- **Bundles erzeugt** für Startup- + Fokus-Set: bones (207→1, −31 %), muscles (464→1, −34 %),
+  cartilage (60→1), teeth (30→1), ligaments (28→1). **Startup: 297 Datei-Requests → 3.**
+- Verifiziert: `tsc`/`lint`/`test` (41) grün · `build` ohne Warnungen (5 Bundles im `dist/`) ·
+  Manifest→Meta 100 % gemappt (789/789 Teile) · Dev-Server nimmt den Bundle-Pfad (HEAD 200).
+  **Offen (Nutzer):** visueller Klick-Test im GPU-Browser (Auswahl/Highlight einer Struktur).
+
+### Removed (Aufräumen — Migrations-Altlasten & toter Code)
+- **`initGroupLoader.js` gelöscht.** Die Datei band Klick-Handler an `btn-load-*`-Buttons,
+  die es in der React-UI nicht mehr gibt (verifiziert: einzige `btn-load-`-Referenz war die
+  Datei selbst). `initDynamicGroupLoading()` lief bei jedem Start zweimal (aus `app.js` und
+  `startApp.js`), band ins Leere und produzierte ~34 `console.warn`-Zeilen. Enthielt außerdem
+  `alert()`-Dialoge und inline-gestylte Emoji-Toasts (Alt-Stil neben der React-UI). Die einzige
+  noch genutzte Funktion, `unloadGroupSilent`, ist nach `features/modelLoader-core.js` gewandert
+  (zum Gegenstück `loadGroupByName`); Importe in `AppShell.tsx` und `StructureBrowser.tsx`
+  entsprechend gebündelt.
+- **`utils/migration-helper.js` gelöscht.** JS→TS-Migrations-Scaffolding. Außer `safeInit`
+  (reiner Diagnose-Selbsttest via dynamischer Imports + `console.table`, gatete nichts) waren
+  alle Exporte ungenutzt. `safeInit`-Aufruf aus `app.js` und der wirkungslose Side-Effect-Import
+  aus `startApp.js` entfernt. War zudem Quelle einer Rollup-Chunk-Warnung.
+- **5 verwaiste Module gelöscht** (madge + präzise Import-Prüfung, nirgends importiert):
+  `core/events.js` (ungenutzter EventBus), `modelLoader/index.js` (alter URL-Resolver, abgelöst
+  von `modelLoader-core.js`), `utils/cameraClipping.js`, `utils/index.js` (Barrel), `utils/utils.js`.
+
+### Changed (Aufräumen — Build/Perf-Politur)
+- **Prod-Build strippt Entwickler-Logs** (`vite.config.js`): `esbuild.pure` entfernt
+  `console.log/debug/info` beim Minify; `console.warn/error` bleiben. Dev-Server (kein Minify)
+  zeigt weiter alle Logs.
+- **Vendor-Code-Splitting** (`vite.config.js`, `manualChunks`): Three (~600 KB) und React in
+  eigene, selten wechselnde Chunks → besseres Browser-Caching. **App-Chunk 989 KB → 146 KB**
+  (gzip 274 → 43 KB); Rest liegt in `three`/`react`/`vendor`.
+- Beide vorherigen Build-Warnungen (mixed static/dynamic import) beseitigt.
+- Verifiziert: `tsc` · `lint` · `test` (41 grün) · `build` **ohne Warnungen** · Dev-Server bootet,
+  Einstieg + verschobenes Modul transformieren fehlerfrei (HTTP 200).
+
 ### Changed (Redesign „Variante B" — Feinschliff nach der Serie: Alt-Styling-Reste)
 - **Reset-Overlay entbrandet → gebrandeter LoadingScreen wiederverwendet** (`ui-reset.js`):
   das injizierte Alt-Overlay (grüner `#4CAF50`-Spinner, Arial, hartkodiertes `<style>`) entfällt;

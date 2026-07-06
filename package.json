@@ -12,6 +12,7 @@
     "lint": "eslint js/ app.js",
     "format": "prettier --write \"js/**/*.js\" \"app.js\"",
     "build:muskelfinder-map": "node scripts/build-muskelfinder-map.js",
+    "bundle:groups": "node scripts/bundle-groups.mjs",
     "qc:models": "node scripts/qc-models.mjs"
   },
   "dependencies": {
