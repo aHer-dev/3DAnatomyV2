@@ -160,13 +160,14 @@
           technisch notwendige Verbindungsdaten wie IP-Adressen durch den Hosting-Anbieter verarbeitet werden.
         </p>
         <p>
-          Zusätzlich lädt die 3D-App derzeit Teile ihrer 3D-Bibliothek über <strong>jsDelivr</strong>. Auch hierbei
-          entstehen technisch notwendige externe Abrufe.
+          Darüber hinaus lädt die App <strong>keine Inhalte von fremden Servern</strong>. Die 3D-Bibliothek
+          (three.js), Schriften und alle weiteren Ressourcen werden mit der Anwendung ausgeliefert und von
+          derselben Domain geladen — ein Abruf über ein externes CDN findet nicht statt. Eine
+          Content-Security-Policy (<code>default-src 'self'</code>) setzt das technisch durch.
         </p>
         <ul>
           <li><a href="https://docs.github.com/en/pages/getting-started-with-github-pages/what-is-github-pages" target="_blank" rel="noopener noreferrer">GitHub Pages</a></li>
           <li><a href="https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement" target="_blank" rel="noopener noreferrer">GitHub Privacy Statement</a></li>
-          <li><a href="https://www.jsdelivr.com/terms/privacy-policy" target="_blank" rel="noopener noreferrer">jsDelivr Terms & Policies</a></li>
         </ul>
       </section>
 

@@ -128,7 +128,8 @@ export function LicenseModal({ onClose }: LicenseModalProps) {
         <p className="lic-note">
           Diese Seite ist eine <strong>statische</strong> Auslieferung ohne Login und ohne integriertes Analyse-Tracking.
           Für die App-Funktion werden jedoch lokale Browser-Speicherungen genutzt, und bei öffentlicher Bereitstellung
-          entstehen technisch notwendige Abrufe an GitHub Pages sowie derzeit an jsDelivr.
+          entstehen technisch notwendige Abrufe an den Hosting-Anbieter (GitHub Pages). Inhalte von fremden
+          Servern werden nicht geladen.
           Mehr Details stehen unter{' '}
           <a href="./quellen-lizenzen.html">Quellen &amp; Lizenzen</a> und{' '}
           <a href="./datenschutz.html">Datenschutz</a>.

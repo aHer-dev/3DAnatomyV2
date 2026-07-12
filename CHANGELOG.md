@@ -7,6 +7,17 @@ Format: [Keep a Changelog](https://keepachangelog.com/de/1.0.0/)
 
 ## [Unreleased]
 
+### Fixed (Datenschutz — veraltete jsDelivr-Aussage)
+- **Datenschutzerklärung und Lizenz-Dialog behaupteten einen Datenabfluss, den es nicht gibt.**
+  Beide sagten, die App lade „derzeit Teile ihrer 3D-Bibliothek über jsDelivr". Das galt für die
+  alte, nicht gebündelte Version (Import-Map → `cdn.jsdelivr.net`). Seit der Vite-Migration ist
+  three.js eine npm-Abhängigkeit und wird lokal ins Bundle gebaut; die CSP (`default-src 'self'`)
+  verbietet externe Abrufe ohnehin technisch. Eine Datenschutzerklärung, die eine Übermittlung an
+  einen Dritten deklariert, die gar nicht stattfindet, ist sachlich falsch — jetzt korrigiert:
+  „Inhalte von fremden Servern werden nicht geladen", inkl. Hinweis auf die CSP. Der jsDelivr-Link
+  in der Empfänger-Liste ist entfernt.
+  Verifiziert am echten Build: null externe Hosts, keine CSP-Verstöße.
+
 ### Added (Perf — BatchedMesh-Rendering pro Gruppe, ADR 0007 Phase 1)
 - **`js/core/groupBatch.js`**: `GroupBatch` kapselt ein `THREE.BatchedMesh` pro Gruppe
   (Geometrie-Normalisierung auf position+normal, `addGeometry`/`addInstance`, Gruppenfarbe
