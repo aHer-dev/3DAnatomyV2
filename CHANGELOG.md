@@ -7,6 +7,16 @@ Format: [Keep a Changelog](https://keepachangelog.com/de/1.0.0/)
 
 ## [Unreleased]
 
+### Fixed (Assets — Logo und PWA-Icons luden auf GitHub Pages nicht)
+- **Das Logo (Rail + Ladebildschirm) war auf der veröffentlichten Seite tot.** Beide `<img>` zeigten
+  auf den absoluten Pfad `/assets/af-logo.png`. Die Seite liegt auf Pages aber unter
+  `/3DAnatomyV2/`, also fragte der Browser `aher-dev.github.io/assets/…` an → 404. Lokal fiel das
+  nie auf, weil der Dev-Server auf `/` läuft. Vite schreibt Pfade in HTML und CSS-`url()` beim Build
+  auf `base` um (Schriften waren deshalb nie betroffen) — **Laufzeit-Strings in JS/TSX aber nicht**.
+  Beide nutzen jetzt `import.meta.env.BASE_URL`, sind damit unabhängig vom Deploy-Pfad.
+- **`site.webmanifest`**: dieselbe Ursache (JSON in `public/` wird nicht verarbeitet), die drei
+  Icon-Pfade sind jetzt relativ zur Manifest-URL.
+
 ### Changed (Bühne — neutraler Standard-Hintergrund)
 - **Standard-Hintergrund der Szene ist jetzt `#0d0d0d` (rgb 13,13,13)** statt des Navy-Rests
   `#07062b`. Der sichtbare Hintergrund entsteht aus Raumfarbe × Umgebungslicht; der

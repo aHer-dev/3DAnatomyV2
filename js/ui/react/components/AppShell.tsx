@@ -157,7 +157,7 @@ export function AppShell() {
     <>
       {/* ── Icon-Rail (links) ── */}
       <nav className="shell-rail" aria-label="Werkzeuge">
-        <img className="shell-rail__logo" src="/assets/af-logo.png" alt="Anatomie Fokus" width={36} height={36} />
+        <img className="shell-rail__logo" src={`${import.meta.env.BASE_URL}assets/af-logo.png`} alt="Anatomie Fokus" width={36} height={36} />
 
         <div className="shell-rail__group">
           {railBtn('select', activeTool === TOOL.SELECT, 'Einzelauswahl', () => setTool(TOOL.SELECT))}
