@@ -1,4 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest'
+import type * as THREE from 'three'
 import store from './useStore.js'
 import type { CollectionItem, MetaEntry } from '../types/index.js'
 
@@ -22,6 +23,7 @@ const emptyState = () => ({
   metaByFile: {},
   collection: [],
   clickCounts: {},
+  loading: { active: false, progress: 0, label: '' },
 })
 
 beforeEach(() => {
@@ -159,6 +161,35 @@ describe('Appearance', () => {
     store.getState().setModelOpacity('FJ1234', -0.3)
     expect(store.getState().opacity['FJ1234']).toBe(0)
   })
+
+  it('setzt Layer-Transparenz (Röntgen) pro Gruppe und klemmt auf 0–1', () => {
+    store.getState().setGroupOpacity('muscles', 0.3)
+    expect(store.getState().groupOpacity['muscles']).toBe(0.3)
+
+    store.getState().setGroupOpacity('muscles', 1.5)
+    expect(store.getState().groupOpacity['muscles']).toBe(1)
+
+    store.getState().setGroupOpacity('muscles', -0.3)
+    expect(store.getState().groupOpacity['muscles']).toBe(0)
+  })
+})
+
+// ─── Einzelansicht (Isolation) ──────────────────────────────────────────────────
+
+describe('Einzelansicht', () => {
+  it('setzt und löscht den Isolations-Zustand inkl. Aktionsleiste', () => {
+    const mesh = mockMesh()
+    store.getState().setIsolation({
+      model: mesh,
+      actionBar: { primaryLabel: 'Zurück', onPrimary: () => {} },
+    })
+    expect(store.getState().isolation.model).toBe(mesh)
+    expect(store.getState().isolation.actionBar?.primaryLabel).toBe('Zurück')
+
+    store.getState().setIsolation({ model: null, actionBar: null })
+    expect(store.getState().isolation.model).toBeNull()
+    expect(store.getState().isolation.actionBar).toBeNull()
+  })
 })
 
 // ─── Pickables ────────────────────────────────────────────────────────────────
@@ -270,5 +301,96 @@ describe('resetAll', () => {
     expect(selected.root).toBeNull()
     expect(collection).toHaveLength(0)
     expect(multiSelected.size).toBe(0)
+  })
+})
+
+// ─── Overlay-UI (Layout B) ─────────────────────────────────────────────────────
+
+describe('Overlay-UI', () => {
+  it('startet mit Default-Tab „structures" und ohne Flyout', () => {
+    store.setState({ sidebarTab: 'structures', openFlyout: null })
+    expect(store.getState().sidebarTab).toBe('structures')
+    expect(store.getState().openFlyout).toBeNull()
+  })
+
+  it('wechselt den Sidebar-Tab', () => {
+    store.getState().setSidebarTab('info')
+    expect(store.getState().sidebarTab).toBe('info')
+    store.getState().setSidebarTab('collection')
+    expect(store.getState().sidebarTab).toBe('collection')
+  })
+
+  it('öffnet und schließt das Flyout exklusiv', () => {
+    store.getState().openFlyoutExclusive('settings')
+    expect(store.getState().openFlyout).toBe('settings')
+    store.getState().closeFlyout()
+    expect(store.getState().openFlyout).toBeNull()
+  })
+})
+
+// ─── Mobile-Sheets (§13 / S10) ──────────────────────────────────────────────────
+
+describe('Mobile-Sheets', () => {
+  beforeEach(() => {
+    store.setState({ mobileSheet: null, openFlyout: null })
+  })
+
+  it('startet ohne offenes Sheet', () => {
+    expect(store.getState().mobileSheet).toBeNull()
+  })
+
+  it('öffnet und schließt ein Sheet', () => {
+    store.getState().openMobileSheet('panel')
+    expect(store.getState().mobileSheet).toBe('panel')
+    store.getState().openMobileSheet('view')
+    expect(store.getState().mobileSheet).toBe('view')
+    store.getState().closeMobileSheet()
+    expect(store.getState().mobileSheet).toBeNull()
+  })
+
+  it('Sheet und Settings-Flyout schließen sich gegenseitig aus', () => {
+    store.getState().openFlyoutExclusive('settings')
+    store.getState().openMobileSheet('panel')
+    expect(store.getState().mobileSheet).toBe('panel')
+    expect(store.getState().openFlyout).toBeNull()
+
+    store.getState().openFlyoutExclusive('settings')
+    expect(store.getState().openFlyout).toBe('settings')
+    expect(store.getState().mobileSheet).toBeNull()
+  })
+})
+
+// ─── Laden (§9.11 / ADR 0008) ──────────────────────────────────────────────────
+
+describe('Loading', () => {
+  it('showLoading aktiviert mit Label und Fortschritt 0', () => {
+    store.setState({ loading: { active: false, progress: 55, label: '' } })
+    store.getState().showLoading('Testlabel')
+    expect(store.getState().loading).toEqual({ active: true, progress: 0, label: 'Testlabel' })
+  })
+
+  it('showLoading nutzt das Default-Label', () => {
+    store.getState().showLoading()
+    expect(store.getState().loading.label).toBe('3D-Modell wird geladen …')
+  })
+
+  it('setLoadingProgress klemmt auf 0..100', () => {
+    store.getState().showLoading('x')
+    store.getState().setLoadingProgress(65)
+    expect(store.getState().loading.progress).toBe(65)
+    store.getState().setLoadingProgress(150)
+    expect(store.getState().loading.progress).toBe(100)
+    store.getState().setLoadingProgress(-10)
+    expect(store.getState().loading.progress).toBe(0)
+  })
+
+  it('hideLoading deaktiviert, behält aber Fortschritt/Label', () => {
+    store.getState().showLoading('x')
+    store.getState().setLoadingProgress(100)
+    store.getState().hideLoading()
+    const { loading } = store.getState()
+    expect(loading.active).toBe(false)
+    expect(loading.progress).toBe(100)
+    expect(loading.label).toBe('x')
   })
 })

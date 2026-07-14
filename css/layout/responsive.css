@@ -1,307 +1,175 @@
-/* --- Mobile Optimierung --- */
-@media (max-width: 600px) {
+/* =========================================================================
+   Responsive / Mobile  ·  Handoff §13 (Pflicht), S10
+   Schmal-Screen ≤ 768px: seitliche Sidebar → Bottom-Sheet, Icon-Rail → untere
+   Tab-Leiste, Safe-Area-Insets (viewport-fit=cover). Die Panels werden per
+   Media-Query zu Sheets umgeformt — kein Duplikat der Panel-Logik. Nur Tokens.
 
-    /* Steuerungspanel: Am unteren Rand, vollbreit, nicht resizable */
-    #controls {
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        width: 40%;
-        /* Neu: Volle Breite für Mobile, statt 40% – besser für Usability */
-        max-height: 75vh;
-        overflow-y: auto;
-        border-radius: 10px 10px 0 0;
-        resize: none;
-        overflow-y: auto;
-        display: block;
-    }
+   Muss NACH allen Komponenten-Dateien geladen werden (siehe main.css), damit
+   die Sheet-Overrides bei gleicher Spezifität per Quellreihenfolge gewinnen.
+   ========================================================================= */
 
-    /* Sidebar: Als Overlay, vollbreit */
-    #search-bar {
-        width: 100%;
-        /* Volle Breite im Panel */
-        margin: 10px 0;
-        /* Abstand oben/unten */
-        position: relative;
-    }
-
-    #search-bar {
-        width: 90%;
-        padding: 8px;
-        margin-bottom: 15px;
-        border: none;
-        border-radius: 5px;
-        background-color: #222222;
-        color: white;
-        font-size: 14px;
-    }
-
-    #search-results {
-        position: absolute;
-        /* Bleibt absolut zur Bar */
-        top: calc(100% + 5px);
-        /* Unter Bar mit Abstand */
-        left: 0;
-        /* Links align */
-        width: 100%;
-        /* Volle Breite der Bar/Panel */
-        max-height: 150px;
-        /* Kürzer, um Buttons nicht zu blocken */
-        overflow-y: auto;
-        z-index: 1002;
-        /* Über Buttons */
-        pointer-events: auto;
-        /* Klicks ermöglichen */
-    }
-
-
-
-    #footer {
-        display: none;
-    }
-
-    /* Lizenz-Dropdown: Anpassung für kleinere Bildschirme */
-    #license-info {
-        width: auto;
-        left: 10px;
-        right: 10px;
-        bottom: 78px;
-        top: auto;
-    }
-
-    /* Sub-Dropdowns: Weniger Einrückung */
-    #bones-sub-dropdown,
-    #muscles-sub-dropdown,
-    #tendons-sub-dropdown,
-    #other-sub-dropdown {
-        margin-left: 10px;
-    }
-
-    /* Subgruppen-Labels: Kleinere Schrift */
-    #bones-subgroups label,
-    #muscles-subgroups label,
-    #tendons-subgroups label,
-    #other-subgroups label {
-        font-size: 12px;
-    }
-
-    /* Einzelne Items: Kleinere Schrift, weniger Einrückung */
-    #bones-subgroups .item-checkbox,
-    #muscles-subgroups .item-checkbox,
-    #tendons-subgroups .item-checkbox,
-    #other-subgroups .item-checkbox {
-        font-size: 12px;
-        margin-left: 15px;
-    }
-
-    /* Nested Dropdown-Button: Kleinere Schrift */
-    .item-dropdown-button {
-        font-size: 12px;
-    }
-
-    /* Tooltip: Kleinere Schrift für Mobilgeräte */
-    #tooltip {
-        font-size: 12px;
-        padding: 3px 8px;
-    }
-}
-
-/* --- Desktop-Optimierung --- */
-@media (min-width: 601px) {
-
-    /* Steuerungspanel: Initial ausgeblendet, per Hamburger-Menü toggelbar */
-    #menu-icon {
-        display: block;
-    }
-}
-
-
-@media (max-width: 600px) {
-    #search-bar {
-        width: 90%;
-        /* Dein bestehender Wert */
-        margin: 0 auto;
-        /* Zentriert die Bar selbst */
-        position: relative;
-        /* Sicherstellen: Referenz für Results */
-    }
-
-    #search-results {
-        position: absolute;
-        /* Bleibt absolute */
-        top: calc(100% + 5px);
-        /* Direkt unter Bar, mit Abstand */
-        left: 0;
-        /* Links an Bar ausrichten, keine Zentrierung */
-        width: 100%;
-        /* Volle Breite der Bar, vermeidet Überlappungen */
-        max-height: 150px;
-        /* Kürzer, um Buttons nicht zu überlagern */
-        overflow-y: auto;
-        border-radius: 5px;
-        z-index: 1002;
-        /* Höher als Buttons im Panel */
-    }
-
-    .search-item {
-        padding: 6px 8px;
-        /* Kompakter für Mobile */
-        font-size: 12px;
-    }
-
-    #info-panel {
-        position: fixed;
-        max-width: 100px;
-        background-color: rgba(0, 0, 0, 0.7);
-        color: white;
-        border-radius: 10px;
-        padding: 10px;
-        font-size: 14px;
-        backdrop-filter: blur(4px);
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.4);
-        z-index: 1000;
-        top: 10px;
-        right: 10px;
-        display: none;
-        opacity: 0;
-        transition: opacity 0.3s ease;
-    }
-
-}
-
-/* Mobile-Optimierung */
-@media (max-width: 600px) {
-    #loading-sticker {
-        width: 200px;
-        /* Kleiner auf Mobile */
-    }
-
-    #live-loading-sticker {
-        position: fixed;
-        bottom: 5%;
-        right: 0%;
-        transform: translate(-50%, -50%);
-        width: 50px;
-        height: auto;
-        z-index: 1500;
-        display: none;
-        animation: blink 0.5s ease-in-out;
-        background: transparent;
-        opacity: 1;
-    }
-
-
-}
-
-
-@media (max-width: 600px) {
-    #search-bar {
-        width: 90%;
-        /* Schmaler für Zentrierung */
-        margin: 0 auto;
-        /* Zentriert die Bar selbst */
-    }
-
-    #search-results {
-        position: absolute !important;
-        /* Absolute zur Bar */
-        top: calc(100% + 5px) !important;
-        /* Direkt unter Bar, mit Abstand */
-        left: 50% !important;
-        /* Mittig zentrieren */
-        transform: translateX(-50%) !important;
-        /* Horizontal zentrieren */
-        width: 80vw !important;
-        /* Schmaler, passend zu Menü */
-        max-height: 150px !important;
-        /* Kürzer, um Knöpfe nicht zu überlagern */
-        overflow-y: auto !important;
-        border-radius: 5px;
-        z-index: 1002 !important;
-        /* Höher als Knöpfe/Menü */
-    }
-
-    .search-item {
-        padding: 6px 8px !important;
-        /* Kompakter */
-        font-size: 12px !important;
-    }
-}
-
+/* Default (auch Desktop): mobil-only Bausteine unsichtbar halten. */
+.sheet-backdrop { display: none; }
+.vc-sheet { display: none; }
 
 @media (max-width: 768px) {
-    .mobile-nav {
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        height: 60px;
 
-        /* Glassmorphism */
-        background: var(--glass-bg-controls);
-        backdrop-filter: var(--glass-blur);
-        border-top: 1px solid var(--glass-border);
+  /* ── Icon-Rail entfällt, untere Tab-Leiste übernimmt ──────────────────── */
+  .shell-rail { display: none; }
 
-        /* Layout */
-        display: flex;
-        justify-content: space-around;
-        align-items: center;
-        padding: 0 var(--spacing-md);
-        z-index: var(--z-controls);
-    }
-
-    .mobile-nav button {
-        width: 48px;
-        height: 48px;
-        background: transparent;
-        border: none;
-        color: var(--text-secondary);
-        font-size: 24px;
-
-        display: flex;
-        align-items: center;
-        justify-content: center;
-
-        transition: var(--transition-fast);
-    }
-
-    .mobile-nav button:active {
-        color: var(--accent-blue);
-        transform: scale(0.9);
-    }
-}
-
-/* === Floating Action Button (optional) === */
-.fab {
+  /* ── Gemeinsames Sheet-Rezept: bündig unten, Grabber (::before), Safe-Area ─ */
+  .shell-sidebar,
+  .stp-flyout,
+  .vc-sheet {
     position: fixed;
-    bottom: 24px;
-    right: 24px;
-    width: 56px;
-    height: 56px;
-
-    /* Gradient */
-    background: linear-gradient(135deg, var(--accent-blue), var(--accent-orange));
+    left: 0; right: 0; top: auto; bottom: 0;
+    width: auto;
+    max-height: 82vh;
     border: none;
-    border-radius: 50%;
+    border-top: 1px solid var(--glass-border);
+    border-radius: var(--radius-sheet) var(--radius-sheet) 0 0;
+    background: var(--sheet-bg);
+    backdrop-filter: var(--glass-blur-strong);
+    -webkit-backdrop-filter: var(--glass-blur-strong);
+    box-shadow: 0 -16px 50px rgba(0, 0, 0, 0.5);
+    z-index: var(--z-sheet);
+  }
+  .shell-sidebar::before,
+  .stp-flyout::before,
+  .vc-sheet::before {
+    content: "";
+    flex: none;
+    width: 42px; height: 5px;
+    margin: 8px auto 2px;
+    border-radius: 3px;
+    background: var(--sheet-grabber);
+  }
 
-    /* Schatten */
-    box-shadow: 0 4px 20px rgba(74, 158, 255, 0.4);
+  /* ── Panel-Sheet (Sidebar): Slide über --open, untere Inset im Fuß ────── */
+  .shell-sidebar {
+    transform: translateY(calc(100% + 40px));
+    transition: transform 0.32s var(--ease-smooth);
+  }
+  .shell-sidebar--open { transform: translateY(0); }
+  .shell-sidebar__foot { padding-bottom: calc(10px + env(safe-area-inset-bottom, 0px)); }
 
-    /* Icon */
-    color: white;
-    font-size: 24px;
-    cursor: pointer;
+  /* ── Settings-Sheet: von unten einschieben statt von links ────────────── */
+  .stp-flyout {
+    animation: sheet-rise 0.3s var(--ease-smooth) both;
+  }
+  .stp-foot { padding-bottom: calc(14px + env(safe-area-inset-bottom, 0px)); }
+
+  /* ── Ansicht-Sheet: ViewCluster ohne eigenes Glas, Buttons umbrechend ──── */
+  .vc-sheet {
+    display: flex;
+    flex-direction: column;
+    padding: 0 14px calc(20px + env(safe-area-inset-bottom, 0px));
+    animation: sheet-rise 0.3s var(--ease-smooth) both;
+  }
+  .vc-sheet .vc-bar {
+    position: static;
+    transform: none;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    width: 100%;
+    gap: 8px;
+    padding: 4px 0 0;
+    background: transparent;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    border: none;
+    box-shadow: none;
+  }
+  .vc-sheet .vc-label { flex-basis: 100%; text-align: center; padding: 0 0 4px; }
+  .vc-sheet .vc-btn { min-height: var(--touch-min); flex: 1 0 auto; }
+  .vc-sheet .vc-sep { display: none; }
+
+  @keyframes sheet-rise {
+    from { transform: translateY(100%); }
+    to   { transform: translateY(0); }
+  }
+
+  /* ── Backdrop hinter offenen Sheets ───────────────────────────────────── */
+  .sheet-backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: var(--z-sheet-backdrop);
+    background: var(--sheet-backdrop-bg);
+    pointer-events: all;
+    border: none;
+  }
+
+  /* ── Untere Tab-Leiste statt Rail (Buttons ≥52px, Safe-Area unten) ─────── */
+  .shell-tabbar {
+    display: flex;
+    position: fixed;
+    left: 16px; right: 16px;
+    bottom: calc(16px + env(safe-area-inset-bottom, 0px));
     z-index: var(--z-controls);
-
-    /* Animation */
+    align-items: center;
+    justify-content: space-between;
+    gap: 4px;
+    padding: 8px;
+    pointer-events: all;
+    background: var(--glass-bg-controls);
+    backdrop-filter: var(--glass-blur-strong);
+    -webkit-backdrop-filter: var(--glass-blur-strong);
+    border: 1px solid var(--glass-border);
+    border-radius: 22px;
+    box-shadow: var(--glass-shadow-lg);
+  }
+  .shell-tabbar__btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
+    min-width: var(--touch-min);
+    height: 52px;
+    padding: 0;
+    border: none;
+    border-radius: 15px;
+    background: transparent;
+    color: var(--text-secondary);
+    cursor: pointer;
     transition: var(--transition-smooth);
+  }
+  .shell-tabbar__btn svg { width: 23px; height: 23px; }
+  .shell-tabbar__btn:hover { color: var(--text-primary); }
+  .shell-tabbar__btn--active { background: var(--accent-tint); color: var(--accent); }
+
+  /* ── Float-Cluster (Desktop) weicht dem Ansicht-Sheet; Isolation-Untertitel
+        über die Tab-Leiste heben ──────────────────────────────────────────── */
+  .vc-bar { display: none; }
+  .iso-subtitle {
+    left: 50%;
+    bottom: calc(94px + env(safe-area-inset-bottom, 0px));
+  }
+
+  /* ── Touch-Ziele im Sheet-Inhalt (Slider-Knobs 15px, größere Zeilen) ───── */
+  .sb-row { padding: 12px 10px; }
+  .sb-slider { width: 74px; }
+  .sb-slider::-webkit-slider-thumb { width: 15px; height: 15px; }
+  .sb-slider::-moz-range-thumb { width: 15px; height: 15px; }
+
+  /* Auswahl-Chips (Mehrfachauswahl): horizontal scrollbare Reihe statt Spalte */
+  .msp-chips {
+    flex-direction: row;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    gap: 8px;
+    padding-bottom: 4px;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+  .msp-chips::-webkit-scrollbar { display: none; }
+  .msp-chip { flex: 0 0 auto; }
 }
 
-.fab:hover {
-    transform: scale(1.1);
-    box-shadow: 0 6px 30px rgba(74, 158, 255, 0.5);
-}
-
-.fab:active {
-    transform: scale(0.95);
+/* Reduced-Motion: keine Sheet-Slides (eine Kurve-Regel + §14). */
+@media (max-width: 768px) and (prefers-reduced-motion: reduce) {
+  .shell-sidebar { transition: none; }
+  .stp-flyout,
+  .vc-sheet { animation: none; }
 }

@@ -1,38 +1,97 @@
-/* css/theme/variables.css – Design-Tokens */
+/* =========================================================================
+   Anatomie Fokus — Design-Tokens  ·  css/theme/variables.css
+   Rebranding auf die YouTube-Identität „Variante A" (tiefes Schwarz + Orange).
+   Ersetzt die bisherigen Navy/Blau-Tokens des Design-Briefs.
+   REGEL: In Komponenten IMMER diese Variablen nutzen, nie Hardcodes.
+   ========================================================================= */
+
 :root {
-   --color-bg-dark: #0a0e27;
-   --color-bg-secondary: #151933;
+  /* ---- Bühne / Hintergrund  (vorher Navy #0a0e27 → jetzt Marken-Schwarz) ---- */
+  --color-bg-dark:        #0b0c0e;
+  --color-bg-secondary:   #16181d;
+  /* Der Canvas-Hintergrund ist der Three.js-Canvas selbst. Fallback-Verlauf: */
+  --stage-gradient:       radial-gradient(135% 115% at 50% 8%, #181a1f 0%, #0b0c0e 56%, #060607 100%);
 
-   --glass-bg: rgba(255, 255, 255, 0.03);
-   --glass-bg-hover: rgba(255, 255, 255, 0.06);
-   --glass-bg-panel: rgba(30, 35, 55, 0.92);
-   --glass-bg-controls: rgba(20, 25, 45, 0.85);
-   --glass-border: rgba(255, 255, 255, 0.08);
-   --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
-   --glass-blur: blur(12px);
-   --glass-blur-strong: blur(20px);
+  /* ---- Glas (an Marken-Schwarz neutralisiert, blaustich entfernt) ---- */
+  --glass-bg:             rgba(255,255,255,0.03);
+  --glass-bg-hover:       rgba(255,255,255,0.06);
+  --glass-bg-panel:       rgba(15,16,20,0.82);   /* Info/Browser/Collection/Settings */
+  --glass-bg-controls:    rgba(13,14,17,0.82);   /* Toolbar / Rail / kontextuelle Bars */
+  --modal-bg:             rgba(18,19,23,0.94);   /* LicenseModal-Card (§9.10, fast opak) */
+  --glass-border:         rgba(255,255,255,0.08);
+  --glass-shadow:         0 12px 40px rgba(0,0,0,0.50);
+  --glass-shadow-lg:      0 16px 48px rgba(0,0,0,0.55);
+  --glass-blur:           blur(10px);
+  --glass-blur-strong:    blur(14px);   /* Handoff: 22px — reduziert, da über dem live
+                                           rendernden Canvas jeder Blur-Pixel pro Frame
+                                           kostet (Zielhardware: Schul-Laptops) */
 
-   --accent-blue: #4A9EFF;
-   --accent-blue-dim: rgba(74, 158, 255, 0.1);
-   --accent-orange: #FF7A4A;
+  /* ---- Akzent (vorher Blau #4A9EFF primär → jetzt Marken-Orange primär) ---- */
+  --accent:               #ff6a00;
+  --accent-strong:        #e64500;
+  --accent-hi:            #ff9d3d;
+  --accent-gradient:      linear-gradient(90deg, #e64500, #ff9d3d);
+  --accent-dim:           color-mix(in srgb, var(--accent) 12%, transparent);  /* Zeilen-Highlight */
+  --accent-tint:          color-mix(in srgb, var(--accent) 16%, transparent);  /* aktiver Tool-Button */
+  --accent-border:        color-mix(in srgb, var(--accent) 50%, transparent);  /* Outline-CTA / aktives Panel */
+  --accent-on:            #0b0b0b;               /* Textfarbe AUF gefülltem Orange */
+  --focus-ring:           #4a9eff;               /* optional: Blau nur für :focus-visible */
 
-   --text-primary: rgba(255, 255, 255, 0.95);
-   --text-secondary: rgba(255, 255, 255, 0.80);
-   --text-muted: rgba(255, 255, 255, 0.55);
+  /* ---- Text (Marken-Neutrals) ---- */
+  --text-primary:         #f6f6f7;
+  --text-secondary:       #c9cace;
+  --text-tertiary:        #9a9ca2;
+  --text-muted:           #8a8d93;
+  --text-faint:           #6e7076;
 
-   --spacing-sm: 8px;
-   --spacing-md: 16px;
-   --spacing-lg: 24px;
+  /* ---- Hairlines / Divider ---- */
+  --hairline:             rgba(255,255,255,0.08);
+  --hairline-soft:        rgba(255,255,255,0.06);
 
-   --radius-sm: 8px;
-   --radius-md: 12px;
-   --radius-lg: 16px;
-   --radius-xl: 24px;
+  /* ---- Spacing ---- */
+  --spacing-xs: 4px;  --spacing-sm: 8px;  --spacing-md: 16px;  --spacing-lg: 24px;  --spacing-xl: 32px;
 
-   --z-canvas: 1;
-   --z-controls: 100;
-   --z-info-panel: 1000;
-   --z-menu-icon: 1100;
+  /* ---- Radien ---- */
+  --radius-sm: 8px;  --radius-md: 12px;  --radius-lg: 16px;  --radius-xl: 20px;  --radius-pill: 999px;
 
-   --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  /* ---- Typografie ---- */
+  --font-display: 'Sora', system-ui, -apple-system, 'Segoe UI', sans-serif;   /* Titel/Headlines/Wortmarke */
+  --font-ui:      'Manrope', system-ui, -apple-system, 'Segoe UI', sans-serif; /* Interface/Fließtext */
+  --fs-panel-title: 21px;   /* InfoPanel-Titel (Sora 600) */
+  --fs-body:        13.5px; /* Zeilen / Buttons (Manrope 500/600) */
+  --fs-label:       11px;   /* Panel-Header / Section-Label */
+  --tracking-clinical: 0.13em;  /* uppercase Klinik-Labels */
+
+  /* ---- Touch / A11y ---- */
+  --touch-min: 44px;
+
+  /* ---- z-index-Ebenen (aus Brief) ---- */
+  --z-canvas: 1;  --z-controls: 100;  --z-info-panel: 1000;  --z-menu-icon: 1100;  --z-modal: 2000;
+
+  /* ---- Mobile Bottom-Sheets (§13, S10) ---- */
+  --radius-sheet:      28px;                    /* Sheet-Oberkante */
+  --sheet-bg:          rgba(15, 16, 20, 0.94);  /* deckender als Panel-Glas — sitzt über Backdrop */
+  --sheet-grabber:     rgba(255, 255, 255, 0.22);
+  --sheet-backdrop-bg: rgba(6, 7, 9, 0.5);
+  --z-sheet-backdrop:  1400;   /* > Tab-Leiste (--z-controls), < Sheet */
+  --z-sheet:           1500;   /* < LicenseModal (--z-modal) */
+
+  /* ---- Motion (eine Kurve für alles) ---- */
+  --ease-smooth:        cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-smooth:  all 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* ---- Anatomische Gruppenfarben (semantisch, s. config.ts) ---- */
+  --group-bones:      #E8E6DD;
+  --group-muscles:    #E85861;
+  --group-nerves:     #FFD166;
+  --group-cartilage:  #9FC6E5;
+  --group-ligaments:  #C9A05A;   /* im Brief ohne Farbe — hier ergänzt (Tan/Gold) */
+  --group-teeth:      #E8E6DD;   /* = bones */
+  --group-vessels:    #C0504D;   /* Reserve für Skalierung auf ≤16 Gruppen */
+  --group-organs:     #B39DDB;   /* Reserve */
+  --group-default:    #CCCCCC;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root { --transition-smooth: none; }
 }

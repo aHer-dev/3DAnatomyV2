@@ -4,7 +4,6 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { camera } from './camera.js';
 import { renderer } from './renderer.js';
-import { hideInfoPanel } from '../interaction/infoPanel.js';
 
 const controls = new OrbitControls(camera, renderer.domElement);
 
@@ -28,19 +27,6 @@ controls.maxDistance = 3;
 controls.minPolarAngle = 0;
 controls.maxPolarAngle = Math.PI;
 controls.enableRotate = true;
-
-// Info-Panel nur bei aktiver Nutzer-Interaktion schließen (nicht während Damping-Nachlauf)
-let isUserDragging = false;
-controls.addEventListener('start', () => { isUserDragging = true; });
-controls.addEventListener('end',   () => { isUserDragging = false; });
-
-controls.addEventListener('change', () => {
-  if (!isUserDragging) return; // Damping-Nachlauf ignorieren
-  const panel = document.getElementById('info-panel');
-  if (panel?.classList.contains('visible')) {
-    hideInfoPanel();
-  }
-});
 
 // ─── Dynamisches Zoom-Target ────────────────────────────────────────────────
 // Problem: controls.target bleibt am Modellzentrum. Beim Reinzoomen in einen

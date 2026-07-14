@@ -1,4 +1,4 @@
-# BlueBody 3D — Modernisierungs-Roadmap
+# Anatomie Fokus 3D — Modernisierungs-Roadmap
 
 > Ziel: Aus der funktionierenden statischen Seite eine professionelle 3D-Anatomie-Webapp machen — als Solo-Entwickler, KI-gestützt, in klar abgegrenzten Phasen.
 

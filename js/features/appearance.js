@@ -5,6 +5,7 @@
 import * as THREE from 'three';
 import { setModelVisibility } from '../features/visibility.js';
 import { getStore } from '../store/useStore.js';
+import { requestRender } from '../core/renderScheduler.js';
 
 
 const fallback = {
@@ -217,6 +218,8 @@ export function setGroupColor(groupName, color) {
 
 export function setGroupOpacity(groupName, opacity) {
   (getStore().groups[groupName] ?? []).forEach(model => setModelOpacity(model, opacity));
+  getStore().setGroupOpacity(groupName, opacity);
+  requestRender();
 }
 
 /**

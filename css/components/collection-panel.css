@@ -1,0 +1,146 @@
+/* CollectionPanel — Sidebar-Tab „Sammlung" (Layout B, Handoff §9.8 / Frame 2c).
+   Wohnt im Tab-Body (.shell-sidebar__body scrollt) — kein position:fixed,
+   kein eigenes Glas. BEM-Präfix `cp-`, nur Tokens; px-Maße ohne Token
+   (10px-Zeilenradius, 16px-Icons) sind Frame-Vorgaben. */
+
+.cp-panel {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  min-height: 100%;
+}
+
+/* ── Sektions-Label „Gespeichert · N Einträge" ──────────────────────────── */
+.cp-sectionhead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 2px 6px 10px;
+  color: var(--text-faint);
+  font: 600 var(--fs-label)/1 var(--font-ui);
+  letter-spacing: var(--tracking-clinical);
+  text-transform: uppercase;
+}
+.cp-count { opacity: 0.85; text-transform: none; letter-spacing: 0.02em; }
+
+.cp-empty {
+  margin: 24px 0 0;
+  text-align: center;
+  color: var(--text-faint);
+  font: 500 13px/1.5 var(--font-ui);
+}
+
+/* ── Zeilen (Frame 2c) ──────────────────────────────────────────────────── */
+.cp-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.cp-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 6px 4px 0;
+  border-radius: 10px;
+  transition: var(--transition-smooth);
+}
+.cp-row:hover { background: var(--glass-bg-hover); }
+
+.cp-row-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 7px 10px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  text-align: left;
+  color: var(--text-secondary);
+  font: 500 var(--fs-body)/1.2 var(--font-ui);
+}
+.cp-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.cp-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cp-iconbtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: var(--transition-smooth);
+}
+.cp-iconbtn svg { width: 16px; height: 16px; }
+.cp-iconbtn:hover { background: var(--glass-bg-hover); color: var(--text-primary); }
+.cp-iconbtn--dim { color: var(--text-faint); }
+
+/* ── Toast ──────────────────────────────────────────────────────────────── */
+.cp-toast {
+  margin-top: 10px;
+  padding: 7px 10px;
+  border-radius: var(--radius-sm);
+  text-align: center;
+  background: var(--accent-dim);
+  border: 1px solid var(--accent-border);
+  color: var(--accent);
+  font: 600 12px/1.2 var(--font-ui);
+}
+
+/* ── Footer-Aktionen: CTA + Sekundär-Reihe ──────────────────────────────── */
+.cp-actions {
+  margin-top: auto;
+  padding-top: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.cp-cta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  width: 100%;
+  padding: 12px;
+  border: none;
+  border-radius: var(--radius-md);
+  background: var(--accent);
+  color: var(--accent-on);
+  font: 700 12.5px/1 var(--font-ui);
+  cursor: pointer;
+  transition: var(--transition-smooth);
+}
+.cp-cta svg { width: 16px; height: 16px; }
+.cp-cta:hover:not(:disabled) { background: var(--accent-hi); }
+.cp-cta:disabled { opacity: 0.45; cursor: default; }
+
+.cp-btn-row { display: flex; gap: 6px; }
+.cp-btn {
+  flex: 1;
+  padding: 8px 10px;
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-sm);
+  background: var(--glass-bg);
+  color: var(--text-secondary);
+  font: 600 12px/1 var(--font-ui);
+  cursor: pointer;
+  transition: var(--transition-smooth);
+}
+.cp-btn:hover:not(:disabled) { background: var(--glass-bg-hover); color: var(--text-primary); }
+.cp-btn:disabled { opacity: 0.4; cursor: default; }

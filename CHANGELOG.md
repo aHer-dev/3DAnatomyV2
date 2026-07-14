@@ -7,6 +7,613 @@ Format: [Keep a Changelog](https://keepachangelog.com/de/1.0.0/)
 
 ## [Unreleased]
 
+### Changed (Bühne — neutraler Standard-Hintergrund)
+- **Standard-Hintergrund der Szene ist jetzt `#0d0d0d` (rgb 13,13,13)** statt des Navy-Rests
+  `#07062b`. Der sichtbare Hintergrund entsteht aus Raumfarbe × Umgebungslicht; der
+  Multiplikator stand auf `0.4` und hätte `#0d0d0d` auf rgb(5,5,5) abgedunkelt. Er startet
+  daher neutral bei `1.0` — die gewählte Raumfarbe erscheint jetzt unverfälscht, der Regler
+  dunkelt von dort ab. Der „Schwarz"-Swatch und `ui.theme.background` liegen auf demselben
+  Wert, damit der Startzustand im Panel als aktiv markiert ist.
+
+### Fixed (Datenschutz — veraltete jsDelivr-Aussage)
+- **Datenschutzerklärung und Lizenz-Dialog behaupteten einen Datenabfluss, den es nicht gibt.**
+  Beide sagten, die App lade „derzeit Teile ihrer 3D-Bibliothek über jsDelivr". Das galt für die
+  alte, nicht gebündelte Version (Import-Map → `cdn.jsdelivr.net`). Seit der Vite-Migration ist
+  three.js eine npm-Abhängigkeit und wird lokal ins Bundle gebaut; die CSP (`default-src 'self'`)
+  verbietet externe Abrufe ohnehin technisch. Eine Datenschutzerklärung, die eine Übermittlung an
+  einen Dritten deklariert, die gar nicht stattfindet, ist sachlich falsch — jetzt korrigiert:
+  „Inhalte von fremden Servern werden nicht geladen", inkl. Hinweis auf die CSP. Der jsDelivr-Link
+  in der Empfänger-Liste ist entfernt.
+  Verifiziert am echten Build: null externe Hosts, keine CSP-Verstöße.
+
+### Added (Perf — BatchedMesh-Rendering pro Gruppe, ADR 0007 Phase 1)
+- **`js/core/groupBatch.js`**: `GroupBatch` kapselt ein `THREE.BatchedMesh` pro Gruppe
+  (Geometrie-Normalisierung auf position+normal, `addGeometry`/`addInstance`, Gruppenfarbe
+  per Instanz via `setColorAt`) plus die **`batchId ↔ Teil`-Registry** für spätere
+  Picking-Phasen. Modul-Registry `getGroupBatch/setGroupBatch/removeGroupBatch`.
+- **Loader-Zweig hinter Flag** `performance.batchedGroups` (Default **aus**): baut beim
+  Laden aus einem Bundle ein einziges BatchedMesh (Draw-Calls ~Teilanzahl → ~1) statt N
+  Einzel-Meshes. `unloadGroupSilent` entfernt das Batch sauber. **Phase 1 = reines
+  Rendering, keine Interaktion** (Picking/Selektion/Opacity folgen laut Task-Plan).
+- **Bestätigt** (PoC + Headless): Materialien sind texturlos → gemeinsames Material tragfähig;
+  `BatchedMesh` headless konstruierbar → Registry per Vitest getestet (4 neue Tests, 45 gesamt).
+- **Offen — der Phase-1-Gate:** FPS-Messung mit allen Muskeln auf Zielhardware
+  (Flag `performance.batchedGroups: true`, `npm run dev`). Nur bei bestätigtem Gewinn geht
+  es zu Phase 2 (Picking) und ADR 0007 auf „akzeptiert".
+
+### Added (Perf — Asset-Bündelung pro Gruppe, ADR 0009)
+- **`scripts/bundle-groups.mjs`** (npm: `bundle:groups`): packt die Einzel-Draco-GLB einer
+  Gruppe zu **einer `<group>.bundle.glb`** + `<group>.bundle.json` (Manifest der Teil-IDs).
+  Jede Quell-Datei → ein benannter Wrapper-Node (Name = Basename = Teil-ID); Materialien
+  **nicht** dedupliziert → per-Teil-Farbe/Deckkraft bleibt. `@gltf-transform` + Draco-CLI.
+- **Loader-Bundle-Pfad** (`modelLoader-core.js`): `loadGroupByName` prüft per HEAD, ob ein
+  Bundle existiert → lädt es in **1 Request** und richtet jeden Wrapper-Node exakt wie ein
+  einzeln geladenes Modell ein (Meta, Pickable, Store, Schatten, Layers). Szenegraph
+  äquivalent zum Einzel-Ladepfad → **Picking/Selektion/Farbe unverändert** (Pick-Auflösung
+  läuft über `isModelRoot` zum Wrapper). Fehlt ein Bundle → unveränderter Einzel-Datei-Pfad.
+  Kill-Switch `performance.useBundles` (Default `true`) in `config.ts`.
+- **Bundles erzeugt** für Startup- + Fokus-Set: bones (207→1, −31 %), muscles (464→1, −34 %),
+  cartilage (60→1), teeth (30→1), ligaments (28→1). **Startup: 297 Datei-Requests → 3.**
+- Verifiziert: `tsc`/`lint`/`test` (41) grün · `build` ohne Warnungen (5 Bundles im `dist/`) ·
+  Manifest→Meta 100 % gemappt (789/789 Teile) · Dev-Server nimmt den Bundle-Pfad (HEAD 200).
+  **Offen (Nutzer):** visueller Klick-Test im GPU-Browser (Auswahl/Highlight einer Struktur).
+
+### Removed (Aufräumen — Migrations-Altlasten & toter Code)
+- **`initGroupLoader.js` gelöscht.** Die Datei band Klick-Handler an `btn-load-*`-Buttons,
+  die es in der React-UI nicht mehr gibt (verifiziert: einzige `btn-load-`-Referenz war die
+  Datei selbst). `initDynamicGroupLoading()` lief bei jedem Start zweimal (aus `app.js` und
+  `startApp.js`), band ins Leere und produzierte ~34 `console.warn`-Zeilen. Enthielt außerdem
+  `alert()`-Dialoge und inline-gestylte Emoji-Toasts (Alt-Stil neben der React-UI). Die einzige
+  noch genutzte Funktion, `unloadGroupSilent`, ist nach `features/modelLoader-core.js` gewandert
+  (zum Gegenstück `loadGroupByName`); Importe in `AppShell.tsx` und `StructureBrowser.tsx`
+  entsprechend gebündelt.
+- **`utils/migration-helper.js` gelöscht.** JS→TS-Migrations-Scaffolding. Außer `safeInit`
+  (reiner Diagnose-Selbsttest via dynamischer Imports + `console.table`, gatete nichts) waren
+  alle Exporte ungenutzt. `safeInit`-Aufruf aus `app.js` und der wirkungslose Side-Effect-Import
+  aus `startApp.js` entfernt. War zudem Quelle einer Rollup-Chunk-Warnung.
+- **5 verwaiste Module gelöscht** (madge + präzise Import-Prüfung, nirgends importiert):
+  `core/events.js` (ungenutzter EventBus), `modelLoader/index.js` (alter URL-Resolver, abgelöst
+  von `modelLoader-core.js`), `utils/cameraClipping.js`, `utils/index.js` (Barrel), `utils/utils.js`.
+
+### Changed (Aufräumen — Build/Perf-Politur)
+- **Prod-Build strippt Entwickler-Logs** (`vite.config.js`): `esbuild.pure` entfernt
+  `console.log/debug/info` beim Minify; `console.warn/error` bleiben. Dev-Server (kein Minify)
+  zeigt weiter alle Logs.
+- **Vendor-Code-Splitting** (`vite.config.js`, `manualChunks`): Three (~600 KB) und React in
+  eigene, selten wechselnde Chunks → besseres Browser-Caching. **App-Chunk 989 KB → 146 KB**
+  (gzip 274 → 43 KB); Rest liegt in `three`/`react`/`vendor`.
+- Beide vorherigen Build-Warnungen (mixed static/dynamic import) beseitigt.
+- Verifiziert: `tsc` · `lint` · `test` (41 grün) · `build` **ohne Warnungen** · Dev-Server bootet,
+  Einstieg + verschobenes Modul transformieren fehlerfrei (HTTP 200).
+
+### Changed (Redesign „Variante B" — Feinschliff nach der Serie: Alt-Styling-Reste)
+- **Reset-Overlay entbrandet → gebrandeter LoadingScreen wiederverwendet** (`ui-reset.js`):
+  das injizierte Alt-Overlay (grüner `#4CAF50`-Spinner, Arial, hartkodiertes `<style>`) entfällt;
+  `resetApp()` treibt jetzt den `loading`-Store-Slice (`showLoading`/`setLoadingProgress`/
+  `hideLoading`, §9.11/ADR 0008) → derselbe Marken-Ladebildschirm wie beim Start. Store-Actions
+  direkt (nicht `progress.js`) → kein `circleOverlayHidden`-Dispatch, keine Kollision mit dem
+  Initial-Load. ~65 Zeilen injiziertes DOM/CSS gelöscht.
+- **Multi-Highlight im Canvas auf Marken-Accent** (`multiSelect.js`): emissiver
+  Mehrfachauswahl-Highlight `0x1a1a4a` (Alt-Blau) → `0x662a00` (Accent `#ff6a00`, ~40 % gedämpft,
+  Intensität ~ wie der neutrale Einzel-Highlight `0x222222`).
+- **Settings-Flyout ↔ ViewCluster-Überlappung behoben** (`ViewCluster.tsx` + `view-cluster.css`):
+  bei offenem Flyout (rechte Kante 424px) weicht der Cluster breitenunabhängig in die freie
+  Canvas-Fläche rechts davon aus (`left: calc((444px + 100vw)/2)`, animiert) — vorher ~19px
+  Überlappung auf 1440px. Prop `flyoutOpen` aus `AppShell` (nur Desktop-Float; mobiles
+  Ansicht-Sheet unberührt).
+- **Fotomodus an die neue Tab-Leiste angepasst** (`photoMode.js`): mobile Reserve-Höhe
+  `toolbarH` `72` → Konstante `MOBILE_TABBAR_H = 84` (Tab-Leiste: 16px Abstand + 68px Höhe),
+  an allen drei Stellen (Frei-Bereich, untere Vignette, Auslöser-Grenze).
+- **Tote `css/controls/search.css` entfernt** (nur `#search-bar`-Regeln der abgelösten
+  Alt-Suche, inkl. hartkodiertem Blau `#4A9EFF`) + Import aus `main.css`; leerer `css/controls/`.
+- **Fotomodus von Alt-Blau auf Marken-Accent umgebrandet** (`photo-mode.css`): alle
+  `rgba(74,158,255,…)`/`#4A9EFF` (Rahmen, Glow, Eck-Marken, Format-Label, Sidebar-Buttons,
+  Auslöser-Blitz) → `color-mix(in srgb, var(--accent) N%, transparent)` bzw. `var(--accent)`.
+- Verifiziert: `test` 41 grün · `lint` · `tsc` · `build` sauber (CSS/JS kleiner). Headless:
+  Reset zeigt den Marken-LoadingScreen (kein Alt-Overlay), ViewCluster weicht dem Flyout aus
+  (clusterLeft 688 > 424) und stellt sich beim Schließen zurück.
+
+### Changed (Redesign „Variante B" — S11 A11y- & Motion-Feinschliff, Serien-Abschluss)
+- **Sichtbarer, konsistenter Fokus-Ring (§14):** genau EINE projektweite Wahl —
+  `2px solid var(--focus-ring)` (Blau `#4a9eff`), nur bei Tastatur-Fokus (`:focus-visible`),
+  global in `base.css`. Elemente, die `outline` selbst abschalten (Slider in Struktur-/Info-/
+  Settings-Panel, Suchpille), setzen den Ring lokal neu (`:focus-visible` bzw.
+  `.sb-search__wrap:has(.sb-search__input:focus-visible)`). Ring-Entscheidung im Index festgehalten.
+- **`prefers-reduced-motion:reduce` schaltet ALLE Bewegung ab (§11/§14):** universelle Regel in
+  `base.css` (`*,*::before,*::after { animation-duration:.01ms; transition-duration:.01ms;
+  animation-iteration-count:1 !important }`) als Sicherheitsnetz über der token-basierten
+  Abschaltung — fängt auch hartkodierte `ease`-Kurven (Foto-Modus, Loading-Fade/Fortschritt,
+  Toasts), die `--transition-smooth:none` bisher nicht erreichte. Loading-Ring bleibt aus.
+- **Tastatur-Bedienung/Fokus-Management:** ESC schließt das Settings-Flyout bzw. das offene
+  Mobile-Sheet und gibt den Fokus an das auslösende Bedienelement zurück (Rail-⚙ / Tab-Leiste,
+  je nach Breakpoint sichtbar). LicenseModal-Trap (role=dialog/aria-modal, Tab-Zirkel, ESC,
+  Fokus-Rückgabe) fängt ESC weiterhin zuerst ab.
+- **Audit bestätigt (kein Code nötig):** alle Icon-Buttons haben `aria-label` oder Text-Label;
+  Sichtbarkeits-Toggle (StructureBrowser) ist `role="switch"` + `aria-checked`; genau eine
+  Motion-Kurve. `--focus-ring` war bislang definiert, aber ungenutzt — jetzt projektweit aktiv.
+- Verifiziert: `test` 41 grün · `lint` · `tsc` · `build` sauber. Headless: reduced-motion
+  schaltet Transitions/Animationen auf `~0s`; ESC schließt Flyout + Fokus kehrt zum ⚙ zurück;
+  Fokus-Ring-Regel matcht + `--focus-ring` löst auf (Ring-Rendering headless nicht per Pixel
+  prüfbar — nativer Fokus-Ring wird am Compositor gezeichnet; in echten Browsern greift die Regel).
+- **Redesign-Serie „Variante B" (S0–S11) abgeschlossen.**
+
+### Changed (Redesign „Variante B" — S10 Mobile: Bottom-Sheets + Tab-Leiste + Safe-Area)
+- **Schmal-Screen ≤768px (§13, Pflicht):** seitliche Sidebar → **Bottom-Sheet**, Icon-Rail →
+  **untere Tab-Leiste**, `viewport-fit=cover`-Safe-Area-Insets greifen. Neue zentrale
+  `css/layout/responsive.css` (zuletzt in `main.css` importiert, damit die Sheet-Overrides
+  per Quellreihenfolge über die Komponenten-Basisregeln gewinnen).
+- **Sheets per Media-Query aus den Bestandspanels** (kein Panel-Logik-Duplikat, Briefing-
+  Vorgabe): dieselben `.shell-sidebar` (Strukturen/Sammlung/Info + Suche + Footer),
+  `.stp-flyout` (Settings) und ein neuer `.vc-sheet` (Ansichts-Cluster) teilen ein Sheet-
+  Rezept — bündig unten, `radius:28px 28px 0 0`, `--sheet-bg` (`rgba(15,16,20,.94)`),
+  Grabber `42×5` als `::before` (kein Extra-Markup), Slide-in von unten (`sheet-rise`
+  bzw. `--open`-Transform), `prefers-reduced-motion` → ohne Slide. Neue Tokens:
+  `--radius-sheet`, `--sheet-bg`, `--sheet-grabber`, `--sheet-backdrop-bg`, `--z-sheet`,
+  `--z-sheet-backdrop` (< `--z-modal`, damit das LicenseModal über dem Settings-Sheet bleibt).
+- **Untere Tab-Leiste** (`AppShell.tsx`, Frame „Mobile · Default"): Glas-Floating-Bar
+  `left/right:16px`, Buttons `52px` (≥`--touch-min`) — `Auswählen · Strukturen · Labels ·
+  Ansicht · ⚙`. Neue Icons `layers`/`cube`. Werkzeug/Toggle-Logik aus der Rail
+  wiederverwendet; `Strukturen`/`Ansicht` togglen die Sheets, `⚙` das bestehende Flyout.
+- **Neuer additiver UI-Store-Zustand `mobileSheet`** (`'panel' | 'view' | null`, ADR 0006-
+  Nachtrag) mit `openMobileSheet`/`closeMobileSheet`. Sheet und Settings-Flyout schließen
+  sich **gegenseitig aus** (teilen mobil die untere Bühne). Auf Schmal-Screens poppt eine
+  Auswahl zusätzlich das Panel-Sheet auf (Frame „Info-Sheet", `matchMedia`-Guard — sonst
+  CSS-only). Desktop unverändert: `mobileSheet` ohne Wirkung (Rail/Sidebar wie gehabt).
+- **Backdrop** hinter offenen Sheets (dimmt Canvas, schließt per Tap); auf Desktop
+  `display:none`. **Auswahl-Chips** der Mehrfachauswahl (`.msp-chips`) werden mobil zur
+  horizontal scrollbaren Reihe; Slider-Knobs 15px; Struktur-Zeilen mit mehr Touch-Höhe.
+  **Isolation-Untertitel** über die Tab-Leiste gehoben, Float-`ViewCluster` mobil aus.
+- **Perf:** netto **eine** dauerhaft sichtbare Blur-Fläche weniger auf Mobile — Rail- und
+  Sidebar-Glas entfallen, es bleibt nur die Tab-Leiste (Sheets sind nur bei Bedarf sichtbar).
+- Verifiziert: `npm run test` (41 grün, +3 Store-Tests für `mobileSheet`/Exklusivität) ·
+  `lint` · `tsc` · `build` sauber; Sheet-Regeln + alle neuen Tokens im Bundle, Assets 200.
+
+### Changed (Redesign „Variante B" — S9 Footer + LicenseModal + LoadingScreen + Branding)
+- **LoadingScreen im Marken-Look** (`LoadingScreen.tsx` + `loading-screen.css` neu, §9.11):
+  vollflächig `--stage-gradient`, Logo 132px mit rotierendem Akzent-Ring (SVG r98,
+  `dasharray 100 520`, 1.5s linear; `prefers-reduced-motion` → statisch), Wortmarke
+  „Anatomie **Fokus**" (Sora 600 46px), Tagline „Anatomie verstehen. Wissen anwenden.",
+  Fortschritt 320×4 `--accent-gradient` + „3D-Modell wird geladen … NN %".
+- **Neuer Store-Slice `loading`** (`{active, progress, label}` + `showLoading`/
+  `setLoadingProgress`/`hideLoading`, ADR 0008): `progress.js` ist jetzt reiner
+  Store-Adapter — DOM-Kreis-Overlay (Alt-Blau) + 2,2-s-„Willkommen!"-Verweilzeit
+  entfernt, App startet entsprechend schneller. Event-Kontrakt `circleOverlayHidden`
+  (Canvas sichtbar + Render-Loop) unverändert. React mountet jetzt auch im
+  Muskelfinder-Preview-Modus — dort rendert `App.tsx` nur den LoadingScreen.
+- **LicenseModal nach §9.10** (`LicenseModal.tsx` + neues `license-modal.css`):
+  zentrierte Card 600px/`radius 20px` (`--modal-bg`-Token neu), Backdrop
+  `rgba(6,6,7,.66)` + Blur, Header „Lizenzen & Attribution" (Sora 600 18px),
+  Attributions-Zeilen mit Lizenz-Tag-Pille rechts, Footer-CTA „Schließen" (gefüllt
+  `--accent`), **Fokus-Trap** (Tab zirkuliert, Fokus kehrt zum Auslöser zurück) + ESC.
+  **Fix:** Modal rendert per Portal an `document.body` — die `backdrop-filter`-Panels
+  (Sidebar/Flyout) bildeten einen Containing Block, der das `position:fixed`-Modal
+  einfing (bisher vom gelöschten `!important`-Override kaschiert).
+- **Footer im Sidebar-Fuß** (§9.9, neues `footer.css`): `Lernen · Lizenz · Quellen ·
+  Datenschutz` (Manrope 500 12px `--text-faint`, Trenner `·` mit `opacity .4`) +
+  BodyParts3D-Attributionszeile (CC BY 4.0 — Pflicht, ADR 0005). Glas-Floating-Bar,
+  Blau-Hardcode und der `shell-sidebar__foot`-Override entfernt.
+- **Branding/Favicon (§15):** `favicon.png` (512) + `favicon-16/32/64` aus
+  `af-logo-white` (flach/transparent), `apple-touch-icon` 180px (Squircle-Look,
+  Primär-Logo auf dunklem Radial-Verlauf), Maskable-Icons 192/512 (`af-logo-black`
+  auf Akzent-Orange) + `site.webmanifest`; Links + `theme-color` in `index.html`.
+- **Tote CSS entfernt:** `css/components/loading.css` gelöscht (Styles für nie
+  existierende `#initial-loading-screen`/`#loading-bar`-DOM-Knoten); `.ft-`/`.lic-`-
+  Blöcke aus `settings-panel.css` in die neuen Komponenten-Dateien überführt.
+- Headless verifiziert: Start → Marken-LoadingScreen (45→100 %) → Canvas sichtbar ·
+  Footer-Links + Attribution im Sidebar-Fuß · Modal zentriert (auch aus dem
+  Settings-Flyout), Fokus-Trap zirkuliert, ESC/CTA schließen, Fokus kehrt zurück ·
+  alle Icon-/Manifest-URLs 200 · Preview-Modus: nur LoadingScreen, keine Shell ·
+  keine Konsolen-Fehler.
+
+### Changed (Redesign „Variante B" — S8 SettingsPanel als Rail-Flyout)
+- **SettingsPanel = Flyout links neben der Rail** (`SettingsPanel.tsx` +
+  `settings-panel.css` neu geschrieben, §9.7/§10 Frame 2f): `left:100px; top/bottom:20px;
+  width:324px`, Glas-Panel `radius:20px`, Slide-in mit `--ease-smooth` (reduced-motion:
+  aus). Rechte Sidebar bleibt als Kontext sichtbar; Exklusivität weiter über den
+  `openFlyout`-Slice aus S1 (⚙ togglet, `closeFlyout` schließt).
+- **Sektionen nach 2f:** Uppercase-Header 10.5px/`.12em` (`--text-faint`). **Raum:**
+  „Helligkeit"-Slider (Sonnen-Icon, = Beleuchtung 0–200 %) · „Umgebungslicht"-Slider
+  (= Raumhelligkeit) · „Hintergrund"-Swatches (Schwarz `#0b0b0b` · Anthrazit `#34373c` ·
+  Navy `#0a0e27`, aktiv mit `--accent`-Ring) + Custom-Farbwähler und „Raum zurücksetzen"
+  als Ghost (Funktions-Erhalt). **Presets:** bestehende Manifest-Liste im neuen Zeilen-Stil —
+  die Handoff-Segmented „Studio/Klinisch/Kontrast" wären neue Beleuchtungs-Presets, die es
+  nicht gibt (Nicht-Ziel „kein Preset-Algorithmus"). **Tastenkürzel:** Key-Caps rechts
+  (Label links), echte App-Shortcuts statt der 2f-Beispiele. **Flyout-Footer:** „Farben
+  zurücksetzen" (`--accent` + Reset-Icon, = `resetColors()`) · „Lizenzen"-Link öffnet das
+  bestehende LicenseModal (Umbau des Modals folgt in S9).
+- **Kein `room`-Store-Slice** (Briefing-Option geprüft): Raum-Zustand lebt weiter in
+  `roomSettings.js`, einziger Konsument ist das Panel — lokal belassen, kein ADR nötig.
+  S3-Farbwahl-Konsolidierung geprüft: InfoPanel-Farbwahl ist **pro Struktur**, Settings sind
+  global — bleibt im InfoPanel.
+- Alt-Blau raus: Spinner/Sektions-Titel `#4A9EFF` → Tokens; Fehlertext → `--accent-strong`.
+- Headless verifiziert: ⚙ → Flyout bei exakt `left:100px` (Sidebar sichtbar) · Slider
+  85→95 % · Navy-Swatch aktiv · Preset „Hand" lädt (Overlay + 27 in Sammlung) ·
+  Lizenz-Modal auf/zu · ⚙-Toggle schließt · keine Konsolen-Fehler.
+
+### Changed (Redesign „Variante B" — S7 MultiSelect + Isolation ohne Floating-Bars)
+- **MultiSelectPanel = Sammel-Ansicht des Info-Tabs** (`MultiSelectPanel.tsx` +
+  neues `css/components/multi-select.css`, Frame 2d): Zähler-Badge (`--accent`/`--accent-on`,
+  Sora) + „N Strukturen gewählt" + Chip-Liste (Farbpunkt + Latein-Name + ✕) + „Für alle N"-
+  Aktionen **Isolieren · Ausblenden · Zur Sammlung hinzufügen** (Outline-CTA) + „Auswahl
+  aufheben" am Tab-Fuß. Keine floatende Bottom-Bar mehr; Auto-Switch öffnet den Info-Tab
+  jetzt auch bei Mehrfachauswahl (ab 1 Struktur — Briefing sagt >1, aber sonst wäre der
+  Info-Tab im Multi-Modus anfangs leer). Batch-Farbe/-Deckkraft als Sekundär-Block erhalten.
+- **Neue Sammel-Aktionen** an Bestands-Logik gebunden (kein Three.js-Umbau): Isolieren =
+  `enterIsolatedView(erste, {structuralGroups: []})` + restliche sichtbar schalten;
+  Ausblenden = `setModelVisibility(…, false)` je Struktur; Zur Sammlung = `addToCollection`
+  je Struktur (Duplikate übersprungen, Toast „N hinzugefügt"/„Bereits in der Sammlung").
+- **Isolation = Sidebar-Banner + Untertitel** (`IsolationBar.tsx` → exportiert jetzt
+  `IsolationBanner` + `IsolationSubtitle`, neues `css/components/isolation-bar.css`, §9.6/
+  Frame 2e): Banner „Isolation aktiv · Nur <X> sichtbar" (Target `--accent`, `--accent-dim`-
+  Fläche, `--accent-border`) + Ghost „Kontext einblenden" (`enterGhostContext`) + gefülltes
+  „Isolation beenden" (`actionBar.onPrimary` — Deeplink-Label „← Zurück zum Muskelfinder"
+  bleibt erhalten). Unten-mittig ersetzt der **Untertitel** (Struktur + Gruppe, `left:41%`)
+  den ViewCluster, solange die Isolation aktiv ist (Frame 2e zeigt dort keinen Cluster).
+- **Store additiv erweitert:** `isolation.label?` (Anzeige-Label, z. B. „3 Strukturen" bei
+  Mehrfach-Isolation); `isolationView.js` reicht `options.label` durch, Default-Primary-Label
+  „← Zurück zur Gesamtansicht" → „Isolation beenden" (§-Wortlaut).
+- **Bugfix Geister-Selektion:** `pickAt()` (raycaster.js) setzt bei jedem Canvas-Klick
+  `selected.root` als Nebeneffekt — nach „Auswahl aufheben"/„Ausblenden" blieb der Info-Tab
+  dadurch leer offen. Beide Aktionen rufen jetzt zusätzlich `clearSelection()` auf.
+  (Gleiche Kante beim Esc-Shortcut in `interaction/index.js` bewusst offen gelassen.)
+- **Tote CSS entfernt:** `css/components/panels.css` komplett gelöscht (Shortcuts-Tip ohne
+  DOM-Gegenstück, `#isolation-actions`-Float, Muskelfinder-Preview-Regeln — im Preview-Modus
+  mountet die React-UI nicht); `.msp-*`-Float-Block + `ip-slide-in` aus
+  `info-panel-react.css` entfernt (neue Datei ist selbstständig).
+- Headless verifiziert: Multi-Tool → 2 Klicks → Sammel-Ansicht (Badge/Chips/Aktionen) ·
+  Chip-✕ · Isolieren → Banner/Untertitel/Cluster-Swap · Beenden → Rückbau · Zur Sammlung
+  (Badge 2, Duplikat-Toast) · Ausblenden → Tab zurück auf „Strukturen" · Einzel-Isolation
+  über InfoPanel → Banner mit Struktur-Name + Gruppen-Untertitel. **Pixel-Sichtprüfung offen.**
+
+### Changed (Redesign „Variante B" — S6 CollectionPanel → Tab „Sammlung")
+- **CollectionPanel im Tab-Body verankert** (`js/ui/react/components/CollectionPanel.tsx`):
+  kein Float/eigenes Glas/Close-X mehr; `onClose`-Prop entfällt. Der letzte
+  `shell-host`-Override in `AppShell.tsx`/`app-shell.css` ist damit abgelöst und gelöscht.
+- **Frame-2c-Layout** (`css/components/collection-panel.css`): Sektions-Label
+  „GESPEICHERT · N Einträge" (Klinik-Stil) · flache Zeilenliste (Farbpunkt 10px +
+  Latein-Name + Fokus-Target + Trash 16px, Gruppen-Abschnitte entfallen — Gruppe bleibt
+  über den Farbpunkt ablesbar) · **CTA „Alle fokussieren"** gefüllt `--accent`/`--accent-on`
+  mit `margin-top:auto` am Tab-Fuß. Alt-Navy (`#4A9EFF`)-Hardcodes durch Tokens ersetzt.
+- **Zeilen-Klick/Target fokussiert** (Highlight + `focusOnObject`) **ohne `setSelection`** —
+  bewusste Abweichung vom alten Verhalten: Selektion würde per Auto-Switch (ADR 0006)
+  sofort auf den Info-Tab springen und die Sammlung verlassen (Frame 2c: „Klick fokussiert").
+- **„Alle fokussieren"** = bisheriges „Nur Sammlung anzeigen" (`showCollectionInScene()`,
+  §-Wortlaut) · **Leeren/Export/Import als Sekundär-Reihe beibehalten** (Nicht-Ziel:
+  Export/Import unverändert). Toast auf Orange-Tokens; Timer wird bei Unmount aufgeräumt.
+- Mobile-`@media` entfernt (Bottom-Sheet kommt in S10).
+- Headless verifiziert (Chromium/Swiftshader): Canvas-Klick → Info-Tab → „Zur Sammlung" →
+  Tab „Sammlung" (Badge 1, Zeile, CTA) · Zeilen-Klick bleibt im Sammlung-Tab und fährt die
+  Kamera auf die Struktur · „Alle fokussieren" isoliert die Sammlung sichtbar · Entfernen →
+  „0 Einträge" + Leer-Hinweis + CTA disabled. **Pixel-Sichtprüfung trotzdem offen.**
+
+### Changed (Redesign „Variante B" — S5 Ansichts-Cluster als eigene Leiste)
+- **`ViewCluster.tsx` neu** (`js/ui/react/components/`): Kamera-Richtungen + Reset aus
+  `AppShell.tsx` in eine eigenständige schwebende Leiste ausgelagert (Handoff §9.1/§10,
+  Frames `2a`–`2e`). Kamera-Actions unverändert (`setCameraDirection`/`resetApp`).
+- **§-Styling** (`css/components/view-cluster.css`, Präfix `vc-`): Glas-Rezept `.bar`,
+  `left:41%` (Mitte des freien Canvas) `bottom:26px`, `radius:16px`; „Ansicht"-Label
+  (Manrope 600 10px, Klinik-Tracking); Buttons 38px/`radius:10px` mit deutschen
+  Richtungs-Labels **Vorne/Hinten/Links/Rechts/Oben/Unten** (Frame-Wortlaut statt
+  bisher „Ant/Post/…"; anatomische Begriffe bleiben im Tooltip); Trenner + Reset-Icon.
+  Kein neuer Blur — die eine `backdrop-filter`-Fläche des Clusters bestand schon (ADR 0007).
+- **Reset aus der Rail entfernt** — laut §10-Mapping gehört „Ansicht zurücksetzen" zum
+  Ansichts-Cluster, nicht zur Rail; Aktion (`resetApp()`) unverändert, keine Dublette.
+- **Tote `#toolbar-dir-panel`/`#anatomy-toolbar`-Regel** in `panels.css`
+  (Muskelfinder-Preview) entfernt: im Preview-Modus wird die React-UI gar nicht
+  gemountet (`app.js`), eine Hide-Regel für Rail/Cluster kann nie greifen
+  (headless verifiziert: `.shell-rail`/`.vc-bar` fehlen dort im DOM).
+- **Sichtprüfung nötig:** Pixel-/3D-Verhalten ist nicht unit-getestet.
+
+### Changed (Performance-Untersuchung — Ruckeln bei Kamerabewegung, Layout B)
+- **Glas-Blur moderater:** `--glass-blur-strong` 22px → 14px, `--glass-blur` 12px → 10px
+  (`css/theme/variables.css`, dokumentierte Abweichung vom Handoff §8) — senkt die
+  Pro-Frame-Blur-Kosten der großen, dauerhaft sichtbaren Layout-B-Flächen (Rail + volle
+  Sidebar) über dem live rendernden Canvas; optisch bei 82 %-opaken Panels kaum unterscheidbar.
+  Auf echter Zielhardware (Schul-Laptop) war das der entscheidende Hebel gegen das Ruckeln.
+- **Labels ohne `backdrop-filter`** (`css/components/labels.css`): bei „alle Labels an" sind das
+  hunderte DOM-Boxen mit je einem Blur → pro Frame neu komponiert = Ruckeln. Blur entfernt
+  (Hintergrund war zu 78 % ohnehin deckend), Farben zugleich auf Marken-Schwarz/Hairline
+  statt Alt-Navy. Offener Folgehebel: Label-Renderer läuft in eigener 60-fps-Dauerschleife
+  ohne Culling (siehe `js/features/labels.js`).
+- **Zwei verworfene Ansätze zurückgebaut** (beide ohne Wirkung auf das Ruckeln, aber mit
+  sichtbaren Nebenwirkungen): Blur-Aussetzen während der Bewegung (Grau-Flackern) und
+  adaptive Auflösung 0.65× während der Geste (sichtbare Pixelation bei DPR 1).
+  Render-Loop/`startApp.js` wieder identisch zum Stand vor dem Redesign.
+- **Ursache noch offen** — Diagnose läuft (A/B: UI-Overlay aus vs. an); Draw-Call-Reduktion
+  (`BatchedMesh`) als struktureller Kandidat in `docs/BACKLOG.md` (P1) erfasst.
+
+### Changed (Redesign „Variante B" — S4 SearchBar → Sidebar-Kopf)
+- **Persistentes Suchfeld statt floatendem Lupe-Icon** (`js/ui/react/components/SearchBar.tsx`):
+  Einklapp-Logik + Fixed-Toggle entfernt; die Pille lebt jetzt dauerhaft im Sidebar-Kopf
+  (`.shell-searchhost`). `/` fokussiert, Esc leert.
+- **§9.2-Styling** (`css/components/search-bar.css`): Pille `padding:13px 15px; radius:14px`,
+  Lupe in `--accent`, Fokus-`border --accent-border`, **kein eigener Blur** (sitzt in der
+  Glas-Sidebar → spart verschachtelten `backdrop-filter`). Ergebnis-Dropdown als absolut
+  positioniertes Panel (Anker `.shell-searchhost`): Header „N Treffer" + „↑ ↓ · Enter"-Hinweis,
+  Zeilen mit **Farbpunkt** (`--group-*`) + Name (**Fuzzy-Treffer-Teil in `--accent` 600**) +
+  Gruppen-Tag; aktive Zeile `--accent-dim`.
+- Treffer-Auswahl lädt bei Bedarf die Gruppe, selektiert + fokussiert → Auto-Switch auf „Info"
+  (aus S1/S3). Tastatur ↑/↓/Enter/Esc. Emoji-Spinner `⏳` durch CSS-Spinner ersetzt
+  (reduced-motion-fest).
+- **Sichtprüfung nötig:** Pixel-/3D-Verhalten ist nicht unit-getestet.
+
+### Changed (Redesign „Variante B" — S3 InfoPanel → Tab „Info")
+- **InfoPanel im Tab-Body verankert** (`js/ui/react/components/InfoPanel.tsx`): kein
+  `position:fixed`/eigenes Glas/Close-X mehr (Tab-Kontext); `shell-host`-Override in
+  `AppShell.tsx` für den Info-Tab abgelöst (direktes Rendern). Auto-Switch auf „Info" bei
+  Auswahl war bereits seit S1 verdrahtet.
+- **§9.4-Layout** (`css/components/info-panel-react.css`): Titel Sora 600 21px (Latein via
+  `getStructureDisplayLabel`) + **Gruppen-Badge** (Farbpunkt 8px + Gruppenname, `background:
+  Gruppenfarbe @15%` aus `--group-*`) · **Deckkraft-Slider** (Fill `--accent`, Knob 13px,
+  Live-Prozent, jetzt controlled) · **3 gleich breite Aktionen** Ausblenden/Isolieren/Kontext
+  (Inline-SVG 19px + Label 11px) · **CTA „Zur Sammlung"** (Outline `--accent-border`). Alt-Navy
+  (`#4A9EFF`) in Buttons/Toast auf Marken-Orange-Tokens umgestellt.
+- **Farbwahl beibehalten** als sekundärer Block (nicht Teil von §9.4 — Layout-A-Feature, ggf.
+  später in Settings/S8 konsolidieren). `ModelActions` bekommt `key={meta.id}` → frischer
+  State pro Struktur (behebt latenten Stale-State bei Auswahlwechsel).
+- Mobile-`@media` für `.ip-panel` entfernt (Bottom-Sheet kommt in S10); `.msp-*` (S7) unberührt.
+- **Sichtprüfung nötig:** Pixel-/3D-Verhalten ist nicht unit-getestet.
+
+### Changed (Redesign „Variante B" — S2 StructureBrowser → Tab „Strukturen")
+- **StructureBrowser im Tab-Body verankert** (`js/ui/react/components/StructureBrowser.tsx`):
+  kein `position:fixed`/eigenes Glas/Panel-Header mehr — die Komponente füllt jetzt den
+  „Strukturen"-Tab (Default-Tab der Sidebar). `shell-host`-Override in `AppShell.tsx` für
+  diesen Tab abgelöst (direktes Rendern), `onClose`-Prop entfernt.
+- **Gruppen-Zeile auf §9.3-Maße umgezogen** (`css/components/structure-browser.css`):
+  Sichtbarkeits-Auge (17px) · Farbpunkt 11px (`--group-*`) · Label (flex 1) · Röntgen-Slider
+  (Track `60×4`, Fill in Gruppenfarbe, Knob 11px weiß) · Laden/Entladen-Button. Ausgeblendete
+  Gruppe gedimmt (`--text-faint`), aktive (geladen+sichtbar) `background:--accent-dim`, Label 600.
+  Farbpunkt + Slider-Fill aus `--group-*`-Tokens (statt Store-Farbnummer); nur Tokens, keine Hardcodes.
+- **Sichtbarkeits-Toggle als `role="switch"`** (`aria-checked`) — A11y-Grundlage (Feinschliff S11).
+- **Skaliert über 5 Gruppen** hinaus: vertikale Flex-Liste im scrollenden Tab-Body, kein festes Raster.
+- **Sichtprüfung nötig:** Pixel-/3D-Verhalten ist nicht unit-getestet.
+
+### Changed (Redesign „Variante B" — S1 App-Shell: Icon-Rail + Tab-Sidebar)
+- **Layout B eingeführt** (`js/ui/react/components/AppShell.tsx` + `css/components/app-shell.css`):
+  Icon-Rail links (Logo, Auswahl-Werkzeuge, Layer-Toggles Knochen/Muskeln, Labels/Foto/Reset,
+  ⚙ unten) + **persistente Tab-Sidebar** rechts (`Strukturen · Sammlung · Info`) mit Such-Kopf
+  und Footer-Fuß + Ansichts-Cluster unten mittig. Ersetzt die bisherige Bottom-Toolbar und die
+  an den Ecken floatenden Panels (Layout A).
+- **Additiver UI-Store-Slice** (`js/store/useStore.ts`): `sidebarTab` (`structures|collection|info`)
+  + `openFlyout` (`settings|null`) mit Actions `setSidebarTab`/`openFlyoutExclusive`/`closeFlyout`.
+  `App.tsx` hält keinen Panel-`useState` mehr — Navigation läuft über den Store (ADR 0006).
+- **Auto-Switch:** Auswahl einer Struktur schaltet die Sidebar automatisch auf „Info", das
+  Aufheben zurück auf „Strukturen" (Effekt in der Shell, `selected.root`-gebunden — bewusst
+  außerhalb der imperativ genutzten Selection-Actions, ADR 0006).
+- **Bestehende Panels** (StructureBrowser/InfoPanel/CollectionPanel) werden **in die Tab-Bodies
+  gehostet** (temporärer Positionierungs-Override in `app-shell.css`); ihr pixelgenauer Umbau
+  folgt isoliert je Komponente (S2/S3/S6). Multi/Isolation bleiben vorerst kontextuelle Overlays
+  (S7), Settings öffnet als Panel via ⚙ (Rail-Flyout in S8).
+- **Toten Code entfernt:** `Toolbar.tsx` + `css/components/toolbar.css` gelöscht (Werkzeuge leben
+  in der Rail, Kamera-Richtungen im Ansichts-Cluster). Store-Tests +3 (34 grün).
+- **Assets:** `af-logo.png` (+ `-white`) nach `public/assets/` für die Rail (Favicon-Set folgt S9).
+- **Sichtprüfung nötig:** Pixel-/3D-Verhalten ist nicht unit-getestet.
+
+### Changed (Redesign „Variante B" — S0 Fundament: Tokens, Fonts, Cleanup)
+- **Design-Tokens auf Marke „Anatomie Fokus" umgestellt** (`css/theme/variables.css`):
+  Navy/Blau → Marken-Schwarz `#0b0c0e` + Orange-Akzent `#ff6a00`, neutralisiertes Glas,
+  Sora/Manrope-Font-Stacks, `--stage-gradient`, Hairlines, erweiterte Spacing-/Radius-/
+  z-index-Stufen und semantische Gruppenfarben (Drop-in aus dem Design-Handoff).
+- **Alte Blau-Token migriert:** `--accent-blue`/`--accent-blue-dim`/`--accent-orange` →
+  `--accent`/`--accent-dim` in `info-panel-react.css`, `search-bar.css`,
+  `structure-browser.css` (semantischer Primär-Akzent ist jetzt Orange).
+- **`base.css`** nutzt Tokens statt Navy-Hardcodes (`--stage-gradient`, `--font-ui`).
+- **Fonts self-hosted vorbereitet** (`css/theme/fonts.css`, in `main.css` importiert):
+  `@font-face` für Sora (300–800) + Manrope (400–800), `font-display:swap`, lokale
+  `/fonts/*.woff2` (CSP `font-src 'self'`). Die 11 `.woff2` (latin-ext-Subset, SIL OFL 1.1)
+  liegen unter `public/fonts/` und werden vom Build nach `dist/fonts/` übernommen.
+- **Toten Code entfernt:** `css/components/dropdowns.css` gelöscht + Import aus `main.css`.
+
+### Changed (Rebranding — „BlueBody 3D" → „Anatomie Fokus 3D")
+- Anzeigename überall auf **Anatomie Fokus 3D** umgestellt: Browser-Titel (`index.html`),
+  alle Doku-Titel (AGENTS/CLAUDE.md, ROADMAP, architecture, STARTEN, AGENT_WORKFLOW,
+  DESIGN_BRIEF), Export-Signatur im Sammlungs-Export, `name`-Feld der Preset-Dateien,
+  Screenshot-Dateiname (`anatomie-fokus-3d-…jpg`) und npm-Paketname (`anatomie-fokus-3d`,
+  package.json + lock synchron, `npm ci` grün).
+- **Bewusst belassen:** die technische Dateiendung `.bluebody` (Format der gespeicherten
+  Sammlungen/Presets) — eine Umbenennung würde bereits exportierte Nutzerdateien
+  unlesbar machen; offen als separate Entscheidung.
+
+### Added (Nomenklatur — kuratiertes Latein für sichtbare neue Muskeln)
+- **`labels.la` für die 54 neuen, aktuell sichtbaren Muskel-Teile** (Gruppe `muscles`)
+  mit geprüftem Terminologia-Anatomica-Latein gesetzt (`scripts/set-muscle-latin.mjs`,
+  Schlüssel = FMA-ID). Ersetzt die fehleranfällige Laufzeit-Synthese aus dem Englischen
+  durch feste Namen — z. B. „Right medial pterygoid" → `M. pterygoideus medialis dexter`,
+  „Right internal oblique" → `M. obliquus internus abdominis dexter`. Seiten-neutral
+  gespeichert (App hängt dexter/sinister an); Provenienz über `meta.validation_status =
+  'latin_manual'` (menschlich kuratiert, fachliche Stichprobe noch empfohlen). Die
+  restlichen 702 neuen Teile liegen in noch deaktivierten Gruppen (Gefäße/Nerven/Hirn)
+  und behalten vorerst die synthetisierten Namen — dran, sobald ihre Gruppen freigeschaltet
+  werden.
+- **Nebenbefund (nicht behoben):** `fma57084`/`fma57086` (stylomandibular ligament) sind
+  Bänder, liegen aber in der `muscles`-Gruppe (BP3D-Fehlklassifikation). Korrekt als
+  `Lig. stylomandibulare dextrum/sinistrum` benannt; die Gruppen-Umlage bleibt offen.
+
+### Not done (Modell-Pipeline — Komplett-Tausch vorerst zurückgezogen)
+- Der Tausch der 2.153 Bestandsteile auf die reprozessierten Meshes wurde **versucht,
+  aber wieder zurückgenommen**, weil er die Modelle räumlich zerlegt hat (der Schädel
+  schwebte über der Wirbelsäule). **Ursache:** Die alten Live-Modelle tragen eine
+  *hand-kalibrierte, uneinheitliche* Skalierung — der Schädel liegt bereits auf
+  `SCALE 0.0010844`, der Rumpf/die Wirbelsäule aber auf ~`0.001176` (≈ ×1,0844). Diese
+  Mischung ergibt zusammengesetzt ein stimmiges Skelett. Die Blender-Pipeline exportiert
+  jedoch **einheitlich** auf `0.0010844`; der Tausch verkleinerte deshalb den Rumpf um
+  Faktor 0,922 zum Ursprung hin, ließ den (schon passenden) Schädel aber unverändert →
+  Rumpf rutscht nach unten weg. Numerisch nachgewiesen an Frontal/Occipital (ratio 1,00,
+  unbewegt) vs. C7/T5/Sakrum/Femur (ratio 0,922, bis −11,6 cm).
+- **Konsequenz:** `public/models` + `meta.json`-Modellpfade wurden auf den bekannten,
+  ausgerichteten Vor-Tausch-Stand zurückgesetzt (Ausrichtung numerisch verifiziert:
+  Skull+Spine wieder bbox-identisch zum Alt-Stand). `scripts/swap-existing-models.mjs`
+  bleibt erhalten, wird aber **nicht** angewandt, bis die Pipeline die alte Per-Teil-
+  Kalibrierung reproduziert (offener Punkt, siehe Runbook). Der einzige QC-Fehler
+  (`fma7163`, 0 Materialien, deaktivierte `skin_hair`-Gruppe) besteht damit wie vor dem
+  Tausch weiter — Alt-Zustand, keine neue Regression.
+
+### Fixed (Build — fehlende Rechtsseiten im Deploy)
+- **`quellen-lizenzen.html` und `datenschutz.html` fehlten komplett im Produktions-Build**:
+  `vite.config.js` hatte nur `index.html` als Rollup-Input, die beiden eigenständigen
+  Rechtsseiten wurden nie nach `dist/` gebaut. Da der GitHub-Actions-Workflow exakt
+  `dist/` deployt, waren die Footer-/LicenseModal-Links „Quellen & Lizenzen" und
+  „Datenschutz" auf der live laufenden Seite tote 404-Links. `build.rollupOptions.input`
+  um beide Seiten ergänzt; Build-Output enthält jetzt alle drei HTML-Dateien.
+
+### Fixed (Modell-Pipeline — Ordner-Konsistenz, QC, Lizenz)
+- **108 Ordner-Konflikte behoben**: GLB-Dateien, die noch im falschen Gruppen-Ordner
+  lagen (`classification.group` in meta.json wich vom physischen Ablageort ab —
+  z. B. ein Muskel, der aus `arteries/` geladen wurde), in den korrekten Ordner
+  verschoben und `model.variants.draco.path`/`model.asset` in meta.json nachgezogen.
+  Betraf u. a. Teile aus aktiven Gruppen (Muskeln, Bänder, Knorpel, Knochen), die im
+  StructureBrowser bislang unter der falschen Kategorie auftauchten.
+  Neues Skript `scripts/fix-folder-conflicts.mjs` (idempotent, `--dry-run`).
+- **QC-Skript** (`scripts/qc-models.mjs`, Phase 6 aus `docs/tasks/model-pipeline-bp3d.md`):
+  prüft jede ausgelieferte draco-GLB strukturell (1 Mesh/1 Material, Dreieckszahl > 0,
+  Draco-Dekodierung via `@gltf-transform/core` + `draco3dgltf`) und gleicht meta.json
+  gegen das Dateisystem ab (fehlende/verwaiste Dateien, FJ/Gruppen-Pfad-Konsistenz).
+  Report unter `NEW MODELS/qc-report.json`. Lauf über alle 2.997 Einträge: nur noch
+  1 bekannter Inhaltsfehler (`fma7163`, deaktivierte Gruppe `skin_hair`, 0 Materialien
+  in der GLB — dokumentiert in `docs/MODELS.md`, nicht automatisch korrigiert).
+- **BodyParts3D-Lizenz korrigiert auf CC BY 4.0** ([ADR 0005](docs/decisions/0005-bodyparts3d-lizenz-korrektur.md),
+  ersetzt ADR 0003): Das Projekt führte bisher zwei widersprüchliche Lizenzangaben
+  parallel — UI (Footer, LicenseModal, `quellen-lizenzen.html`) und 2.232 ältere
+  meta.json-Einträge sagten CC BY 4.0, während ADR 0003/CLAUDE.md/AGENTS.md und die
+  765 neu integrierten Einträge CC BY-SA 2.1 Japan vorschrieben. Gegenprüfung an zwei
+  offiziellen DBCLS-Quellen ergab: CC BY-SA 2.1 Japan war die Lizenz der
+  BodyParts3D-Erstveröffentlichung 2008, die aktuelle, vom Rechteinhaber selbst
+  betriebene Archiv-Distribution lizenziert die Datenbank heute unter CC BY 4.0.
+  Alle 2.997 meta.json-Einträge, `CLAUDE.md`/`AGENTS.md`,
+  `scripts/integrate-new-models.mjs` und `quellen-lizenzen.html` auf CC BY 4.0
+  vereinheitlicht; ADR 0003 als ersetzt markiert (Historie bleibt erhalten).
+- **`docs/MODELS.md` neu**: Provenienz, Pipeline-Schritte, Tool-Versionen,
+  „modified"-Hinweis, bekannter Stand (2.232 Bestandsteile noch nicht auf die
+  reprozessierten Meshes umgestellt, 765 neue Teile ohne geprüfte Latein-Namen).
+
+### Changed (Einzelansicht — letzte DOM-Chrome-Altlast nach React)
+- **Isolations-Aktionsleiste von imperativem DOM nach React portiert** (vollendet ADR 0004:
+  „kein paralleles DOM-Chrome mehr"). `isolationView.js` baut keine `document.createElement`-Leiste
+  mehr, sondern schreibt den Isolations-Zustand (`isolation: { model, actionBar }`) in den Store;
+  die neue `IsolationBar.tsx` rendert die Leiste reaktiv. `InfoPanel` liest den Isolations-Status
+  jetzt reaktiv aus dem Store statt über lokalen State — der „Isolieren"-Button aktualisiert sich
+  auch, wenn die Isolation über die Leiste verlassen wird. Der custom-`actionBar`-Erweiterungspunkt
+  (Muskelfinder-Deeplink „← Zurück zum Muskelfinder") bleibt unverändert nutzbar. Nebenbei behoben:
+  `resetApp()` räumt die Isolation jetzt auf (vorher konnte die DOM-Leiste nach Reset hängen bleiben).
+
+### Added (3D-UX)
+- **Röntgen-/Transparenz-Regler pro Layer** im StructureBrowser: jeder geladene & sichtbare
+  Layer (Knochen, Muskeln …) bekommt einen kompakten Slider, um die ganze Gruppe stufenlos
+  durchscheinen zu lassen (z. B. Muskeln auf 30 %, um Knochen darunter zu sehen). Neuer
+  Store-State `groupOpacity` + Action `setGroupOpacity` (geklemmt 0–1); das bestehende, bis
+  dato ungenutzte `appearance.setGroupOpacity()` persistiert jetzt in den Store und fordert ein
+  Render an. `loadGroupByName` wendet gespeicherte Layer-Transparenz nach dem Laden erneut an
+  (Konsistenz beim Neuladen); `resetApp()` setzt sie zurück.
+
+### Removed (Aufräumen / Hygiene — tote Dateien, Lint, Docs)
+- **15 nicht importierte tote CSS-Dateien gelöscht** (`base/*`, `components/animations.css`,
+  `components/ui-elements.css`, `controls/{dropdowns,inputs,set-list,sidebar,sliders}.css`,
+  `layout/{canvas,layout,responsive,splashscreen}.css`, `utilities/utilities.css`) — einziger
+  CSS-Einstieg ist `css/main.css`.
+- **4 tote JS-Module gelöscht**: `js/core/lodManager.js`, `js/features/groups.js`,
+  `js/features/groupToggle.js`, `js/bootstrap/initSplashScreen.js` (nirgends importiert).
+- **Lint: 10 Fehler → 0** (`npm run lint` grün): leere `catch`-Blöcke kommentiert, ungenutzte
+  `catch (error)`-Bindings entfernt, irreguläres Leerzeichen (U+202F) gefixt, tote Imports
+  raus (`THREE` in selection/visibility, `setModelVisibility`, `modelPath`), tote Funktion
+  `updateDynamicProgress` entfernt.
+- **`resourceManager`-Subsystem komplett entfernt**: `js/core/resourceManager.js` gelöscht
+  (nutzte verbotenes `localStorage`, preloadete nicht existierende Dateien, war nie verdrahtet).
+  In `modelLoader-core.js` die toten Helfer raus (Loader-Pool `getPooledLoader`, Material-Cache
+  `getOrCreateMaterial`, das durch `updateModelColors`/`setupBasicLights` abgelöste
+  `applyGroupColor`/`ensureMuscleLighting`) inkl. verwaister Konstanten; tote
+  `features.resourceManager*`-Flags aus `config.ts`. **Lint damit komplett blank: 0 Fehler, 0 Warnungen.**
+- **`docs/architecture.md`** auf den realen Ist-Stand gebracht (Schichten, Datei-Struktur,
+  Store-/Aktions-Kommunikation, meta.json-Hinweis zu leeren region/system-Feldern).
+
+### Changed (UI-Konsolidierung — Chrome vollständig in React, Hamburger entfernt)
+- **DOM-Hamburger-Menü (`#menu-icon` → `#controls`) und DOM-Footer gelöscht** —
+  `index.html` enthält nur noch Canvas + React-Mountpunkt. Siehe ADR 0004.
+- **Neue React-Komponenten**:
+  - `SettingsPanel.tsx` — Raum (Beleuchtung/Helligkeit/Farbe), Farben zurücksetzen,
+    Preset-Bibliothek, Tastenkürzel; Zahnrad-Button („Optionen") in der Toolbar
+  - `Footer.tsx` + `LicenseModal.tsx` — Lizenz/Attribution, Quellen, Datenschutz,
+    Lernen-Link; löst die bisherige dreifache Rechtliches-Doppelung auf
+- **Neue DOM-freie Feature-Module** (portierte 3D-/Daten-Logik, kein Reinvent):
+  - `features/roomSettings.js` (aus `ui-room.js`) — `applyLighting`, `applyRoomColor`,
+    `initRoomSettings`; in `startApp` statt `setupUI` aufgerufen
+  - `features/presets.js` (aus `ui-presets.js`) — `loadPresetManifest`, `applyPreset`
+- **`ui-reset.js` entkernt**: `resetColors` exportiert (für SettingsPanel), toter
+  Light-Reset (`resetToDefaultView`) + DOM-Wiring (`setupResetUI`) entfernt
+- **`photoMode.js` entkoppelt**: kein `hideControlsPanel`-Import mehr, totes
+  `initPhotoMode` (Legacy-Button) entfernt; `enterPhotoMode` bleibt
+- **Gelöschte Legacy-Module**: `ui-init.js`, `ui-controls.js`, `ui-room.js`,
+  `ui-presets.js`, `license.js`, `licenseContent.js`
+- **Tote CSS entfernt**: `components/presets.css`, `layout/footer.css`,
+  `controls/buttons.css` gelöscht; `#menu-icon`/`#controls`/`#room-controls`-Regeln
+  aus `layout/app.css`, `#btn-photo-mode` aus `photo-mode.css`, Preview-Selektoren
+  in `panels.css` bereinigt; neue `components/settings-panel.css`. CSS-Bundle −~13 KB.
+- Build: 110 → 106 Module; Typecheck sauber, 29 Tests grün
+
+### Removed (startApp.js — toter Loading-Screen- & Render-Opt-Code)
+- `LoadingScreenManager`-Klasse + Instanz + `startAppWithLoadingScreen`/
+  `loadGroupWithIndicator`/`loadMultipleGroups` (nirgends aufgerufen)
+- Render-Opt-Cluster (`RENDER_OPTIMIZATION`, `renderOptimizer`, `useOptimization`,
+  `loadOptimizer`, `renderFrame`) — nie verdrahtet, Loop nutzt `renderer.render`
+- verwaiste Imports + leerer `if`-Block; `startApp.js` jetzt lint-sauber
+
+### Added (Modell-Pipeline — BodyParts3D-Neuaufbereitung, Vorbereitung)
+- **`scripts/sort-new-models.mjs`**: sortiert 3.260 Roh-OBJ (`NEW MODELS/`) in Gruppen-Ordner
+  (`NEW MODELS/sorted/<gruppe>/`), Zuordnung über meta.json (FMA/FJ) vor Ordnerlage; volle
+  Dateinamen behalten. Reports: `_manifest.json`, `REVIEW.md` (766 heuristisch), `_conflicts.json`
+  (129 im aktuellen App-Bestand fehlsortierte Modelle).
+- **`scripts/blender/process-models.py`**: headless Aufbereitung Voxel-Remesh→Smooth→Decimate→
+  1 Material→GLB-Export (Tiers `hifi`+`draco`). Verifizierter Transform `(x,z,−y)·0.001`,
+  röhrenförmige Gruppen ohne Remesh, Voxelgröße relativ zur Objektgröße.
+- **`scripts/draco-compress.mjs`** + devDep `@gltf-transform/cli`: Draco-Nachschritt für den
+  `draco/`-Tier (Blender hier ohne Draco-Lib).
+- **`scripts/blender/import_group.py`**: eine Gruppe zur Sichtprüfung in Blender laden.
+- **Docs**: docs/tasks/model-pipeline-bp3d.md (Briefing),
+  docs/tasks/blender-pipeline-runbook.md (Runbook).
+- `.gitignore`: `NEW MODELS/` (Rohdaten, groß + CC BY-SA-Quelle).
+
+### Removed (Phase 3h — Hamburger-Menü-Legacy & toter Code endgültig raus)
+- **Tote UI-Dateien gelöscht** (zielten auf nicht mehr existierende DOM-Elemente):
+  - `js/ui/ui-export.js` — `#btn-export-set`/`#input-import-set` gab es nicht mehr; der `.bluebody`-Export im `CollectionPanel` ersetzt es
+  - `js/ui/ui-loading.js` — Ladefarbe-Picker zielte auf entferntes `#initial-loading-screen`
+- **`js/ui/ui-reset.js` entkernt** (toter Code entfernt):
+  - `resetAllButtonStates()` (manipulierte entfernte `#btn-load-*`-Buttons)
+  - `resetGroupToggleStates()` (`resetGroupStates`-Event hatte keinen Listener)
+  - `debugResetState()` (Debug-Logging + verbotenes `window.groupToggleLoadedGroups`-Global)
+  - `syncToolbarLayerButtons()`-Aufruf (No-op) + `${groupName}-color`-DOM-Reset (Elemente entfernt)
+  - veraltete „Anleitung"/App-Guide-Modal (verwies auf längst entfernte Menü-Buttons) — kommt als echtes Onboarding in Phase 5 wieder
+  - ungenutzter Import `registerPickables`
+- **`js/ui/toolbar.js`**: No-op-Exports `syncToolbarLayerButtons()` und `setupToolbar()` entfernt (kein Consumer)
+- **`js/utils/anatomyLabels.js`**: totes `renderStructureLabel()` + `splitStructureLabel()` + `LATIN_SIDE_SUFFIX_PATTERN` entfernt (kein Aufrufer mehr)
+- **Tote CSS entkernt**:
+  - `css/components/panels.css`: 621 → 165 Zeilen (app-guide, `#info-panel`, `.mf-detail-*`, `#edit-controls`, `.edit-btn-*`, `.multi-select-*`, `#multi-edit-*` — alles aus gelöschtem DOM)
+  - verwaiste Dateien gelöscht: `css/components/info-panel.css`, `css/controls/edit-controls.css`, `css/controls/controls-panel.css` (nirgends importiert)
+  - `css/controls/buttons.css`: `#btn-app-guide`-Styles raus
+  - `css/layout/responsive.css`: toter `#info-panel`-Mobile-Block raus
+- **`js/ui/ui-init.js`**: `setupExportUI`/`setupLoadingUI` aus dem Setup-Chain entfernt
+- **`index.html`**: leeres `#room-dropdown-content` entfernt
+- Module: 112 → 110, Typecheck sauber, 29 Tests grün
+
+### Changed (Phase 3g — Sammlung in React + Legacy-DOM-Aufräumen)
+- **React `CollectionPanel`** (`js/ui/react/components/CollectionPanel.tsx`) ersetzt die DOM-basierte Sammlung:
+  - Liest `collection` direkt aus dem Store (reaktiv) — behebt den Bug, dass hinzugefügte Strukturen nicht in der Liste erschienen
+  - Gruppierte Liste mit Einzeln-Entfernen, Klick-zum-Fokussieren, Anzahl-Badge in der Toolbar
+  - „Nur Sammlung anzeigen", „Leeren", „Export"/„Import" (`.bluebody` via `collectionManager`)
+  - Toolbar-Button „Sammlung" (gegenseitig ausschließend mit „Strukturen")
+- **`js/features/collectionView.js`** (neu) — DOM-freie Kernlogik: `showCollectionInScene()`, `clearCollectionAndRestore()`
+- **Tote Legacy-DOM-Dateien gelöscht** (vollständig durch React ersetzt):
+  - `js/interaction/infoPanel.js` → React `InfoPanel`
+  - `js/interaction/editPanel.js` → React `InfoPanel`/`ModelActions`
+  - `js/ui/submenu/` (7 Dateien) → React `StructureBrowser`
+  - `js/ui/recentColors.js` → In-Memory-Farben im `InfoPanel` (kein localStorage)
+  - `js/ui/ui-set.js` → React `CollectionPanel` + `collectionView.js`
+  - `js/ui/ui-color.js` → Container `#color-controls` existierte nicht mehr (tot)
+  - `js/utils/modelData.js` → einziger Consumer (`ui-set.js`) entfernt
+- **`js/ui/ui-collection-export.js`** vom DOM entkoppelt: kein Auto-Init/Button-Injection mehr, `setupUI`/`createAndInsertButtons` entfernt; React ruft `showSaveModal()`/`importCollection()` direkt auf
+- **Verkabelung gesäubert**: `startApp.js`, `core/controls.js`, `interaction/index.js`, `ui-init.js`, `ui-reset.js`, `ui-presets.js`, `muskelfinderDeeplink.js` — tote `hideInfoPanel`/`showInfoPanel`-Aufrufe und der `#info-panel`-`controls.change`-Listener entfernt (React reagiert auf Store)
+- **Tote HTML/CSS entfernt**: `#submenu-container`, `#set-list`, `#btn-show-set`/`#btn-clear-set`; `set-list.css` gelöscht, `#btn-*-set`-Styles aus `buttons.css`, `#set-list`/`#submenu-container`-Regeln bereinigt
+- Typecheck bereinigt: `Toolbar.tsx` useEffect-Cleanup gibt jetzt `void` zurück; `useStore.test.ts` THREE-Typ-Import ergänzt
+- Module: 125 → 112 (Build)
+
 ### Added (Phase 4d-f — Ghost-Kontext, Labels/Pins, Touch)
 - `js/features/ghostContext.js` — Ghost-Kontext-Modus: Kontext-Button im InfoPanel macht alle anderen Strukturen transparent (0.08), ausgewählte bleibt opak; zweiter Klick stellt Ausgangszustand wieder her
 - `js/features/labels.js` — Struktur-Beschriftungen via `CSS2DRenderer`: lazy init, eigene rAF-Schleife solange aktiv, Labels-Button im Toolbar

@@ -4,8 +4,6 @@
 import { getStore } from '../store/useStore.js';
 import { loadGroupByName } from '../features/modelLoader-core.js';
 import { setModelColor, setModelOpacity } from '../features/appearance.js';
-import { setModelVisibility } from '../features/visibility.js';
-import { updateSetList } from './ui-set.js';
 import { renderer } from '../core/renderer.js';
 import { scene } from '../core/scene.js';
 import { camera } from '../core/camera.js';
@@ -18,132 +16,6 @@ class CollectionManager {
     constructor() {
         this.version = '3.0';
         this.fileExtension = '.bluebody';
-    }
-
-    /**
-     * Initialisiert die Export/Import UI
-     */
-    setupUI() {
-        // Prüfen ob Buttons bereits existieren
-        if (document.getElementById('collection-export-import-container')) {
-            return; // Bereits initialisiert
-        }
-
-        // Den Clear-Button als Referenzpunkt finden
-        const clearBtn = document.getElementById('btn-clear-set');
-        if (!clearBtn) {
-            console.warn('⚠️ btn-clear-set Element nicht gefunden - versuche alternatives Layout');
-
-            // Alternative: Nach dem set-list Container einfügen
-            const setList = document.getElementById('set-list');
-            if (!setList) {
-                console.error('❌ Kein geeigneter Container für Export/Import-Buttons gefunden');
-                return;
-            }
-
-            // Container für Buttons erstellen
-            const controlsContainer = setList.parentElement;
-            this.createAndInsertButtons(controlsContainer, setList);
-            return;
-        }
-
-        // Buttons nach dem Clear-Button einfügen
-        const parentContainer = clearBtn.parentElement;
-        this.createAndInsertButtons(parentContainer, clearBtn);
-    }
-
-    /**
-     * Erstellt und fügt die Export/Import-Buttons ein
-     */
-    createAndInsertButtons(parentElement, referenceElement) {
-        // Button-Container erstellen
-        const buttonContainer = document.createElement('div');
-        buttonContainer.id = 'collection-export-import-container';
-        buttonContainer.style.cssText = `
-            display: flex;
-            gap: 5px;
-            margin-top: 5px;
-            width: 100%;
-        `;
-
-        // Export-Button (Stil angepasst an App-Design)
-        const exportBtn = document.createElement('button');
-        exportBtn.id = 'btn-export-collection';
-        exportBtn.innerHTML = '💾 Sammlung speichern';
-        exportBtn.className = referenceElement.className || '';
-        exportBtn.style.cssText = `
-            flex: 1;
-            padding: 12px 16px;
-            background: linear-gradient(135deg, #4A9EFF, #FF7A4A);
-            color: white;
-            border: none;
-            border-radius: 12px;
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: 600;
-            transition: all 0.3s;
-            text-align: center;
-            box-shadow: 0 4px 15px rgba(74, 158, 255, 0.3);
-        `;
-
-        // Import-Button (Stil angepasst an App-Design)
-        const importBtn = document.createElement('button');
-        importBtn.id = 'btn-import-collection';
-        importBtn.innerHTML = '📂 Sammlung laden';
-        importBtn.className = referenceElement.className || '';
-        importBtn.style.cssText = `
-            flex: 1;
-            padding: 12px 16px;
-            background: linear-gradient(135deg, #4A9EFF, #FF7A4A);
-            color: white;
-            border: none;
-            border-radius: 12px;
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: 600;
-            transition: all 0.3s;
-            text-align: center;
-            box-shadow: 0 4px 15px rgba(74, 158, 255, 0.3);
-        `;
-
-        // Verstecktes File-Input für Import
-        const fileInput = document.createElement('input');
-        fileInput.type = 'file';
-        fileInput.id = 'collection-file-input';
-        fileInput.accept = '.json,.bluebody';
-        fileInput.style.display = 'none';
-
-        // Hover-Effekte (dezent, wie bei anderen App-Buttons)
-        [exportBtn, importBtn].forEach(btn => {
-            btn.addEventListener('mouseenter', () => {
-                btn.style.transform = 'translateY(-2px)';
-                btn.style.boxShadow = '0 8px 25px rgba(74, 158, 255, 0.4)';
-            });
-            btn.addEventListener('mouseleave', () => {
-                btn.style.transform = '';
-                btn.style.boxShadow = '0 4px 15px rgba(74, 158, 255, 0.3)';
-            });
-        });
-
-        // Event Listeners
-        exportBtn.addEventListener('click', () => this.showSaveModal());
-        importBtn.addEventListener('click', () => this.showDropModal(fileInput));
-        fileInput.addEventListener('change', (e) => this.importCollection(e));
-
-        // Buttons zum Container hinzufügen
-        buttonContainer.appendChild(exportBtn);
-        buttonContainer.appendChild(importBtn);
-
-        // Container und File-Input nach dem Referenzelement einfügen
-        if (referenceElement.nextSibling) {
-            parentElement.insertBefore(buttonContainer, referenceElement.nextSibling);
-            parentElement.insertBefore(fileInput, buttonContainer.nextSibling);
-        } else {
-            parentElement.appendChild(buttonContainer);
-            parentElement.appendChild(fileInput);
-        }
-
-        console.log('✅ Export/Import UI initialisiert');
     }
 
     /**
@@ -161,7 +33,7 @@ class CollectionManager {
                 version: this.version,
                 timestamp: new Date().toISOString(),
                 appInfo: {
-                    name: 'BlueBody 3D',
+                    name: 'Anatomie Fokus 3D',
                     exportDate: new Date().toLocaleDateString()
                 },
                 statistics: {
@@ -241,8 +113,8 @@ class CollectionManager {
             // Import durchführen
             const imported = await this.performImport(data);
 
-            // UI aktualisieren
-            updateSetList();
+            // UI aktualisieren (React CollectionPanel reagiert auf den Store)
+            document.dispatchEvent(new CustomEvent('collectionUpdated'));
             renderer.render(scene, camera);
 
             // Erfolgsmeldung
@@ -378,7 +250,7 @@ class CollectionManager {
         }
 
         // In allen Gruppen suchen
-        for (const [groupName, models] of Object.entries(getStore().groups)) {
+        for (const models of Object.values(getStore().groups)) {
             for (const model of models || []) {
                 const modelId = model.userData?.meta?.id || model.name;
                 if (modelId === id) return model;
@@ -1042,29 +914,6 @@ class CollectionManager {
     }
 }
 
-// Singleton-Instanz exportieren
+// Singleton-Instanz exportieren — die React CollectionPanel ruft
+// showSaveModal() / importCollection() direkt auf (kein DOM-Self-Init mehr).
 export const collectionManager = new CollectionManager();
-
-// Auto-Init beim Import - mit Verzögerung für DOM-Bereitschaft
-if (typeof document !== 'undefined') {
-    // Mehrere Versuche um sicherzustellen, dass DOM bereit ist
-    const initializeButtons = () => {
-        // Prüfen ob Clear-Button existiert
-        if (document.getElementById('btn-clear-set')) {
-            collectionManager.setupUI();
-        } else {
-            // Nochmal in 500ms versuchen
-            setTimeout(() => {
-                collectionManager.setupUI();
-            }, 500);
-        }
-    };
-
-    // Bei DOMContentLoaded initialisieren
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', initializeButtons);
-    } else {
-        // DOM bereits geladen
-        setTimeout(initializeButtons, 100);
-    }
-}

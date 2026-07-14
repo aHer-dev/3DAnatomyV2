@@ -12,6 +12,50 @@ export const INITIAL_COLORS: Record<string, number> = {
   ...(APP_CONFIG.ui.colors as Record<string, number>),
 }
 
+// ─── Einzelansicht (Isolation) ───────────────────────────────────────────────
+
+export interface IsolationActionBar {
+  primaryLabel: string
+  onPrimary: () => void
+  secondaryLabel?: string
+  onSecondary?: (() => void) | null
+}
+
+export interface IsolationState {
+  model: THREE.Object3D | null
+  actionBar: IsolationActionBar | null
+  /** Anzeige-Label statt Struktur-Name, z. B. „3 Strukturen" bei Mehrfach-Isolation */
+  label?: string | null
+}
+
+const emptyIsolation: IsolationState = { model: null, actionBar: null }
+
+// ─── Overlay-UI (Layout B) ───────────────────────────────────────────────────
+// Reiner React-Overlay-Zustand (Rail/Sidebar/Flyout). Kein Three.js-Bezug —
+// additiv zum Domänen-State (siehe ADR 0006).
+
+export type SidebarTab = 'structures' | 'collection' | 'info'
+export type Flyout = 'settings' | null
+
+// Mobile-Only: welches Bottom-Sheet offen ist (§13, S10). `panel` hostet die
+// Sidebar-Tabs (Strukturen/Sammlung/Info), `view` den Ansichts-Cluster. Das
+// Settings-Sheet bleibt der bestehende `openFlyout`-Kanal (nur mobil als Sheet
+// umgeformt). Auf Desktop ohne Effekt (Media-Query neutralisiert es).
+export type MobileSheet = 'panel' | 'view' | null
+
+// ─── Laden (Initial-/Preset-Fortschritt) ─────────────────────────────────────
+// Gefüllt von js/modelLoader/progress.js (Adapter der Lade-Pipeline),
+// gerendert von LoadingScreen.tsx (§9.11, ADR 0008).
+
+export interface LoadingState {
+  active: boolean
+  /** 0..100 */
+  progress: number
+  label: string
+}
+
+const emptyLoading: LoadingState = { active: false, progress: 0, label: '' }
+
 // ─── State-Form ──────────────────────────────────────────────────────────────
 
 export interface StoreState {
@@ -25,9 +69,13 @@ export interface StoreState {
   selected: SelectionState
   multiSelected: Set<THREE.Object3D>
 
+  // ─── Einzelansicht ──────────────────────────────────────────────────────────
+  isolation: IsolationState
+
   // ─── Darstellung ────────────────────────────────────────────────────────────
   colors: Record<string, number>
   opacity: Record<string, number>
+  groupOpacity: Record<string, number>
 
   // ─── Raycasting ─────────────────────────────────────────────────────────────
   pickableObjects: Set<THREE.Object3D>
@@ -47,9 +95,20 @@ export interface StoreState {
   // ─── Klick-Statistik ────────────────────────────────────────────────────────
   clickCounts: Record<string, number>
 
+  // ─── Overlay-UI (Layout B) ────────────────────────────────────────────────
+  sidebarTab: SidebarTab
+  openFlyout: Flyout
+  mobileSheet: MobileSheet
+
+  // ─── Laden ────────────────────────────────────────────────────────────────
+  loading: LoadingState
+
   // ─── Actions: Selection ───────────────────────────────────────────────────
   setSelection: (s: Partial<SelectionState>) => void
   clearSelection: () => void
+
+  // ─── Actions: Einzelansicht ───────────────────────────────────────────────
+  setIsolation: (iso: IsolationState) => void
 
   // ─── Actions: MultiSelect ─────────────────────────────────────────────────
   addToMultiSelected: (mesh: THREE.Object3D) => void
@@ -68,6 +127,7 @@ export interface StoreState {
   // ─── Actions: Appearance ──────────────────────────────────────────────────
   setGroupColor: (group: string, color: number) => void
   setModelOpacity: (modelId: string, opacity: number) => void
+  setGroupOpacity: (group: string, opacity: number) => void
 
   // ─── Actions: Pickables ───────────────────────────────────────────────────
   addPickable: (mesh: THREE.Object3D) => void
@@ -88,6 +148,18 @@ export interface StoreState {
 
   // ─── Actions: ClickCounts ─────────────────────────────────────────────────
   incrementClickCount: (id: string) => void
+
+  // ─── Actions: Overlay-UI ──────────────────────────────────────────────────
+  setSidebarTab: (tab: SidebarTab) => void
+  openFlyoutExclusive: (name: Exclude<Flyout, null>) => void
+  closeFlyout: () => void
+  openMobileSheet: (sheet: Exclude<MobileSheet, null>) => void
+  closeMobileSheet: () => void
+
+  // ─── Actions: Laden ───────────────────────────────────────────────────────
+  showLoading: (label?: string) => void
+  setLoadingProgress: (pct: number) => void
+  hideLoading: () => void
 
   // ─── Actions: Reset ───────────────────────────────────────────────────────
   resetVisibility: () => void
@@ -112,8 +184,10 @@ const useStore = createStore<StoreState>((set, get) => ({
   modelsByName: new Map(),
   selected: emptySelection,
   multiSelected: new Set(),
+  isolation: emptyIsolation,
   colors: { ...INITIAL_COLORS },
   opacity: {},
+  groupOpacity: {},
   pickableObjects: new Set(),
   protection: { bones: true, teeth: true },
   groupedMeta: {},
@@ -122,6 +196,10 @@ const useStore = createStore<StoreState>((set, get) => ({
   metaByFile: {},
   collection: [],
   clickCounts: {},
+  sidebarTab: 'structures',
+  openFlyout: null,
+  mobileSheet: null,
+  loading: emptyLoading,
 
   // Selection
   setSelection: (s) =>
@@ -130,6 +208,9 @@ const useStore = createStore<StoreState>((set, get) => ({
     })),
 
   clearSelection: () => set({ selected: emptySelection }),
+
+  // Einzelansicht (Isolation)
+  setIsolation: (iso) => set({ isolation: iso }),
 
   // MultiSelect
   addToMultiSelected: (mesh) =>
@@ -195,6 +276,11 @@ const useStore = createStore<StoreState>((set, get) => ({
       opacity: { ...state.opacity, [modelId]: Math.max(0, Math.min(1, opacity)) },
     })),
 
+  setGroupOpacity: (group, opacity) =>
+    set((state) => ({
+      groupOpacity: { ...state.groupOpacity, [group]: Math.max(0, Math.min(1, opacity)) },
+    })),
+
   // Pickables
   addPickable: (mesh) =>
     set((state) => {
@@ -233,6 +319,26 @@ const useStore = createStore<StoreState>((set, get) => ({
       clickCounts: { ...state.clickCounts, [id]: (state.clickCounts[id] ?? 0) + 1 },
     })),
 
+  // Overlay-UI (Layout B). Flyout und Mobile-Sheet teilen sich auf Schmal-Screens
+  // die untere Bühne → gegenseitig exklusiv (nur eines gleichzeitig offen).
+  setSidebarTab: (tab) => set({ sidebarTab: tab }),
+  openFlyoutExclusive: (name) => set({ openFlyout: name, mobileSheet: null }),
+  closeFlyout: () => set({ openFlyout: null }),
+  openMobileSheet: (sheet) => set({ mobileSheet: sheet, openFlyout: null }),
+  closeMobileSheet: () => set({ mobileSheet: null }),
+
+  // Laden
+  showLoading: (label = '3D-Modell wird geladen …') =>
+    set({ loading: { active: true, progress: 0, label } }),
+
+  setLoadingProgress: (pct) =>
+    set((state) => ({
+      loading: { ...state.loading, progress: Math.max(0, Math.min(100, pct)) },
+    })),
+
+  hideLoading: () =>
+    set((state) => ({ loading: { ...state.loading, active: false } })),
+
   // Reset: nur Sichtbarkeit zurücksetzen, Modelle bleiben geladen
   resetVisibility: () =>
     set((state) => ({
@@ -263,8 +369,10 @@ const useStore = createStore<StoreState>((set, get) => ({
         modelsByName: new Map(),
         selected: emptySelection,
         multiSelected: new Set(),
+        isolation: emptyIsolation,
         colors: { ...INITIAL_COLORS },
         opacity: {},
+        groupOpacity: {},
         pickableObjects: new Set(),
         collection: [],
         clickCounts: {},

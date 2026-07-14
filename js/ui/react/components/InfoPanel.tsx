@@ -4,13 +4,50 @@ import { getGroupLabel } from '../groupLabels.js'
 import { getStructureDisplayLabel } from '../../../utils/anatomyLabels.js'
 import { getMuskelfinderDetailsForMeta } from '../../../integration/muskelfinderDetails.js'
 import { setModelColor, setModelOpacity } from '../../../features/appearance.js'
-import { setModelVisibility } from '../../../features/visibility.js'
-import { enterIsolatedView } from '../../../interaction/isolationView.js'
+import { setModelVisibility, isModelVisible } from '../../../features/visibility.js'
+import { enterIsolatedView, exitIsolatedView, getIsolatedModel } from '../../../interaction/isolationView.js'
 import { enterGhostContext, isGhostContextActive } from '../../../features/ghostContext.js'
 import { getStore } from '../../../store/useStore.js'
-import { clearHighlight } from '../../../interaction/highlightModel.js'
 import { requestRender } from '../../../core/renderScheduler.js'
 import type { MetaEntry } from '../../../types/index.js'
+
+// ─── Icons (inline, keine externen Icon-Sets) ───────────────────────────────
+const Icon = {
+  eye: (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z" /><circle cx="12" cy="12" r="3" />
+    </svg>
+  ),
+  eyeOff: (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" /><line x1="1" y1="1" x2="23" y2="23" />
+    </svg>
+  ),
+  target: (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <circle cx="12" cy="12" r="3" /><path d="M3 12h2M19 12h2M12 3v2M12 19v2" />
+    </svg>
+  ),
+  ring: (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <circle cx="12" cy="12" r="9" /><circle cx="12" cy="12" r="4" />
+    </svg>
+  ),
+  bookmark: (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />
+    </svg>
+  ),
+}
+
+// In-memory recent colors (session-only, no localStorage)
+const MAX_RECENT = 5
+let _recentColors: string[] = []
+function addRecentColor(hex: string) {
+  const norm = hex.toLowerCase()
+  _recentColors = [norm, ..._recentColors.filter(c => c !== norm)].slice(0, MAX_RECENT)
+}
+function getRecentColors() { return _recentColors }
 
 interface MfSection {
   label: string
@@ -20,11 +57,25 @@ interface MfDetails {
   sections: MfSection[]
 }
 
+const SIDE_RE = /\s+(dexter|sinister|dextra|sinistra|dextrum|sinistrum)$/i
+
+function StructureLabel({ label }: { label: string }) {
+  const match = label.match(SIDE_RE)
+  if (!match) return <>{label}</>
+  const main = label.slice(0, label.length - match[0].length)
+  return <>{main}<span className="ip-title__side"> {match[1]}</span></>
+}
+
 function MuscleSections({ details }: { details: MfDetails }) {
   if (!details.sections.length) return null
   return (
     <details className="ip-details">
-      <summary className="ip-details__summary">Details</summary>
+      <summary className="ip-details__summary">
+        <span>Details</span>
+        <svg className="ip-details__chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+          <path d="M6 9l6 6 6-6" />
+        </svg>
+      </summary>
       <div className="ip-details__body">
         {details.sections.map((sec, i) => (
           <section key={i} className="ip-details__section">
@@ -42,16 +93,52 @@ function MuscleSections({ details }: { details: MfDetails }) {
   )
 }
 
-function ModelActions({ model }: { model: NonNullable<ReturnType<typeof getStore>['selected']['root']> }) {
-  const initialOpacity = useRef(1)
+interface ModelActionsProps {
+  model: NonNullable<ReturnType<typeof getStore>['selected']['root']>
+  meta: MetaEntry
+}
 
-  // Read initial opacity from first mesh material
+function readModelColor(model: any): string {
+  let hex = '#ffffff'
+  model.traverse((child: any) => {
+    if (child.isMesh && child.material?.color) {
+      hex = '#' + child.material.color.getHexString()
+    }
+  })
+  return hex
+}
+
+function readModelOpacity(model: any): number {
+  let opacity = 1
+  model.traverse((child: any) => {
+    if (child.isMesh && child.material) {
+      opacity = child.material.opacity ?? 1
+    }
+  })
+  return opacity
+}
+
+function ModelActions({ model, meta }: ModelActionsProps) {
+  const initialColor = useRef('#ffffff')
+  const collection = useReactStore(s => s.collection)
+  const inCollection = collection.some((c: any) => c.id === meta.id)
+  const [visible, setVisible] = useState(() => isModelVisible(model))
+  const [opacity, setOpacity] = useState(() => readModelOpacity(model))
+  const isolatedModel = useReactStore(s => s.isolation.model)
+  const isolated = isolatedModel === model
+  const [ghostActive, setGhostActive] = useState(false)
+  const [recentColors, setRecentColors] = useState<string[]>(getRecentColors)
+  const [toast, setToast] = useState<string | null>(null)
+  const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  const showToast = useCallback((msg: string) => {
+    if (toastTimer.current) clearTimeout(toastTimer.current)
+    setToast(msg)
+    toastTimer.current = setTimeout(() => setToast(null), 2000)
+  }, [])
+
   useEffect(() => {
-    model.traverse((child: any) => {
-      if (child.isMesh && child.material && initialOpacity.current === 1) {
-        initialOpacity.current = child.material.opacity ?? 1
-      }
-    })
+    initialColor.current = readModelColor(model)
   }, [model])
 
   const handleColor = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
@@ -59,55 +146,141 @@ function ModelActions({ model }: { model: NonNullable<ReturnType<typeof getStore
     requestRender()
   }, [model])
 
+  const handleColorCommit = useCallback((e: React.FocusEvent<HTMLInputElement>) => {
+    addRecentColor(e.target.value)
+    setRecentColors(getRecentColors())
+  }, [])
+
   const handleOpacity = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const v = parseFloat(e.target.value)
+    setOpacity(v)
     setModelOpacity(model, v)
     requestRender()
   }, [model])
 
-  const handleHide = useCallback(() => {
-    setModelVisibility(model, false)
+  const handleVisibility = useCallback(() => {
+    const next = !isModelVisible(model)
+    setModelVisibility(model, next)
+    setVisible(next)
     requestRender()
   }, [model])
 
   const handleIsolate = useCallback(() => {
-    enterIsolatedView(model)
+    if (getIsolatedModel() === model) {
+      exitIsolatedView()
+    } else {
+      enterIsolatedView(model)
+    }
   }, [model])
 
-  const [ghostActive, setGhostActive] = useState(false)
   const handleGhost = useCallback(() => {
     enterGhostContext(model)
     setGhostActive(isGhostContextActive())
   }, [model])
 
+  const handleCollection = useCallback(() => {
+    const store = getStore()
+    if (inCollection) {
+      store.removeFromCollection(meta.id)
+    } else {
+      let color = 0xffffff
+      let opacity = 1
+      model.traverse((child: any) => {
+        if (child.isMesh && child.material) {
+          color = child.material.color?.getHex?.() ?? color
+          opacity = child.material.opacity ?? opacity
+        }
+      })
+      store.addToCollection({
+        id: meta.id,
+        name: getStructureDisplayLabel(meta),
+        group: meta.classification?.group ?? 'other',
+        meta: meta as any,
+        color,
+        opacity,
+        visible: isModelVisible(model),
+        model,
+        addedAt: Date.now(),
+        source: 'infoPanel',
+      })
+    }
+    document.dispatchEvent(new CustomEvent('collectionUpdated'))
+    showToast(inCollection ? 'Aus Sammlung entfernt' : 'Zur Sammlung hinzugefügt')
+  }, [model, meta, inCollection, showToast])
+
+  const opacityPct = `${Math.round(opacity * 100)}%`
+
   return (
     <div className="ip-actions">
-      <label className="ip-action-row" title="Farbe ändern">
-        <span>Farbe</span>
-        <input type="color" className="ip-color-input" onChange={handleColor} aria-label="Modellfarbe" />
-      </label>
-      <label className="ip-action-row" title="Transparenz">
-        <span>Opazität</span>
+      {/* Deckkraft (§9.4) */}
+      <div className="ip-opacity">
+        <div className="ip-opacity__head">
+          <span>Deckkraft</span>
+          <span>{opacityPct}</span>
+        </div>
         <input
           type="range"
-          className="ip-opacity-slider"
+          className="ip-slider"
           min="0" max="1" step="0.01"
-          defaultValue={String(initialOpacity.current)}
+          value={opacity}
           onChange={handleOpacity}
-          aria-label="Transparenz"
+          style={{ '--ip-pct': opacityPct } as React.CSSProperties}
+          aria-label="Deckkraft"
         />
-      </label>
-      <div className="ip-action-btns">
-        <button className="ip-btn" onClick={handleHide}>Ausblenden</button>
-        <button className="ip-btn" onClick={handleIsolate}>Isolieren</button>
+      </div>
+
+      {/* 3 Aktionen (gleich breit) */}
+      <div className="ip-actions-grid">
+        <button className="ip-act" onClick={handleVisibility}>
+          {visible ? Icon.eyeOff : Icon.eye}
+          <span>{visible ? 'Ausblenden' : 'Anzeigen'}</span>
+        </button>
+        <button className={`ip-act${isolated ? ' is-active' : ''}`} onClick={handleIsolate}>
+          {Icon.target}
+          <span>{isolated ? 'Isolation' : 'Isolieren'}</span>
+        </button>
         <button
-          className={`ip-btn${ghostActive ? ' ip-btn--active' : ''}`}
+          className={`ip-act${ghostActive ? ' is-active' : ''}`}
           onClick={handleGhost}
           title="Kontext-Ansicht: Rest transparent"
         >
-          Kontext
+          {Icon.ring}
+          <span>Kontext</span>
         </button>
       </div>
+
+      {/* CTA */}
+      <button
+        className={`ip-cta${inCollection ? ' is-active' : ''}`}
+        onClick={handleCollection}
+      >
+        {Icon.bookmark}
+        <span>{inCollection ? 'Aus Sammlung entfernen' : 'Zur Sammlung'}</span>
+      </button>
+
+      {/* Farbe (sekundär — aus Layout A beibehalten, nicht Teil von §9.4) */}
+      <div className="ip-color">
+        <label className="ip-color__row" title="Farbe ändern">
+          <span>Farbe</span>
+          <input type="color" className="ip-color-input" defaultValue={initialColor.current} onChange={handleColor} onBlur={handleColorCommit} aria-label="Modellfarbe" />
+        </label>
+        {recentColors.length > 0 && (
+          <div className="ip-recent">
+            {recentColors.map(hex => (
+              <button
+                key={hex}
+                className="ip-recent-color"
+                style={{ background: hex }}
+                title={hex}
+                aria-label={`Farbe ${hex}`}
+                onClick={() => { setModelColor(model, hex); requestRender() }}
+              />
+            ))}
+          </div>
+        )}
+      </div>
+
+      {toast && <div className="ip-toast">{toast}</div>}
     </div>
   )
 }
@@ -129,55 +302,28 @@ export function InfoPanel() {
     return () => { cancelled = true }
   }, [meta])
 
-  const close = useCallback(() => {
-    clearHighlight()
-    getStore().clearSelection()
-  }, [])
-
-  // Swipe-down to close on mobile
-  const panelRef = useRef<HTMLElement>(null)
-  useEffect(() => {
-    if (!meta || !panelRef.current) return
-    let startY = 0
-    const el = panelRef.current
-    const onStart = (e: TouchEvent) => { startY = e.touches[0].clientY }
-    const onEnd   = (e: TouchEvent) => { if (e.changedTouches[0].clientY - startY > 80) close() }
-    el.addEventListener('touchstart', onStart, { passive: true })
-    el.addEventListener('touchend',   onEnd,   { passive: true })
-    return () => { el.removeEventListener('touchstart', onStart); el.removeEventListener('touchend', onEnd) }
-  }, [meta, close])
-
   if (!meta) return null
 
   const displayLabel = getStructureDisplayLabel(meta)
-  const deLabel      = meta.labels?.de
   const group        = meta.classification?.group ?? 'other'
   const description  = (meta.info?.description?.de || meta.info?.description?.en || '').trim()
+  const groupStyle   = { '--ip-group': `var(--group-${group}, var(--group-default))` } as React.CSSProperties
 
   return (
-    <aside
-      ref={panelRef}
-      className="ip-panel"
-      role="dialog"
-      aria-modal="false"
-      aria-label={`Info: ${displayLabel}`}
-    >
+    <div className="ip-panel" aria-label={`Info: ${displayLabel}`}>
       <header className="ip-header">
-        <div className="ip-title">
-          <span className="ip-title__primary">{displayLabel}</span>
-          {deLabel && deLabel !== displayLabel && (
-            <span className="ip-title__secondary">{deLabel}</span>
-          )}
-          <span className="ip-title__group">{getGroupLabel(group)}</span>
-        </div>
-        <button className="ip-close" onClick={close} aria-label="Info-Panel schließen">✕</button>
+        <h2 className="ip-title__primary"><StructureLabel label={displayLabel} /></h2>
+        <span className="ip-badge" style={groupStyle}>
+          <span className="ip-badge__dot" aria-hidden="true" />
+          {getGroupLabel(group)}
+        </span>
       </header>
 
       <div className="ip-body">
         {description && <p className="ip-description">{description}</p>}
         {mfDetails && <MuscleSections details={mfDetails} />}
-        {model && <ModelActions model={model} />}
+        {model && <ModelActions key={meta.id} model={model} meta={meta} />}
       </div>
-    </aside>
+    </div>
   )
 }

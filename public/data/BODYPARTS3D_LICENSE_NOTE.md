@@ -12,6 +12,10 @@ Hintergrund:
 - Fuer die Projektkonsistenz wurden daher die lokalen Metadaten in `data/meta.json` und den `.bluebody`-Presets
   auf diesen archivbasierten Projektstandard harmonisiert.
 
+Siehe auch: `docs/decisions/0005-bodyparts3d-lizenz-korrektur.md` (Gegenprüfung an
+den offiziellen DBCLS-Quellen, ersetzt die frühere Korrektur auf CC BY-SA 2.1 Japan
+in ADR 0003).
+
 Wichtig:
 
 - Diese Notiz ist eine Projektdokumentation und keine Rechtsberatung.

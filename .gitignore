@@ -39,3 +39,6 @@ data/groups_summary.txt
 # Projekt-Backups (liegen als separate Ordner daneben)
 three.min.js
 ordnerstruktur.txt
+
+# Roh-Modelle (BodyParts3D-Download, groß + CC BY-SA-Quelle) — nicht ins Repo
+NEW MODELS/

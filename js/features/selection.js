@@ -1,7 +1,6 @@
 // js/features/selection.js
 // ✅ BROWSER-KOMPATIBLE VERSION (kein require!)
 
-import * as THREE from 'three';
 import { getStore } from '../store/useStore.js';
 import { markPickablesDirty } from '../core/raycaster.js';
 
@@ -12,7 +11,7 @@ import { markPickablesDirty } from '../core/raycaster.js';
  * @param {Set} pickableSet - State wird von außen übergeben (optional)
  */
 
-export function setPickable(mesh, pickable, pickableSet = null) {
+export function setPickable(mesh, pickable, _pickableSet = null) {
     if (!mesh?.isMesh) return;
 
     const enable = !!pickable;

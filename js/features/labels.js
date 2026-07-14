@@ -41,7 +41,7 @@ const _box = new THREE.Box3();
 const _center = new THREE.Vector3();
 
 function _createLabel(root) {
-    const text = getStructureDisplayLabel(root);
+    const text = getStructureDisplayLabel(root.userData?.meta ?? root);
     if (!text) return null;
 
     const div = document.createElement('div');

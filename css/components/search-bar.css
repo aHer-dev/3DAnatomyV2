@@ -1,68 +1,100 @@
-/* SearchBar — floating search overlay (Phase 3b) */
+/* SearchBar — persistente Suchpille im Sidebar-Kopf (Layout B, Handoff §9.2).
+   Kein floatendes Icon/Einklappen mehr, kein eigener Blur (sitzt in der Glas-Sidebar).
+   Positionierungs-Anker fürs Dropdown ist `.shell-searchhost` (position:relative). */
 
 .sb-search {
-  position: fixed;
-  top: 16px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: min(480px, calc(100vw - 32px));
-  pointer-events: all;
-  z-index: 30;
+  width: 100%;
 }
 
+/* ── Suchpille ───────────────────────────────────────────────────────── */
 .sb-search__wrap {
-  position: relative;
   display: flex;
   align-items: center;
-  background: var(--glass-bg-panel);
-  backdrop-filter: var(--glass-blur);
-  -webkit-backdrop-filter: var(--glass-blur);
+  gap: 10px;
+  padding: 13px 15px;
+  background: rgba(255, 255, 255, 0.04);
   border: 1px solid var(--glass-border);
-  border-radius: var(--radius-xl);
-  box-shadow: var(--glass-shadow);
-  transition: border-color 0.2s;
+  border-radius: 14px;
+  transition: var(--transition-smooth);
 }
 .sb-search__wrap:focus-within {
-  border-color: var(--accent-blue);
-  box-shadow: 0 0 0 2px var(--accent-blue-dim), var(--glass-shadow);
+  border-color: var(--accent-border);
+  background: rgba(255, 255, 255, 0.05);
 }
 
 .sb-search__icon {
-  padding: 0 10px 0 16px;
-  font-size: 0.85rem;
-  opacity: 0.6;
+  display: flex;
+  align-items: center;
+  color: var(--accent);
   pointer-events: none;
 }
+.sb-search__icon svg { width: 17px; height: 17px; }
 
 .sb-search__input {
   flex: 1;
+  min-width: 0;
   border: none;
   background: transparent;
   color: var(--text-primary);
-  font-size: 0.88rem;
-  padding: 12px 8px 12px 0;
+  font: 500 14px/1 var(--font-ui);
+  padding: 0;
   outline: none;
 }
 .sb-search__input::placeholder { color: var(--text-muted); }
 .sb-search__input::-webkit-search-cancel-button { display: none; }
-
-.sb-search__spinner {
-  padding: 0 14px;
-  font-size: 0.75rem;
+/* Tastatur-Fokus: Ring um die ganze Pille (Input schaltet outline selbst ab) */
+.sb-search__wrap:has(.sb-search__input:focus-visible) {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
 }
 
-/* Results dropdown */
-.sb-search__results {
-  list-style: none;
-  margin: 6px 0 0;
-  padding: 4px 0;
-  background: var(--glass-bg-panel);
-  backdrop-filter: var(--glass-blur);
-  -webkit-backdrop-filter: var(--glass-blur);
+/* Lade-Spinner */
+.sb-search__spinner {
+  flex-shrink: 0;
+  width: 14px;
+  height: 14px;
+  border: 2px solid var(--glass-border);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: sb-spin 0.7s linear infinite;
+}
+@keyframes sb-spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) {
+  .sb-search__spinner { animation: none; }
+}
+
+/* ── Ergebnis-Dropdown (Glas-Panel, überlagert den Tab-Inhalt) ───────── */
+.sb-search__panel {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  z-index: var(--z-controls);
+  background: rgba(17, 18, 22, 0.98);
   border: 1px solid var(--glass-border);
   border-radius: var(--radius-lg);
   box-shadow: var(--glass-shadow);
-  max-height: 320px;
+  overflow: hidden;
+}
+.sb-search__meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--hairline-soft);
+  font: 600 11px/1 var(--font-ui);
+  color: var(--text-muted);
+}
+.sb-search__hint {
+  font-weight: 500;
+  letter-spacing: 0.02em;
+}
+
+.sb-search__results {
+  list-style: none;
+  margin: 0;
+  padding: 4px;
+  max-height: 300px;
   overflow-y: auto;
 }
 .sb-search__results::-webkit-scrollbar { width: 4px; }
@@ -70,40 +102,42 @@
 
 .sb-search__item {
   display: flex;
-  align-items: baseline;
-  gap: 8px;
-  padding: 9px 16px;
+  align-items: center;
+  gap: 9px;
+  padding: 9px 10px;
+  border-radius: var(--radius-sm);
   cursor: pointer;
-  transition: background 0.12s;
+  transition: var(--transition-smooth);
 }
-.sb-search__item:hover,
-.sb-search__item.is-active { background: var(--glass-bg-hover); }
+.sb-search__item:hover { background: var(--glass-bg-hover); }
+.sb-search__item.is-active { background: var(--accent-dim); }
 
+.sb-search__item-dot {
+  flex-shrink: 0;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  border: 1px solid var(--hairline);
+}
 .sb-search__item-primary {
   flex: 1;
-  font-size: 0.85rem;
-  color: var(--text-primary);
+  min-width: 0;
+  font: 400 13px/1.3 var(--font-ui);
+  color: var(--text-secondary);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
-.sb-search__item-secondary {
-  font-size: 0.75rem;
-  color: var(--text-muted);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 120px;
+.sb-search__hl {
+  background: none;
+  color: var(--accent);
+  font-weight: 600;
 }
 .sb-search__item-group {
   flex-shrink: 0;
-  font-size: 0.68rem;
-  color: var(--accent-blue);
-  background: var(--accent-blue-dim);
-  border-radius: 8px;
-  padding: 1px 6px;
-}
-
-@media (max-width: 768px) {
-  .sb-search { top: 8px; }
+  font: 600 10px/1 var(--font-ui);
+  color: var(--accent);
+  background: var(--accent-dim);
+  border-radius: var(--radius-pill);
+  padding: 3px 7px;
 }

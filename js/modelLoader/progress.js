@@ -1,5 +1,7 @@
 // js/modelLoader/progress.js - PROGRESS BAR FIX
 
+import { getStore } from '../store/useStore.js';
+
 let currentProgress = 0;
 let isShowing = false;
 
@@ -76,7 +78,7 @@ export function updateLoadingBar(percent) {
     if (window?.__DISABLE_PROGRESS_OVERLAY) return; // ← Legacy-Bar komplett aus
     if (!isShowing) {
       // robust: bei erstem Update automatisch anzeigen
-      try { showLoadingBar(); } catch { }
+      try { showLoadingBar(); } catch { /* ignore */ }
     }
 
   // Prozent normalisieren
@@ -103,7 +105,7 @@ export function updateLoadingBar(percent) {
     }
 
     // Alternative: data-Attribut für CSS-basierte Bars
-    try { bar.style.setProperty?.('--progress', `${normalizedPercent}%`); } catch { }
+    try { bar.style.setProperty?.('--progress', `${normalizedPercent}%`); } catch { /* ignore */ }
     bar.setAttribute('data-progress', normalizedPercent);
 
     console.log(`📊 Progress aktualisiert: ${normalizedPercent}%`);
@@ -123,7 +125,7 @@ export function updateLoadingBar(percent) {
   
     // Auto-Close bei 100 %
     if (normalizedPercent >= 100) {
-        setTimeout(() => { try { hideLoadingBar(); } catch { } }, 200);
+        setTimeout(() => { try { hideLoadingBar(); } catch { /* ignore */ } }, 200);
     }
 }
 
@@ -174,7 +176,7 @@ export function hideLoadingBar() {
 
   // Custom Event für Completion
   document.dispatchEvent(new CustomEvent('progressComplete'));
-  try { hideDynamicProgressBar(); } catch { }
+  try { hideDynamicProgressBar(); } catch { /* ignore */ }
 }
 
 /**
@@ -262,10 +264,6 @@ function hideDynamicProgressBar() {
   window.__dynProgressInit = false;
 }
 
-function updateDynamicProgress(percent) {
-  document.dispatchEvent(new CustomEvent('progressUpdate', { detail: { percent } }));
-}
-
 /**
  * ✅ NEUE FUNKTION: Progress Status abfragen
  */
@@ -297,190 +295,40 @@ export function testProgressBar() {
 }
 
 
-// =============== CIRCULAR PROGRESS OVERLAY (CENTER) ===============
-let __circle = {
-  overlay: null,
-  fg: null,
-  text: null,
-  listener: null,
-  circumference: 0
-};
-const CELEBRATE_MS = 2200; // 2.2 Sekunden „Willkommen!“ anzeigen
+// =============== LOADING SCREEN (Store-Adapter) ===============
+// Ehemals zentriertes DOM-Kreis-Overlay — seit S9 rendert React den
+// Marken-LoadingScreen (LoadingScreen.tsx, §9.11) aus dem loading-Store-Slice
+// (ADR 0008). Diese drei Funktionen bleiben die imperative API der
+// Lade-Pipeline; der Event-Kontrakt 'circleOverlayHidden' (startApp wartet
+// darauf, bevor der Canvas sichtbar wird) gilt unverändert.
 
+const HIDE_DELAY_MS = 700; // 100 % kurz stehen lassen + CSS-Fade (0.4s) ausklingen
+let _hideTimer = null;
 
-/**
- * Zeigt einen zentrierten, runden Progress-Indikator (SVG).
- * Nutzt dasselbe Custom-Event 'progressUpdate' wie deine Leiste
- */
-export function showLoadingCircle({ size = 140, stroke = 8, label = 'Strukturen werden geladen…' } = {}) {
-  if (__circle.overlay) return; // schon aktiv
-
-  // Overlay (zentriert, klickt nicht in die UI, hoher z-index)
-  const overlay = document.createElement('div');
-  overlay.id = 'dynamic-circle-overlay';
-  overlay.style.cssText = `
-    position: fixed; inset: 0; display:flex; align-items:center; justify-content:center;
-    z-index: 4000; pointer-events: none;
-  `;
-
-  // Wrapper mit leichtem Glass-Look (sehr dezent)
-    const wrap = document.createElement('div');
-   wrap.style.cssText = `
-    width:${size + 48}px; min-height:${size + 48}px;
-    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12px;
-    background: rgba(20,25,45,0.35); backdrop-filter: blur(8px);
-    border: 1px solid rgba(255,255,255,0.08); border-radius: 16px;
-    box-shadow: 0 8px 32px rgba(0,0,0,0.35);
-  `;
-
-
-    // Label oben
-      const title = document.createElement('div');
-    title.setAttribute('role', 'status');
-    title.style.cssText = `
-   font: 600 14px system-ui, -apple-system, Segoe UI, Inter, sans-serif;
-    color: rgba(255,255,255,0.85); letter-spacing:.02em; text-align:center;
-    pointer-events:none;
-  `;
-  title.textContent = label;
-
-
-
-  const svgNS = 'http://www.w3.org/2000/svg';
-  const svg = document.createElementNS(svgNS, 'svg');
-  svg.style.display = 'block';
-  svg.setAttribute('width', size);
-  svg.setAttribute('height', size);
-  svg.setAttribute('viewBox', `0 0 ${size} ${size}`);
-
-  // Kreisgeometrie
-  const r = (size - stroke) / 2;
-  const cx = size / 2;
-  const cy = size / 2;
-  const circumference = 2 * Math.PI * r;
-  __circle.circumference = circumference;
-
-  // Defs: Gradient für den Vordergrund
-  const defs = document.createElementNS(svgNS, 'defs');
-  const lg = document.createElementNS(svgNS, 'linearGradient');
-  lg.setAttribute('id', 'circleGrad');
-  lg.setAttribute('x1', '0%'); lg.setAttribute('y1', '0%');
-  lg.setAttribute('x2', '100%'); lg.setAttribute('y2', '0%');
-
-  const stop1 = document.createElementNS(svgNS, 'stop');
-  stop1.setAttribute('offset', '0%'); stop1.setAttribute('stop-color', '#4A9EFF');
-  const stop2 = document.createElementNS(svgNS, 'stop');
-  stop2.setAttribute('offset', '100%'); stop2.setAttribute('stop-color', '#FF7A4A');
-
-  lg.appendChild(stop1); lg.appendChild(stop2); defs.appendChild(lg);
-
-  // Hintergrundkreis (Track)
-  const bg = document.createElementNS(svgNS, 'circle');
-  bg.setAttribute('cx', cx); bg.setAttribute('cy', cy); bg.setAttribute('r', r);
-  bg.setAttribute('fill', 'none');
-  bg.setAttribute('stroke', 'rgba(255,255,255,0.12)');
-  bg.setAttribute('stroke-width', stroke);
-
-  // Vordergrundkreis (Progress)
-  const fg = document.createElementNS(svgNS, 'circle');
-  fg.setAttribute('cx', cx); fg.setAttribute('cy', cy); fg.setAttribute('r', r);
-  fg.setAttribute('fill', 'none');
-  fg.setAttribute('stroke', 'url(#circleGrad)');
-  fg.setAttribute('stroke-width', stroke);
-  fg.setAttribute('stroke-linecap', 'round');
-  fg.setAttribute('transform', `rotate(-90 ${cx} ${cy})`); // Start oben
-  fg.style.strokeDasharray = `${circumference}`;
-  fg.style.strokeDashoffset = `${circumference}`;
-  fg.style.transition = 'stroke-dashoffset 250ms cubic-bezier(0.4,0,0.2,1)';
-
-  svg.appendChild(defs);
-  svg.appendChild(bg);
-  svg.appendChild(fg);
-
-  // Prozenttext in der Mitte
-  const txt = document.createElement('div');
-  txt.style.cssText = `
-    position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-   font: 600 14px system-ui, -apple-system, Segoe UI, Inter, sans-serif;
-    color: rgba(255,255,255,0.85); letter-spacing: .04em;
-    pointer-events: none;
-  `; 
-  txt.textContent = '0%';
-
-  // Stacken
-  const stack = document.createElement('div');
-  stack.style.cssText = `position: relative; width: ${size}px; height: ${size}px;`;
-  stack.appendChild(svg);
-  stack.appendChild(txt);
-
-  wrap.appendChild(title);
-  wrap.appendChild(stack);
-  overlay.appendChild(wrap);
-  document.body.appendChild(overlay);
-
-  // Listener nur für den Kreis auf eigenem Kanal
-  const onProgress = (e) => {
-    const pct = Math.max(0, Math.min(100, Number(e?.detail?.percent ?? 0)));
-    const offset = circumference * (1 - pct / 100);
-    fg.style.strokeDashoffset = `${offset}`;
-    txt.textContent = `${Math.round(pct)}%`;
-
-    if (pct >= 100) {
-      if (__circle.done) return;           // mehrfaches Schließen verhindern
-      __circle.done = true;
-
-      // Kreis dezent ausblenden
-      stack.style.transition = 'opacity 300ms ease, transform 300ms ease';
-      stack.style.opacity = '0';
-      stack.style.transform = 'scale(0.98)';
-
-      // „Willkommen!“ fett, größer, mit Gradient
-      title.textContent = 'Willkommen!';
-      Object.assign(title.style, {
-        fontWeight: '800',
-        fontSize: '20px',
-        backgroundImage: 'linear-gradient(90deg, #4A9EFF, #FF7A4A)',
-        backgroundClip: 'text',
-        WebkitBackgroundClip: 'text',
-        color: 'transparent',
-        WebkitTextFillColor: 'transparent',
-        textAlign: 'center'
-      });
-
-      // ⬇️ Diese drei Zeilen sorgen für perfekte Zentrierung:
-      wrap.style.gap = '0px';                      // keinen Abstand mehr zwischen Elementen
-      setTimeout(() => { stack.style.display = 'none'; }, 300); // Kreis nach Fade-Out entfernen
-      // (wrap hat bereits display:flex; align-items:center; justify-content:center; → Text zentriert)
-
-      // Nach fester Verweilzeit ausblenden
-      setTimeout(() => {
-        overlay.style.transition = 'opacity 300ms ease';
-        overlay.style.opacity = '0';
-        setTimeout(() => hideLoadingCircle(), 320);
-      }, CELEBRATE_MS); // z. B. 2200 ms
-    }
-  };
-
-  document.addEventListener('circleProgress', onProgress);
-  __circle = { overlay, fg, text: txt, listener: onProgress, circumference };
+/** Ladebildschirm aktivieren (Fortschritt startet bei 0). */
+export function showLoadingCircle({ label } = {}) {
+  if (getStore().loading.active) return; // schon aktiv
+  getStore().showLoading(label);
 }
 
-/** Manuell aktualisieren (falls du kein progressUpdate dispatchst) */
+/** Fortschritt setzen (0..100); bei 100 % blendet der Screen aus. */
 export function updateLoadingCircle(percent) {
-    document.dispatchEvent(new CustomEvent('circleProgress', { detail: { percent } }));
+  const store = getStore();
+  if (!store.loading.active) return;
+  store.setLoadingProgress(percent);
+
+  if (percent >= 100 && !_hideTimer) {
+    _hideTimer = setTimeout(() => hideLoadingCircle(), HIDE_DELAY_MS);
+  }
 }
 
-/** Ausblenden & aufräumen */
+/** Ausblenden & Signal, dass der Screen vollständig weg ist. */
 export function hideLoadingCircle() {
-  if (__circle.listener) {
-    document.removeEventListener('circleProgress', __circle.listener);
+  if (_hideTimer) {
+    clearTimeout(_hideTimer);
+    _hideTimer = null;
   }
-  if (__circle.overlay && __circle.overlay.parentNode) {
-    __circle.overlay.parentNode.removeChild(__circle.overlay);
-  }
-  __circle = { overlay: null, fg: null, text: null, listener: null, circumference: 0 };
-
-   // 🔔 Signal: Overlay ist vollständig verschwunden
-     document.dispatchEvent(new Event('circleOverlayHidden'));
+  getStore().hideLoading();
+  document.dispatchEvent(new Event('circleOverlayHidden'));
 }
 // ==================================================================

@@ -22,8 +22,6 @@ const GROUP_TO_GENERIC_LATIN = {
     veins: 'Vena'
 };
 
-const LATIN_SIDE_SUFFIX_PATTERN = /^(.*?)(?:\s+(dexter|sinister|dextra|sinistra|dextrum|sinistrum))(\s*\(.+\))?$/i;
-
 const ORDINAL_TO_ROMAN = {
     first: 'I',
     second: 'II',
@@ -49,15 +47,39 @@ const HEAD_ADJECTIVE_TO_LATIN = {
     transverse: 'transversum'
 };
 
+const ANATOMY_ABBREVIATIONS = [
+    [/^Musculi\b/, 'Mm.'],
+    [/^Musculus\b/, 'M.'],
+    [/^Arteriae\b/, 'Aa.'],
+    [/^Arteria\b/, 'A.'],
+    [/^Venae\b/, 'Vv.'],
+    [/^Vena\b/, 'V.'],
+    [/^Nervi\b/, 'Nn.'],
+    [/^Nervus\b/, 'N.'],
+    [/^Ligamenta\b/, 'Ligg.'],
+    [/^Ligamentum\b/, 'Lig.'],
+    [/^Glandulae\b/, 'Gll.'],
+    [/^Glandula\b/, 'Gl.'],
+];
+
+function abbreviateLabel(label = '') {
+    for (const [pattern, abbr] of ANATOMY_ABBREVIATIONS) {
+        if (pattern.test(label)) return label.replace(pattern, abbr);
+    }
+    return label;
+}
+
 function normalizeText(value = '') {
     return String(value).replace(/\s+/g, ' ').trim();
 }
 
 function unwrapEntry(source) {
     if (!source || typeof source !== 'object') return null;
-    if (source.labels || source.classification || source.id || source.latinLabel) return source;
+    // Three.js Object3D: resolve via userData first
     if (source.userData?.meta) return source.userData.meta;
     if (source.userData?.entry) return source.userData.entry;
+    // Plain meta entry: Three.js .id is numeric, so only match string IDs
+    if (source.labels || source.classification || typeof source.id === 'string' || source.latinLabel) return source;
     if (source.entry && typeof source.entry === 'object') return source.entry;
     if (source.meta && typeof source.meta === 'object' && (source.meta.labels || source.meta.classification || source.meta.id)) {
         return source.meta;
@@ -99,6 +121,30 @@ function inferSideFromText(value = '') {
     return '';
 }
 
+const PARS_GENITIVE_TO_NOMINATIVE = {
+    musculi:      'Musculus',
+    arteriae:     'Arteria',
+    venae:        'Vena',
+    nervi:        'Nervus',
+    ligamenti:    'Ligamentum',
+    cartilaginis: 'Cartilago',
+};
+
+const GENITIVE_ADJ_TO_NOMINATIVE = {
+    // 3rd decl comparatives
+    'majoris':    'major',
+    'minoris':    'minor',
+    // 2nd decl masc -i → -us
+    'longi':      'longus',
+    'profundi':   'profundus',
+    'medii':      'medius',
+    'obliqui':    'obliquus',
+    // 2nd decl -ei → -eus
+    'deltoidei':  'deltoideus',
+    'trapezii':   'trapezius',
+    'rhomboidei': 'rhomboideus',
+};
+
 function cleanupPseudoLatinLabel(value = '') {
     let label = normalizeText(value);
     if (!label) return '';
@@ -110,7 +156,17 @@ function cleanupPseudoLatinLabel(value = '') {
             return `Musculus ${normalizeText(structure)} caput ${latinAdjective}`;
         })
         .replace(/\bof hand\b/gi, 'manus')
-        .replace(/\bof foot\b/gi, 'pedis');
+        .replace(/\bof foot\b/gi, 'pedis')
+        .replace(
+            /^Pars (\S+)\s+(musculi|arteriae|venae|nervi|ligamenti|cartilaginis)\s+(.+)$/i,
+            (_, part, genType, genitivePhrase) => {
+                const nom = PARS_GENITIVE_TO_NOMINATIVE[genType.toLowerCase()] || genType;
+                const nominativePhrase = genitivePhrase.trim().split(/\s+/)
+                    .map(w => GENITIVE_ADJ_TO_NOMINATIVE[w.toLowerCase()] ?? w)
+                    .join(' ');
+                return `${nom} ${nominativePhrase} pars ${part}`;
+            }
+        );
 
     return normalizeText(label);
 }
@@ -259,62 +315,19 @@ export function getStructureDisplayLabel(source) {
 
     const cleanedLatin = cleanupPseudoLatinLabel(entry?.labels?.la || entry?.latinLabel || '');
     if (cleanedLatin) {
-        return appendLatinSide(cleanedLatin, entry);
+        return abbreviateLabel(appendLatinSide(cleanedLatin, entry));
     }
 
     const synthesizedLatin = buildLatinFromEnglish(entry);
     if (synthesizedLatin) {
-        return appendLatinSide(synthesizedLatin, entry);
+        return abbreviateLabel(appendLatinSide(synthesizedLatin, entry));
     }
 
     const genericLabel = GROUP_TO_GENERIC_LATIN[getEntryGroup(entry)] || 'Structura anatomica';
     const identifier = normalizeText(entry?.id || entry?.fma || entry?.info?.links?.fma || '');
     const withSide = appendLatinSide(genericLabel, entry);
-    return identifier ? `${withSide} (${identifier})` : withSide;
-}
-
-function splitStructureLabel(label = '') {
-    const normalized = normalizeText(label);
-    const match = normalized.match(LATIN_SIDE_SUFFIX_PATTERN);
-    if (!match) return null;
-
-    const [, prefix = '', side = '', suffix = ''] = match;
-    if (!prefix || !side) return null;
-
-    return {
-        prefix: normalizeText(prefix),
-        side: normalizeText(side),
-        suffix: suffix || ''
-    };
-}
-
-export function renderStructureLabel(target, source) {
-    if (!target) return '';
-
-    const label = typeof source === 'string'
-        ? normalizeText(source)
-        : getStructureDisplayLabel(source);
-
-    target.replaceChildren();
-
-    const split = splitStructureLabel(label);
-    if (!split) {
-        target.textContent = label;
-        return label;
-    }
-
-    target.appendChild(document.createTextNode(`${split.prefix} `));
-
-    const side = document.createElement('span');
-    side.className = 'anatomy-side-label';
-    side.textContent = split.side;
-    target.appendChild(side);
-
-    if (split.suffix) {
-        target.appendChild(document.createTextNode(split.suffix));
-    }
-
-    return label;
+    const full = identifier ? `${withSide} (${identifier})` : withSide;
+    return abbreviateLabel(full);
 }
 
 export function decorateStructureEntry(entry) {

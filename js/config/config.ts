@@ -7,13 +7,6 @@ interface AppConfig {
     showWarnings: boolean
   }
   features: {
-    resourceManager: boolean
-    resourceManagerConfig: {
-      enabled: boolean
-      maxMemoryMB: number
-      autoCleanup: boolean
-      debugLogs: boolean
-    }
     performanceMonitor: boolean
     performanceConfig: {
       enabled: boolean
@@ -35,6 +28,10 @@ interface AppConfig {
     maxModelsInMemory: number
     maxFPS: number
     adaptiveQuality: boolean
+    /** Gruppen aus gepackter <group>.bundle.glb laden, falls vorhanden (ADR 0009) */
+    useBundles: boolean
+    /** Gruppen als EIN BatchedMesh rendern (ADR 0007 Phase 1, nur Messung — Interaktion aus) */
+    batchedGroups: boolean
     memoryWarningThreshold: number
     autoGarbageCollection: boolean
     networkOptimization: {
@@ -72,13 +69,6 @@ export const APP_CONFIG: AppConfig = {
   },
 
   features: {
-    resourceManager: false,
-    resourceManagerConfig: {
-      enabled: false,
-      maxMemoryMB: 200,
-      autoCleanup: true,
-      debugLogs: false,
-    },
     performanceMonitor: false,
     performanceConfig: {
       enabled: true,
@@ -102,6 +92,8 @@ export const APP_CONFIG: AppConfig = {
     maxModelsInMemory: 100,
     maxFPS: 60,
     adaptiveQuality: true,
+    useBundles: true,
+    batchedGroups: false,
     memoryWarningThreshold: 80,
     autoGarbageCollection: true,
     networkOptimization: {
@@ -121,7 +113,7 @@ export const APP_CONFIG: AppConfig = {
     showDebugPanel: false,
     debugPanelPosition: 'bottom-right',
     theme: {
-      background: '#0B1020',
+      background: '#0d0d0d',
       loadingScreen: '#0B1020',
     },
     cameraDefaults: {
@@ -134,6 +126,7 @@ export const APP_CONFIG: AppConfig = {
       teeth: 0xe8e6dd,
       muscles: 0xe85861,
       nerves: 0xffd166,
+      cartilage: 0x9FC6E5,
     },
   },
 }
@@ -164,10 +157,6 @@ export function getOptimalConfig(): AppConfig {
       },
       features: {
         ...APP_CONFIG.features,
-        resourceManagerConfig: {
-          ...APP_CONFIG.features.resourceManagerConfig,
-          maxMemoryMB: 100,
-        },
       },
     }
   }
