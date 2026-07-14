@@ -7,6 +7,14 @@ Format: [Keep a Changelog](https://keepachangelog.com/de/1.0.0/)
 
 ## [Unreleased]
 
+### Changed (Bühne — neutraler Standard-Hintergrund)
+- **Standard-Hintergrund der Szene ist jetzt `#0d0d0d` (rgb 13,13,13)** statt des Navy-Rests
+  `#07062b`. Der sichtbare Hintergrund entsteht aus Raumfarbe × Umgebungslicht; der
+  Multiplikator stand auf `0.4` und hätte `#0d0d0d` auf rgb(5,5,5) abgedunkelt. Er startet
+  daher neutral bei `1.0` — die gewählte Raumfarbe erscheint jetzt unverfälscht, der Regler
+  dunkelt von dort ab. Der „Schwarz"-Swatch und `ui.theme.background` liegen auf demselben
+  Wert, damit der Startzustand im Panel als aktiv markiert ist.
+
 ### Fixed (Datenschutz — veraltete jsDelivr-Aussage)
 - **Datenschutzerklärung und Lizenz-Dialog behaupteten einen Datenabfluss, den es nicht gibt.**
   Beide sagten, die App lade „derzeit Teile ihrer 3D-Bibliothek über jsDelivr". Das galt für die

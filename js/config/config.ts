@@ -113,7 +113,7 @@ export const APP_CONFIG: AppConfig = {
     showDebugPanel: false,
     debugPanelPosition: 'bottom-right',
     theme: {
-      background: '#0B1020',
+      background: '#0d0d0d',
       loadingScreen: '#0B1020',
     },
     cameraDefaults: {

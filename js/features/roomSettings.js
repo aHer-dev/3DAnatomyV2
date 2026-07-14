@@ -11,8 +11,8 @@ import { requestRender } from '../core/renderScheduler.js';
 
 export const ROOM_DEFAULTS = Object.freeze({
   lighting: 0.85,   // 0..2  (Beleuchtung)
-  brightness: 0.4,  // 0..1  (Raumhelligkeit)
-  color: '#07062b', // Raumfarbe
+  brightness: 1.0,  // 0..1  (Raumhelligkeit) — 1.0 = Raumfarbe unverfälscht
+  color: '#0d0d0d', // Raumfarbe = sichtbarer Start-Hintergrund rgb(13,13,13)
 });
 
 let _lighting = ROOM_DEFAULTS.lighting;
