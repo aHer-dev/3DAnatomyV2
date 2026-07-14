@@ -7,6 +7,28 @@ Format: [Keep a Changelog](https://keepachangelog.com/de/1.0.0/)
 
 ## [Unreleased]
 
+### Fixed (Der Muskelfinder-Link führte in eine tote App)
+- **Wer im Muskelfinder auf „In 3D ansehen" tippte, landete auf einer Seite ohne Bedienung.**
+  Live nachgemessen: **0 Knöpfe, 0 Links, `#ui-root` leer.** Kein Rückweg, keine Werkzeuge — man
+  konnte das Modell nicht einmal drehen. Und **keine sichtbare CC-BY-Attribution**, die ADR 0005
+  zur Pflicht macht. Übrig blieb ein Standbild: ein Skelett mit einem roten Muskel.
+- **Ursache: Der Vorschau-Modus sprang bei einer normalen Navigation an.**
+  `isMuskelfinderPreviewMode()` prüfte `source === 'muskelfinder' && (muscleKey || muscle)` — und
+  genau diese Kombination schickt der Muskelfinder bei **jedem** Klick, per `<a target="_blank">`,
+  also als Navigation in einen neuen Tab. Die Herkunft sagt aber nichts darüber, ob die App
+  **eingebettet** ist; der Muskelfinder enthält kein einziges `<iframe>`.
+  Der Modus schaltet drei Dinge ab — die gesamte React-UI (`App.tsx` rendert nur den
+  `LoadingScreen`), `setupInteractions()` und `initRoomSettings()`. Er ist ein **Standbild** und als
+  solches für eine Einbettung gedacht, nicht für eine Seite, auf die man Nutzer schickt.
+- **Die Vorschau braucht jetzt einen Auslöser, der „eingebettet" auch bedeutet:** ein fremder
+  Rahmen (`window.self !== window.top`) oder ein ausdrückliches `?preview=1`. Die
+  Muskelfinder-Herkunft allein genügt nicht mehr.
+  Im Browser gegen den echten Link verifiziert: **24 Knöpfe, „← Zurück zum Muskelfinder", „Lizenz"
+  und die Attribution „BodyParts3D, © DBCLS, CC BY 4.0" sind wieder da** — der Muskel bleibt
+  hervorgehoben. Eingebettet und mit `preview=1` bleibt die Vorschau stumm wie bisher.
+  Sechs Tests wachen darüber (`js/integration/muskelfinderPreview.test.ts`); einer davon ist genau
+  der Regressionsfall.
+
 ### Fixed (Assets — Logo und PWA-Icons luden auf GitHub Pages nicht)
 - **Das Logo (Rail + Ladebildschirm) war auf der veröffentlichten Seite tot.** Beide `<img>` zeigten
   auf den absoluten Pfad `/assets/af-logo.png`. Die Seite liegt auf Pages aber unter
