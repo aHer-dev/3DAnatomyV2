@@ -4,6 +4,7 @@
 // Werkzeug-Logik aus der abgelösten Toolbar.tsx übernommen; Kamera-Ansichten
 // + Reset leben in ViewCluster.tsx (S5, Handoff §10).
 import React, { useEffect, useState } from 'react'
+import { assetPath } from '../../../core/path.js'
 import { requestRender } from '../../../core/renderScheduler.js'
 import { TOOL, getActiveTool, setActiveTool as setTool, onToolChange } from '../../toolbar.js'
 import { loadGroupByName, unloadGroupSilent } from '../../../features/modelLoader-core.js'
@@ -157,7 +158,7 @@ export function AppShell() {
     <>
       {/* ── Icon-Rail (links) ── */}
       <nav className="shell-rail" aria-label="Werkzeuge">
-        <img className="shell-rail__logo" src={`${import.meta.env.BASE_URL}assets/af-logo.png`} alt="Anatomie Fokus" width={36} height={36} />
+        <img className="shell-rail__logo" src={assetPath('af-logo.png')} alt="Anatomie Fokus" width={36} height={36} />
 
         <div className="shell-rail__group">
           {railBtn('select', activeTool === TOOL.SELECT, 'Einzelauswahl', () => setTool(TOOL.SELECT))}

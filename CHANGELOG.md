@@ -16,6 +16,14 @@ Format: [Keep a Changelog](https://keepachangelog.com/de/1.0.0/)
   Beide nutzen jetzt `import.meta.env.BASE_URL`, sind damit unabhängig vom Deploy-Pfad.
 - **`site.webmanifest`**: dieselbe Ursache (JSON in `public/` wird nicht verarbeitet), die drei
   Icon-Pfade sind jetzt relativ zur Manifest-URL.
+- **Favicon war in hellen Tableisten unsichtbar.** Es war ein fast weißes „A" auf transparentem
+  Grund — die Datei lud, man sah nur nichts. Die Tab-Favicons (512/64/32/16 + `.ico`) werden jetzt
+  aus der vollen Marke (`af-logo.png`, weißes A mit orangem Schwung) auf eingebackener Kachel
+  `#0d0d0d` erzeugt und tragen damit auf hellem wie dunklem Grund. `favicon.ico` war zudem gar kein
+  ICO, sondern ein PNG mit `.ico`-Endung (416×512) — jetzt eine echte ICO mit 16/32/48.
+  Apple-Touch- und maskable-Icons waren bereits deckend und bleiben unverändert.
+- **Logo-Pfade nutzen den vorhandenen `assetPath()`-Helfer** aus `js/core/path.js` statt
+  `import.meta.env.BASE_URL` direkt — dafür ist der Helfer da, der Rest des Codes tut es genauso.
 
 ### Changed (Bühne — neutraler Standard-Hintergrund)
 - **Standard-Hintergrund der Szene ist jetzt `#0d0d0d` (rgb 13,13,13)** statt des Navy-Rests
