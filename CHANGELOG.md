@@ -17,11 +17,15 @@ Format: [Keep a Changelog](https://keepachangelog.com/de/1.0.0/)
 - **`site.webmanifest`**: dieselbe Ursache (JSON in `public/` wird nicht verarbeitet), die drei
   Icon-Pfade sind jetzt relativ zur Manifest-URL.
 - **Favicon war in hellen Tableisten unsichtbar.** Es war ein fast weißes „A" auf transparentem
-  Grund — die Datei lud, man sah nur nichts. Die Tab-Favicons (512/64/32/16 + `.ico`) werden jetzt
-  aus der vollen Marke (`af-logo.png`, weißes A mit orangem Schwung) auf eingebackener Kachel
-  `#0d0d0d` erzeugt und tragen damit auf hellem wie dunklem Grund. `favicon.ico` war zudem gar kein
-  ICO, sondern ein PNG mit `.ico`-Endung (416×512) — jetzt eine echte ICO mit 16/32/48.
-  Apple-Touch- und maskable-Icons waren bereits deckend und bleiben unverändert.
+  Grund — die Datei lud, man sah nur nichts. `favicon.ico` war zudem gar kein ICO, sondern ein PNG
+  mit `.ico`-Endung (416×512).
+- **Alle App-Icons kommen jetzt aus `scripts/generate-icons.py`** — dieselbe Rezeptur wie im
+  Schwesterprojekt Muskelfinder-V2, das dasselbe Problem bereits gelöst hatte: dieselbe Logo-Quelle
+  (`af-logo.png`, byteidentisch in beiden Repos), dieselbe Kachel `#1c1b18`, dieselben Radien.
+  Beide Apps sehen in der Tableiste damit identisch aus. Erzeugt werden Favicon 512/64/32/16, eine
+  echte ICO (16/32/48), Apple-Touch (ohne Alpha) und die maskable-Icons.
+  **Hinweis:** die maskable-Icons waren vorher schwarzes A auf Orange und sind damit auf die
+  Anthrazit-Kachel gewechselt.
 - **Logo-Pfade nutzen den vorhandenen `assetPath()`-Helfer** aus `js/core/path.js` statt
   `import.meta.env.BASE_URL` direkt — dafür ist der Helfer da, der Rest des Codes tut es genauso.
 
