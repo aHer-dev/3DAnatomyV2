@@ -149,7 +149,7 @@ export async function startApp() {
 
         // 4) Raum-/Lichteinstellungen initialisieren (React-UI ist bereits gemountet)
         if (!previewMode) {
-            initRoomSettings();
+            initRoomSettings(getStore().theme);
         }
         updateLoadingCircle(45);
 

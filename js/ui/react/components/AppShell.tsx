@@ -9,6 +9,7 @@ import { requestRender } from '../../../core/renderScheduler.js'
 import { TOOL, getActiveTool, setActiveTool as setTool, onToolChange } from '../../toolbar.js'
 import { loadGroupByName, unloadGroupSilent } from '../../../features/modelLoader-core.js'
 import { setGroupVisibility } from '../../../features/visibility.js'
+import { applyThemeRoomColor } from '../../../features/roomSettings.js'
 import { enterPhotoMode } from '../../photoMode.js'
 import { toggleLabels } from '../../../features/labels.js'
 import { useReactStore } from '../useReactStore.js'
@@ -107,9 +108,11 @@ export function AppShell() {
   const toggleTheme = useReactStore(s => s.toggleTheme)
 
   // Das Theme lebt als [data-theme] auf <html>; variables.css hängt die
-  // Token-Sätze daran. Nur die Bedienoberfläche — der 3D-Canvas bleibt dunkel.
+  // Token-Sätze daran. Die Bühne bleibt in beiden Themes dunkel, wechselt aber
+  // den Ton mit — es sei denn, jemand hat selbst eine Raumfarbe gewählt.
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme)
+    applyThemeRoomColor(theme)
   }, [theme])
   const openFlyoutExclusive = useReactStore(s => s.openFlyoutExclusive)
   const closeFlyout         = useReactStore(s => s.closeFlyout)
@@ -188,7 +191,16 @@ export function AppShell() {
     <>
       {/* ── Icon-Rail (links) ── */}
       <nav className="shell-rail" aria-label="Werkzeuge">
-        <img className="shell-rail__logo" src={assetPath('af-logo.png')} alt="Anatomie Fokus" width={36} height={36} />
+        {/* Zwei Logo-Dateien, eine pro Theme — dieselbe Wahl wie im Muskelfinder
+            (BrandMark.tsx): die weiße Marke verschwindet auf hellem Glas, die
+            dunkle auf schwarzem. */}
+        <img
+          className="shell-rail__logo"
+          src={assetPath(theme === 'dark' ? 'af-logo.png' : 'af-logo-dark.png')}
+          alt="Anatomie Fokus"
+          width={36}
+          height={36}
+        />
 
         <div className="shell-rail__group">
           {railBtn('select', activeTool === TOOL.SELECT, 'Einzelauswahl', () => setTool(TOOL.SELECT))}
@@ -307,9 +319,9 @@ export function AppShell() {
       )}
 
       {/* ── Unten-mittig: Ansichts-Cluster, in der Isolation der Untertitel (Frame 2e).
-             Mobil ist der Float-Cluster ausgeblendet (→ „Ansicht"-Sheet). Bei offenem
-             Settings-Flyout weicht der Cluster nach rechts aus (sonst ~19px Überlappung). ── */}
-      {isolationActive ? <IsolationSubtitle /> : <ViewCluster flyoutOpen={openFlyout === 'settings'} />}
+             Mobil ist der Float-Cluster ausgeblendet (→ „Ansicht"-Sheet). Er steht fest
+             in der Fenstermitte und weicht nichts mehr aus — siehe view-cluster.css. ── */}
+      {isolationActive ? <IsolationSubtitle /> : <ViewCluster />}
 
       {/* ── Settings-Flyout links neben der Rail (S8, Frame 2f) · mobil als Sheet ── */}
       {openFlyout === 'settings' && <SettingsPanel onClose={closeFlyout} />}

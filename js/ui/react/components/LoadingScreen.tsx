@@ -7,6 +7,7 @@ import { useReactStore } from '../useReactStore.js'
 
 export function LoadingScreen() {
   const loading = useReactStore(s => s.loading)
+  const theme   = useReactStore(s => s.theme)
   if (!loading.active) return null
 
   const pct = Math.round(loading.progress)
@@ -22,7 +23,15 @@ export function LoadingScreen() {
         <svg className="lds-ring" viewBox="0 0 200 200" aria-hidden="true">
           <circle cx="100" cy="100" r="98" />
         </svg>
-        <img className="lds-logo" src={assetPath('af-logo.png')} alt="" width={132} height={132} />
+        {/* Der Ladebildschirm folgt dem Theme (heller Grund im Light-Modus),
+            also muss auch hier die passende Logo-Variante stehen. */}
+        <img
+          className="lds-logo"
+          src={assetPath(theme === 'dark' ? 'af-logo.png' : 'af-logo-dark.png')}
+          alt=""
+          width={132}
+          height={132}
+        />
       </div>
 
       <h1 className="lds-wordmark">Anatomie <span>Fokus</span></h1>

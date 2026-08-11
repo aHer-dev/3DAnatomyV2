@@ -7,6 +7,28 @@ Format: [Keep a Changelog](https://keepachangelog.com/de/1.0.0/)
 
 ## [Unreleased]
 
+### Changed (Bühne, Ansichts-Cluster, Logo — Nacharbeiten zum Light-Modus)
+- **Bühnenfarbe folgt dem Theme.** Im Light-Modus steht sie auf `#524a42` (rgb 82,74,66) — ein
+  warmes Taupe, das den Papierton der hellen Oberfläche aufnimmt, ohne dem Modell Kontrast zu
+  nehmen. Im Dark-Modus bleibt es bei `#0d0d0d`. Die Bühne bleibt damit in beiden Themes dunkel,
+  wechselt aber den Ton statt hart schwarz zu bleiben.
+  **Eine selbst gewählte Raumfarbe hat Vorrang:** sobald jemand im Einstellungs-Panel eine Farbe
+  anfasst, hört der Theme-Wechsel auf, sie zu überschreiben — sonst würde ein Klick auf
+  Sonne/Mond die eigene Einstellung stillschweigend wegwerfen. „Zurücksetzen" gibt die Hoheit
+  ans Theme zurück. `#524a42` steht zusätzlich als Swatch „Taupe" zur Wahl.
+- **Der Ansichts-Cluster steht wieder mittig.** Er hing auf `left: 41%` — ein Rest aus der Zeit
+  der immer offenen Sidebar, als er zwischen Rail und Leiste zentriert sitzen sollte. Seit die
+  Leiste eingeklappt startet und jederzeit auf- und zufährt, hat diese Fläche keine feste Breite
+  mehr, der Cluster wanderte je nach Zustand woanders hin. Dazu wich er bei offenem
+  Settings-Flyout zusätzlich nach rechts aus. Beides ist raus: **ein Bedienelement, das seine
+  Position ändert, ist schwerer zu treffen als eines, das leicht überlappt.** `left: 50%`, fest.
+  Der `flyoutOpen`-Prop von `ViewCluster` entfällt ersatzlos.
+- **Das Logo war im Light-Modus unsichtbar.** `af-logo.png` ist die **weiße** Markenvariante —
+  auf dem nun hellen Glas der Rail und auf dem hellen Ladebildschirm verschwand sie. Es gibt
+  jetzt zwei Dateien und die Wahl fällt pro Theme, genau wie im Muskelfinder (`BrandMark.tsx`):
+  `af-logo.png` auf Dunkel, das neue `af-logo-dark.png` auf Hell. Betrifft Icon-Rail und
+  Ladebildschirm.
+
 ### Added (Design — Light-Modus als Standard, Dark bleibt umschaltbar)
 - **Die App hatte nur Dunkel.** Das Schwesterprojekt Muskelfinder-V2 führt dieselbe Marke
   („Anatomie Fokus", Variante A) längst in zwei Themes mit **Light als Standard** — und dessen

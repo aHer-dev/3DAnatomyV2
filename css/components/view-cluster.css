@@ -5,12 +5,18 @@
    Token (10px-Radius, 38px-Buttons) sind Frame-Vorgaben.
    ========================================================================= */
 
+/* Mittig im Fenster — nicht in der „freien Fläche".
+   Hier stand `left: 41%`, ein Rest aus der Zeit der immer offenen Sidebar: der
+   Cluster sollte zwischen Rail und Leiste zentriert sitzen. Seit die Leiste
+   eingeklappt startet und jederzeit auf- und zufährt, hat diese Fläche keine
+   feste Breite mehr — der Cluster wanderte je nach Zustand woanders hin.
+   Ein Bedienelement, das seine Position ändert, ist schwerer zu treffen als
+   eines, das leicht überlappt. Es bleibt jetzt in der Fenstermitte stehen. */
 .vc-bar {
   position: fixed;
-  left: 41%;
+  left: 50%;
   bottom: 26px;
   transform: translateX(-50%);
-  transition: left 0.28s var(--ease-smooth);
   z-index: var(--z-controls);
   pointer-events: all;
   display: flex;
@@ -62,9 +68,3 @@
   background: var(--hairline);
 }
 
-/* Bei offenem Settings-Flyout (left:100px + width:324px → rechte Kante 424px)
-   zentriert sich der Cluster in der freien Canvas-Fläche rechts davon —
-   breitenunabhängig, damit die ~19px-Überlappung auf allen Breiten verschwindet. */
-.vc-bar--flyout-open {
-  left: calc((444px + 100vw) / 2);
-}
