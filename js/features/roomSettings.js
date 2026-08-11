@@ -20,7 +20,7 @@ export const ROOM_DEFAULTS = Object.freeze({
 // neutralschwarz: rgb(82,74,66) nimmt den Papierton der hellen Oberfläche auf,
 // ohne dem Modell Kontrast zu nehmen.
 export const ROOM_COLOR_BY_THEME = Object.freeze({
-  light: '#524a42',   // rgb(82, 74, 66) — warmes Taupe
+  light: '#25211e',   // rgb(37, 33, 30) — warmes Dunkelbraun
   dark:  '#0d0d0d',   // rgb(13, 13, 13)
 });
 

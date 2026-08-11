@@ -33,12 +33,12 @@ export const GROUP_ORDER: string[] = [
 ]
 
 // Reihenfolge im Sidebar-Tab „Strukturen". Weicht bewusst von GROUP_ORDER ab:
-// Muskeln stehen oben, weil sie als einzige Gruppe beim Start NICHT geladen sind
-// und damit die einzige Zeile sind, die man überhaupt anfassen muss. Alles
-// darunter ist bereits an. GROUP_ORDER bleibt die kanonische Reihenfolge für
-// alles andere (Ladepfad, Sammlung).
+// oben stehen die Gruppen, die beim Start AUS sind — Muskeln und Bänder. Sie
+// sind die Zeilen, die man überhaupt anfassen muss; darunter folgt das Skelett,
+// das bereits an ist. GROUP_ORDER bleibt die kanonische Reihenfolge für alles
+// andere (Ladepfad, Sammlung).
 export const PANEL_GROUP_ORDER: string[] = [
-  'muscles', 'bones', 'cartilage', 'ligaments', 'teeth',
+  'muscles', 'ligaments', 'bones', 'cartilage', 'teeth',
 ]
 
 export function getGroupLabel(group: string): string {

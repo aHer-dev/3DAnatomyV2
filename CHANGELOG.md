@@ -8,10 +8,10 @@ Format: [Keep a Changelog](https://keepachangelog.com/de/1.0.0/)
 ## [Unreleased]
 
 ### Changed (Bühne, Ansichts-Cluster, Logo — Nacharbeiten zum Light-Modus)
-- **Bühnenfarbe folgt dem Theme.** Im Light-Modus steht sie auf `#524a42` (rgb 82,74,66) — ein
-  warmes Taupe, das den Papierton der hellen Oberfläche aufnimmt, ohne dem Modell Kontrast zu
-  nehmen. Im Dark-Modus bleibt es bei `#0d0d0d`. Die Bühne bleibt damit in beiden Themes dunkel,
-  wechselt aber den Ton statt hart schwarz zu bleiben.
+- **Bühnenfarbe folgt dem Theme.** Im Light-Modus steht sie auf `#25211e` (rgb 37,33,30) — ein
+  warmes Dunkelbraun, das den Papierton der hellen Oberfläche aufnimmt, ohne dem Modell Kontrast
+  zu nehmen. Im Dark-Modus bleibt es bei `#0d0d0d`. Die Bühne bleibt damit in beiden Themes
+  dunkel, wechselt aber den Ton statt hart schwarz zu bleiben.
   **Eine selbst gewählte Raumfarbe hat Vorrang:** sobald jemand im Einstellungs-Panel eine Farbe
   anfasst, hört der Theme-Wechsel auf, sie zu überschreiben — sonst würde ein Klick auf
   Sonne/Mond die eigene Einstellung stillschweigend wegwerfen. „Zurücksetzen" gibt die Hoheit
@@ -90,13 +90,16 @@ Format: [Keep a Changelog](https://keepachangelog.com/de/1.0.0/)
 - **Muskeln stehen jetzt oben** (`sortPanelGroups`, bewusst abweichend von der kanonischen
   `GROUP_ORDER`): sie sind die einzige Gruppe, die beim Start aus ist, und damit die einzige
   Zeile, die man überhaupt anfassen muss. Darunter Knochen, Knorpel, Bänder, Zähne.
-- **Bänder werden beim Start mitgeladen** (28 Einträge, 248 kB Bundle). Das Startbild ist damit
-  „alles an außer Muskeln" statt vorher „Knochen, Zähne, Knorpel an, Bänder gar nicht geladen".
-- **Die Icon-Rail koppelt Bänder nicht mehr an den Muskel-Schalter.** Da Bänder nun von Anfang
-  an geladen sind, hätte sich der Rail-Knopf beim Start für „an" gehalten und sein erster Klick
-  hätte die Bänder weggeworfen, statt Muskeln zu laden. Nach dem Laden setzt die Rail außerdem
-  die Sichtbarkeit ausdrücklich, sonst stünde der neue Schalter auf aus, während das Modell
-  längst in der Szene liegt.
+- **Das Startbild ist das Skelett:** Knochen, Knorpel und Zähne an, **Muskeln und Bänder aus**.
+  Beide werden erst auf Wunsch geladen und stehen deshalb oben in der Liste — die Reihenfolge
+  ist `Muskeln · Bänder · Knochen · Knorpel · Zähne`, oben also die Zeilen, die man überhaupt
+  anfassen muss.
+- **Die Icon-Rail koppelt Bänder nicht mehr an den Muskel-Schalter.** Bänder haben im Tab einen
+  eigenen Schalter, und zwei Bedienelemente, die dieselbe Gruppe verschieden weit mitnehmen,
+  sind genau die Verwirrung, die dieser Tab gerade losgeworden ist. Rail-Knopf und
+  Muskel-Schalter meinen jetzt dasselbe. Nach dem Laden setzt die Rail außerdem die
+  Sichtbarkeit ausdrücklich, sonst stünde der Schalter auf aus, während das Modell längst in
+  der Szene liegt.
 - Optisch: Karte je Gruppe statt gedrängter Zeile, 36×20-Pille als Schalter, Gruppenfarbe als
   Kante der aktiven Karte, und die Röntgen-Transparenz rückt in eine eigene Zeile darunter —
   sichtbar nur, wenn die Gruppe an ist. Fünf neue Tests für `sortPanelGroups` (60 gesamt).

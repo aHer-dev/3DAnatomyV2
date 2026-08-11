@@ -35,10 +35,10 @@ function useActiveTool() {
 }
 
 // ─── Layer-Konfiguration ────────────────────────────────────────────────────
-// Bänder gehören nicht mehr zum Muskel-Schalter: sie sind seit dem neuen
-// Startbild von Anfang an geladen. Bliebe die Kopplung, hielte sich der
-// Rail-Knopf schon beim Start für „an" und sein erster Klick würfe die
-// Bänder weg statt die Muskeln zu laden.
+// Bänder gehören nicht zum Muskel-Schalter: sie haben im Tab „Strukturen" einen
+// eigenen Schalter, und zwei Bedienelemente, die dieselbe Gruppe verschieden
+// weit mitnehmen, sind genau die Verwirrung, die dieser Tab gerade losgeworden
+// ist. Der Rail-Knopf und der Muskel-Schalter meinen jetzt dasselbe.
 const LAYER_GROUPS: Record<string, string[]> = {
   bones:   ['bones', 'cartilage', 'teeth'],
   muscles: ['muscles'],

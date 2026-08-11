@@ -155,23 +155,19 @@ export async function startApp() {
 
         // 5) Initiale Gruppen laden
 
-        // Startbild: alles an außer den Muskeln. Die sind mit 465 Dateien / 16 MB
-        // die mit Abstand schwerste Gruppe und werden erst auf Wunsch geladen —
-        // im Tab „Strukturen" stehen sie deshalb ganz oben.
+        // Startbild: das Skelett. Muskeln und Bänder bleiben aus und werden erst
+        // auf Wunsch geladen — im Tab „Strukturen" stehen sie deshalb oben.
+        // Die Muskeln sind mit 465 Dateien / 16 MB ohnehin die schwerste Gruppe.
         await loadGroupByName('bones', { centerCamera: true });
         getStore().setGroupVisible('bones', true);
-        updateLoadingCircle(60);
+        updateLoadingCircle(65);
 
         await loadGroupByName('teeth', { centerCamera: false });
         getStore().setGroupVisible('teeth', true);
-        updateLoadingCircle(72);
+        updateLoadingCircle(80);
 
         await loadGroupByName('cartilage', { centerCamera: false });
         getStore().setGroupVisible('cartilage', true);
-        updateLoadingCircle(84);
-
-        await loadGroupByName('ligaments', { centerCamera: false });
-        getStore().setGroupVisible('ligaments', true);
         updateLoadingCircle(95);
 
         // 6) Schatten & Material-Tweaks
@@ -185,10 +181,9 @@ export async function startApp() {
         applyGroupMaterialTweaks('bones', cfg);
         applyGroupMaterialTweaks('teeth', cfg);
         applyGroupMaterialTweaks('cartilage', cfg);
-        applyGroupMaterialTweaks('ligaments', cfg);
 
         // 7) Farben anwenden
-        ['bones', 'teeth', 'cartilage', 'ligaments'].forEach(g => {
+        ['bones', 'teeth', 'cartilage'].forEach(g => {
             const hex = getStore().colors[g] ?? INITIAL_COLORS[g] ?? DEFAULT_COLOR;
             if (hex != null) updateModelColors(g, hex);
         });

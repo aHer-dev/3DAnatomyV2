@@ -40,9 +40,9 @@ describe('sortGroups', () => {
 })
 
 describe('sortPanelGroups', () => {
-  it('stellt die Muskeln an die Spitze — sie sind die einzige Gruppe, die beim Start aus ist', () => {
+  it('stellt Muskeln und Bänder nach oben — die beiden Gruppen, die beim Start aus sind', () => {
     const result = sortPanelGroups(['bones', 'teeth', 'muscles', 'cartilage', 'ligaments'])
-    expect(result).toEqual(['muscles', 'bones', 'cartilage', 'ligaments', 'teeth'])
+    expect(result).toEqual(['muscles', 'ligaments', 'bones', 'cartilage', 'teeth'])
   })
 
   it('weicht bewusst von der kanonischen Reihenfolge ab', () => {

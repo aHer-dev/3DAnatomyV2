@@ -38,8 +38,9 @@ const SHORTCUTS: [string, string][] = [
 
 // Hintergrund-Swatches (§9.7) — Szenen-Farbdaten, keine UI-Tokens.
 const BG_SWATCHES: { hex: string; label: string }[] = [
-  { hex: '#524a42', label: 'Taupe' },     // Standard im Light-Modus
-  { hex: '#0d0d0d', label: 'Schwarz' },   // Standard im Dark-Modus
+  { hex: '#25211e', label: 'Dunkelbraun' },  // Standard im Light-Modus
+  { hex: '#0d0d0d', label: 'Schwarz' },      // Standard im Dark-Modus
+  { hex: '#524a42', label: 'Taupe' },
   { hex: '#34373c', label: 'Anthrazit' },
   { hex: '#0a0e27', label: 'Navy' },
 ]
