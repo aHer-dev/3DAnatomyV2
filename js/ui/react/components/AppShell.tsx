@@ -8,6 +8,7 @@ import { assetPath } from '../../../core/path.js'
 import { requestRender } from '../../../core/renderScheduler.js'
 import { TOOL, getActiveTool, setActiveTool as setTool, onToolChange } from '../../toolbar.js'
 import { loadGroupByName, unloadGroupSilent } from '../../../features/modelLoader-core.js'
+import { setGroupVisibility } from '../../../features/visibility.js'
 import { enterPhotoMode } from '../../photoMode.js'
 import { toggleLabels } from '../../../features/labels.js'
 import { useReactStore } from '../useReactStore.js'
@@ -33,9 +34,13 @@ function useActiveTool() {
 }
 
 // ─── Layer-Konfiguration ────────────────────────────────────────────────────
+// Bänder gehören nicht mehr zum Muskel-Schalter: sie sind seit dem neuen
+// Startbild von Anfang an geladen. Bliebe die Kopplung, hielte sich der
+// Rail-Knopf schon beim Start für „an" und sein erster Klick würfe die
+// Bänder weg statt die Muskeln zu laden.
 const LAYER_GROUPS: Record<string, string[]> = {
   bones:   ['bones', 'cartilage', 'teeth'],
-  muscles: ['muscles', 'ligaments'],
+  muscles: ['muscles'],
 }
 
 // ─── Icons ──────────────────────────────────────────────────────────────────
@@ -137,7 +142,13 @@ export function AppShell() {
       if (isLoaded) {
         for (const g of groupList) await unloadGroupSilent(g)
       } else {
-        for (const g of groupList) await loadGroupByName(g, { centerCamera: false })
+        for (const g of groupList) {
+          await loadGroupByName(g, { centerCamera: false })
+          // Sichtbarkeit ausdrücklich setzen, sonst kennt der Store die Gruppe
+          // als „geladen, aber unsichtbar" — der Schalter im Tab „Strukturen"
+          // stünde auf aus, während das Modell längst in der Szene liegt.
+          setGroupVisibility(g, true)
+        }
       }
       requestRender()
     } catch (e) {

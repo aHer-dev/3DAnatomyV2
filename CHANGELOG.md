@@ -7,6 +7,46 @@ Format: [Keep a Changelog](https://keepachangelog.com/de/1.0.0/)
 
 ## [Unreleased]
 
+### Fixed (Strukturen — Entladen wirkte nicht, das Auge tat gar nichts)
+- **Entladene Gruppen blieben im Bild stehen.** Der Renderer arbeitet on demand
+  (`startApp.js`): er zeichnet nur nach einem `requestRender()`. `loadGroupByName` fordert
+  intern an — deshalb erschienen Gruppen beim Laden. `unloadGroupSilent` forderte **nicht** an,
+  also flogen die Modelle aus der Szene, während der Bildschirm das letzte Bild weiter zeigte.
+  Der Rail-Knopf links war davon verschont, weil `AppShell` sein `requestRender()` von Hand
+  nachschob. Die Anforderung sitzt jetzt in `unloadGroupSilent` selbst und gilt damit für
+  jeden Aufrufer.
+- **Das Auge in der Gruppen-Zeile schaltete nichts.** Es rief `getStore().setGroupVisible(…)`
+  — die **Store-Aktion**, die nur einen Boolean umlegt. Die Funktion, die tatsächlich die
+  Szene anfasst, heißt `setGroupVisibility` und liegt in `features/visibility.js`, wo sie
+  zusätzlich als `setGroupVisible` exportiert wird: die Namensgleichheit war die Falle. Eine
+  Subscription, die Store-Zustand auf die Szene überträgt, gibt es nirgends — der Klick
+  verpuffte vollständig.
+- **Der Batch-Pfad in `unloadGroupSilent` vergaß `unloadGroup`** und ließ die Modell-Liste im
+  Store stehen. Derzeit folgenlos, weil `performance.batchedGroups` auf `false` steht, aber
+  eine Falle für Phase 2 von ADR 0007. Mitgeflickt.
+
+### Changed (Strukturen — ein Schalter pro Gruppe statt zweier Knöpfe)
+- **Jede Zeile hatte zwei Bedienelemente, deren Unterschied niemand ansah:** ein Auge für die
+  Sichtbarkeit und ein `+`/`✕` fürs Laden. Zwei Wege, dieselbe Gruppe „auszumachen" — und der
+  eine davon kaputt. Beide sind jetzt **ein Schalter**: an heißt geladen und sichtbar, aus
+  heißt unsichtbar.
+- **Ausgeschaltete Gruppen bleiben im Speicher.** Wieder-Einschalten ist damit sofort da; bei
+  den Muskeln (465 Dateien, 16 MB) wäre Nachladen sonst jedes Mal eine spürbare Pause. Der
+  Preis ist dauerhaft belegter Arbeitsspeicher.
+- **Muskeln stehen jetzt oben** (`sortPanelGroups`, bewusst abweichend von der kanonischen
+  `GROUP_ORDER`): sie sind die einzige Gruppe, die beim Start aus ist, und damit die einzige
+  Zeile, die man überhaupt anfassen muss. Darunter Knochen, Knorpel, Bänder, Zähne.
+- **Bänder werden beim Start mitgeladen** (28 Einträge, 248 kB Bundle). Das Startbild ist damit
+  „alles an außer Muskeln" statt vorher „Knochen, Zähne, Knorpel an, Bänder gar nicht geladen".
+- **Die Icon-Rail koppelt Bänder nicht mehr an den Muskel-Schalter.** Da Bänder nun von Anfang
+  an geladen sind, hätte sich der Rail-Knopf beim Start für „an" gehalten und sein erster Klick
+  hätte die Bänder weggeworfen, statt Muskeln zu laden. Nach dem Laden setzt die Rail außerdem
+  die Sichtbarkeit ausdrücklich, sonst stünde der neue Schalter auf aus, während das Modell
+  längst in der Szene liegt.
+- Optisch: Karte je Gruppe statt gedrängter Zeile, 36×20-Pille als Schalter, Gruppenfarbe als
+  Kante der aktiven Karte, und die Röntgen-Transparenz rückt in eine eigene Zeile darunter —
+  sichtbar nur, wenn die Gruppe an ist. Fünf neue Tests für `sortPanelGroups` (60 gesamt).
+
 ### Changed (Info-Panel — der Details-Aufklapper trägt jetzt das Marken-Orange)
 - **Der Balken, hinter dem Ursprung und Ansatz stecken, sah nicht klickbar aus.** Grauer
   Versalien-Text (`--text-secondary`) auf 3 % Weiß, mit einer `--hairline-soft`-Kante: das

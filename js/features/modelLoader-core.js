@@ -384,7 +384,9 @@ export async function unloadGroupSilent(groupName) {
   if (batch) {
     if (batch.mesh) scene.remove(batch.mesh);
     removeGroupBatch(groupName);
+    getStore().unloadGroup(groupName);
     getStore().setGroupVisible(groupName, false);
+    requestRender();
     return;
   }
 
@@ -398,6 +400,11 @@ export async function unloadGroupSilent(groupName) {
   }
   getStore().unloadGroup(groupName);
   getStore().setGroupVisible(groupName, false);
+  // Ohne diese Zeile bleibt die entladene Gruppe sichtbar: der Renderer läuft
+  // on demand (startApp.js), zeichnet also nur nach einer Anforderung neu. Das
+  // Gegenstück `loadGroupByName` fordert intern an — deshalb erschienen Gruppen
+  // beim Laden, verschwanden beim Entladen aber nicht.
+  requestRender();
 }
 
 

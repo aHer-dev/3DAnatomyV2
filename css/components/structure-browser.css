@@ -1,6 +1,10 @@
 /* StructureBrowser — Sidebar-Tab „Strukturen" (Layout B, Handoff §9.3).
    Wohnt im Tab-Body (.shell-sidebar__body scrollt) — kein position:fixed,
-   kein eigenes Glas. BEM-Präfix `sb-`, nur Tokens. */
+   kein eigenes Glas. BEM-Präfix `sb-`, nur Tokens.
+
+   Eine Gruppe = eine Karte mit genau EINEM Schalter. Vorher standen hier zwei
+   Knöpfe nebeneinander (Auge für Sichtbarkeit, +/✕ für Laden), deren Unterschied
+   niemand ansah — und von denen einer nichts tat. */
 
 .sb-panel {
   display: flex;
@@ -11,52 +15,32 @@
 .sb-list {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 6px;
 }
 
-/* ── Gruppen-Zeile (§9.3) ────────────────────────────────────────────── */
+/* ── Gruppen-Karte ───────────────────────────────────────────────────── */
+.sb-item {
+  padding: 4px 10px 4px 12px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  background: rgba(255, 255, 255, 0.02);
+  transition: var(--transition-smooth);
+}
+.sb-item:hover { background: var(--glass-bg-hover); }
+
+/* An = Gruppenfarbe als linke Kante, damit die Zeile ohne Lesen erkennbar ist */
+.sb-item[data-on="true"] {
+  background: var(--accent-dim);
+  border-color: color-mix(in srgb, var(--sb-fill) 35%, transparent);
+}
+.sb-item[data-busy="true"] { opacity: 0.7; }
+
 .sb-row {
   display: flex;
   align-items: center;
   gap: 11px;
-  padding: 9px 10px;
-  border-radius: var(--radius-md);
-  transition: var(--transition-smooth);
+  min-height: 40px;
 }
-.sb-row:hover { background: var(--glass-bg-hover); }
-
-/* Aktiv/gewählt = geladen & sichtbar */
-.sb-row[data-loaded="true"][data-visible="true"] { background: var(--accent-dim); }
-.sb-row[data-loaded="true"][data-visible="true"] .sb-label {
-  color: var(--text-primary);
-  font-weight: 600;
-}
-/* Ausgeblendet = geladen, nicht sichtbar → gedimmt */
-.sb-row[data-loaded="true"][data-visible="false"] .sb-label { color: var(--text-faint); }
-.sb-row[data-loaded="true"][data-visible="false"] .sb-swatch { opacity: 0.4; }
-/* Nicht geladen */
-.sb-row[data-loaded="false"] .sb-label { color: var(--text-muted); }
-.sb-row[data-pending="true"] { opacity: 0.6; }
-
-/* ── Sichtbarkeits-Auge (17px) ───────────────────────────────────────── */
-.sb-eye {
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 22px;
-  height: 22px;
-  padding: 0;
-  border: none;
-  background: none;
-  cursor: pointer;
-  color: var(--text-secondary);
-  border-radius: var(--radius-sm);
-  transition: var(--transition-smooth);
-}
-.sb-eye svg { width: 17px; height: 17px; }
-.sb-eye:hover { background: var(--glass-bg-hover); color: var(--text-primary); }
-.sb-row[data-visible="false"] .sb-eye { color: var(--text-faint); }
 
 /* ── Farbpunkt (11px, Gruppenfarbe via --sb-fill) ────────────────────── */
 .sb-swatch {
@@ -66,24 +50,88 @@
   border-radius: 50%;
   background: var(--sb-fill);
   border: 1px solid var(--hairline);
+  transition: var(--transition-smooth);
 }
+.sb-item[data-on="false"] .sb-swatch { opacity: 0.35; }
 
 /* ── Label ───────────────────────────────────────────────────────────── */
 .sb-label {
   flex: 1;
   min-width: 0;
-  font: 500 13px/1.2 var(--font-ui);
+  font: 500 13.5px/1.2 var(--font-ui);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  color: var(--text-secondary);
+  color: var(--text-muted);
   transition: var(--transition-smooth);
 }
+.sb-item[data-on="true"] .sb-label {
+  color: var(--text-primary);
+  font-weight: 600;
+}
 
-/* ── Röntgen-Slider (Track 60×4, Fill = Gruppenfarbe, Knob 11px weiß) ── */
-.sb-slider {
+.sb-hint {
   flex-shrink: 0;
-  width: 60px;
+  font: 500 11px/1 var(--font-ui);
+  color: var(--text-faint);
+}
+
+/* ── Der Schalter (36×20 Pille) ──────────────────────────────────────── */
+.sb-switch {
+  flex-shrink: 0;
+  position: relative;
+  width: 36px;
+  height: 20px;
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-pill);
+  background: rgba(255, 255, 255, 0.14);
+  cursor: pointer;
+  transition: var(--transition-smooth);
+}
+.sb-switch:hover:not(:disabled) { background: rgba(255, 255, 255, 0.22); }
+.sb-switch:disabled { cursor: progress; opacity: 0.5; }
+.sb-switch[aria-checked="true"] { background: var(--accent); }
+.sb-switch[aria-checked="true"]:hover:not(:disabled) { background: var(--accent-hi); }
+.sb-switch:focus-visible { outline: 2px solid var(--focus-ring); outline-offset: 2px; }
+
+.sb-switch__knob {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.45);
+  transition: transform 0.22s var(--ease-smooth);
+}
+.sb-switch[aria-checked="true"] .sb-switch__knob { transform: translateX(16px); }
+
+/* ── Röntgen-Zeile (nur wenn die Gruppe an ist) ──────────────────────── */
+.sb-xray {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 0 0 8px 22px;
+}
+.sb-xray__label {
+  font: 500 11px/1 var(--font-ui);
+  color: var(--text-faint);
+}
+.sb-xray__value {
+  flex-shrink: 0;
+  min-width: 32px;
+  text-align: right;
+  font: 500 11px/1 var(--font-ui);
+  color: var(--text-tertiary);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Track 4px, Fill = Gruppenfarbe, Knob 11px weiß */
+.sb-slider {
+  flex: 1;
+  min-width: 0;
   height: 4px;
   margin: 0;
   appearance: none;
@@ -117,29 +165,6 @@
 }
 /* Tastatur-Fokus: konsistenter Ring (base.css schaltet outline sonst ab) */
 .sb-slider:focus-visible { outline: 2px solid var(--focus-ring); outline-offset: 2px; }
-
-/* ── Laden / Entladen ────────────────────────────────────────────────── */
-.sb-load {
-  flex-shrink: 0;
-  width: 22px;
-  height: 22px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: none;
-  border-radius: var(--radius-sm);
-  cursor: pointer;
-  font-size: 0.75rem;
-  background: var(--accent-dim);
-  color: var(--accent);
-  transition: var(--transition-smooth);
-}
-.sb-load:hover:not(:disabled) { background: var(--accent-tint); }
-.sb-load:disabled { opacity: 0.4; cursor: not-allowed; }
-.sb-load.is-loaded {
-  background: var(--glass-bg-hover);
-  color: var(--text-secondary);
-}
 
 .sb-empty {
   padding: var(--spacing-md);
