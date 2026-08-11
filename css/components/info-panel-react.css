@@ -55,27 +55,44 @@
   color: var(--text-secondary);
 }
 
-/* Muskelfinder-Details (aufklappbar) */
+/* Muskelfinder-Details (aufklappbar)
+   Im Marken-Orange statt grau: hier liegen Ursprung, Ansatz, Innervation und
+   der klinische Bezug: der Inhalt, wegen dem die Seite überhaupt aufgerufen
+   wird. Grau auf 3 % Weiß las sich wie eine Überschrift und wurde als
+   klickbar schlicht übersehen. */
 .ip-details { margin: 0; }
 .ip-details__summary {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 8px;
-  font: 600 12px/1 var(--font-ui);
-  color: var(--text-secondary);
+  font: 700 12px/1 var(--font-ui);
+  color: var(--accent-on-tint);
   letter-spacing: 0.05em;
   text-transform: uppercase;
   cursor: pointer;
-  padding: 8px 10px;
-  border: 1px solid var(--hairline-soft);
+  padding: 10px 12px;
+  border: 1px solid var(--accent-border);
   border-radius: var(--radius-sm);
-  background: rgba(255, 255, 255, 0.03);
+  background: var(--accent-tint);
   list-style: none;
   transition: var(--transition-smooth);
 }
 .ip-details__summary::-webkit-details-marker { display: none; }
-.ip-details__summary:hover { color: var(--text-primary); background: var(--glass-bg-hover); }
+.ip-details__summary:hover {
+  background: color-mix(in srgb, var(--accent) 26%, transparent);
+  border-color: var(--accent);
+  color: var(--accent-hi-on-surface);
+}
+/* Aufgeklappt tritt der Kopf zurück — das Orange hat seine Aufgabe erfüllt,
+   und die Abschnittstitel darunter tragen dieselbe Farbe. Zwei konkurrierende
+   Orangeflächen übereinander wären lauter als der Inhalt. */
+.ip-details[open] .ip-details__summary {
+  background: var(--accent-dim);
+  color: var(--accent-hi-on-surface);
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+}
 .ip-details__chevron {
   width: 14px;
   height: 14px;
@@ -83,16 +100,12 @@
   transition: var(--transition-smooth);
 }
 .ip-details[open] .ip-details__chevron { transform: rotate(180deg); }
-.ip-details[open] .ip-details__summary {
-  border-bottom-left-radius: 0;
-  border-bottom-right-radius: 0;
-}
 .ip-details__body { padding-top: 8px; }
 .ip-details__section { margin-bottom: 10px; }
 .ip-details__section-title {
   display: block;
   font-size: 0.72rem;
-  color: var(--accent);
+  color: var(--accent-on-surface);
   text-transform: uppercase;
   letter-spacing: 0.06em;
   margin-bottom: 4px;
@@ -134,7 +147,7 @@
   background: linear-gradient(
     to right,
     var(--accent) var(--ip-pct),
-    rgba(255, 255, 255, 0.14) var(--ip-pct)
+    var(--track-bg) var(--ip-pct)
   );
 }
 .ip-slider::-webkit-slider-thumb {
@@ -143,7 +156,7 @@
   width: 13px;
   height: 13px;
   border-radius: 50%;
-  background: #fff;
+  background: var(--knob-bg);
   border: none;
   cursor: pointer;
 }
@@ -151,7 +164,7 @@
   width: 13px;
   height: 13px;
   border-radius: 50%;
-  background: #fff;
+  background: var(--knob-bg);
   border: none;
   cursor: pointer;
 }
@@ -172,7 +185,7 @@
   padding: 11px 6px;
   border: none;
   border-radius: 11px;
-  background: rgba(255, 255, 255, 0.045);
+  background: var(--glass-bg);
   color: var(--text-secondary);
   font: 500 11px/1 var(--font-ui);
   cursor: pointer;
@@ -180,7 +193,7 @@
 }
 .ip-act svg { width: 19px; height: 19px; }
 .ip-act:hover { background: var(--glass-bg-hover); color: var(--text-primary); }
-.ip-act.is-active { background: var(--accent-tint); color: var(--accent); }
+.ip-act.is-active { background: var(--accent-tint); color: var(--accent-on-tint); }
 
 /* CTA „Zur Sammlung" — Outline-Akzent */
 .ip-cta {
@@ -193,7 +206,7 @@
   border: 1.5px solid var(--accent-border);
   border-radius: var(--radius-md);
   background: transparent;
-  color: var(--accent);
+  color: var(--accent-on-surface);
   font: 600 13px/1 var(--font-ui);
   cursor: pointer;
   transition: var(--transition-smooth);
@@ -253,7 +266,7 @@
   text-align: center;
   background: var(--accent-dim);
   border: 1px solid var(--accent-border);
-  color: var(--accent);
+  color: var(--accent-on-surface);
   animation: ip-toast-in 0.15s ease both;
 }
 @keyframes ip-toast-in {

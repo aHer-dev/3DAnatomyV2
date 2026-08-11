@@ -37,11 +37,29 @@ const emptyIsolation: IsolationState = { model: null, actionBar: null }
 export type SidebarTab = 'structures' | 'collection' | 'info'
 export type Flyout = 'settings' | null
 
+// Farbschema der Bedienoberfläche. Landet als [data-theme] auf <html>, wo
+// css/theme/variables.css die Token-Sätze daran hängt. Standard ist `light`
+// („Warm/Atlas", Marke Anatomie Fokus — dieselbe Palette wie Muskelfinder-V2).
+//
+// NICHT die 3D-Bühne: der Three.js-Canvas bleibt in beiden Themes dunkel und
+// holt seine Farbe aus roomSettings.js.
+//
+// Bewusst NICHT persistiert — browser storage ist projektweit untersagt
+// (CLAUDE.md). Das Schwesterprojekt legt die Wahl in localStorage ab; hier
+// gilt sie für die Sitzung.
+export type Theme = 'light' | 'dark'
+
 // Mobile-Only: welches Bottom-Sheet offen ist (§13, S10). `panel` hostet die
 // Sidebar-Tabs (Strukturen/Sammlung/Info), `view` den Ansichts-Cluster. Das
 // Settings-Sheet bleibt der bestehende `openFlyout`-Kanal (nur mobil als Sheet
 // umgeformt). Auf Desktop ohne Effekt (Media-Query neutralisiert es).
 export type MobileSheet = 'panel' | 'view' | null
+
+// Desktop-Only: die rechte Sidebar ist einklappbar, damit das Modell die volle
+// Breite bekommt. Eingeklappt bleibt nur der Griff am Bildschirmrand stehen.
+// Auf Schmal-Screens ohne Wirkung — dort regelt `mobileSheet` die Sichtbarkeit
+// (responsive.css neutralisiert die Klasse).
+// Bewusst nicht persistiert: browser storage ist projektweit untersagt.
 
 // ─── Laden (Initial-/Preset-Fortschritt) ─────────────────────────────────────
 // Gefüllt von js/modelLoader/progress.js (Adapter der Lade-Pipeline),
@@ -97,8 +115,10 @@ export interface StoreState {
 
   // ─── Overlay-UI (Layout B) ────────────────────────────────────────────────
   sidebarTab: SidebarTab
+  sidebarCollapsed: boolean
   openFlyout: Flyout
   mobileSheet: MobileSheet
+  theme: Theme
 
   // ─── Laden ────────────────────────────────────────────────────────────────
   loading: LoadingState
@@ -151,6 +171,10 @@ export interface StoreState {
 
   // ─── Actions: Overlay-UI ──────────────────────────────────────────────────
   setSidebarTab: (tab: SidebarTab) => void
+  setSidebarCollapsed: (collapsed: boolean) => void
+  toggleSidebarCollapsed: () => void
+  setTheme: (theme: Theme) => void
+  toggleTheme: () => void
   openFlyoutExclusive: (name: Exclude<Flyout, null>) => void
   closeFlyout: () => void
   openMobileSheet: (sheet: Exclude<MobileSheet, null>) => void
@@ -197,8 +221,13 @@ const useStore = createStore<StoreState>((set, get) => ({
   collection: [],
   clickCounts: {},
   sidebarTab: 'structures',
+  // Start eingeklappt: die App öffnet auf der freien Bühne, das Modell steht
+  // ungeschnitten da. Die Leiste kommt auf Wunsch über den Griff am Rand —
+  // oder von selbst, sobald eine Struktur ausgewählt wird.
+  sidebarCollapsed: true,
   openFlyout: null,
   mobileSheet: null,
+  theme: 'light',
   loading: emptyLoading,
 
   // Selection
@@ -322,6 +351,10 @@ const useStore = createStore<StoreState>((set, get) => ({
   // Overlay-UI (Layout B). Flyout und Mobile-Sheet teilen sich auf Schmal-Screens
   // die untere Bühne → gegenseitig exklusiv (nur eines gleichzeitig offen).
   setSidebarTab: (tab) => set({ sidebarTab: tab }),
+  setSidebarCollapsed: (collapsed) => set({ sidebarCollapsed: collapsed }),
+  toggleSidebarCollapsed: () => set(s => ({ sidebarCollapsed: !s.sidebarCollapsed })),
+  setTheme: (theme) => set({ theme }),
+  toggleTheme: () => set(s => ({ theme: s.theme === 'light' ? 'dark' : 'light' })),
   openFlyoutExclusive: (name) => set({ openFlyout: name, mobileSheet: null }),
   closeFlyout: () => set({ openFlyout: null }),
   openMobileSheet: (sheet) => set({ mobileSheet: sheet, openFlyout: null }),

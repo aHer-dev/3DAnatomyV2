@@ -130,7 +130,7 @@
   border: 1.5px solid var(--accent-border);
   border-radius: 11px;
   background: transparent;
-  color: var(--accent);
+  color: var(--accent-on-surface);
   font: 700 12.5px/1 var(--font-ui);
   cursor: pointer;
   transition: var(--transition-smooth);
@@ -176,7 +176,7 @@
   text-align: center;
   background: var(--accent-dim);
   border: 1px solid var(--accent-border);
-  color: var(--accent);
+  color: var(--accent-on-tint);
   font: 600 12px/1.2 var(--font-ui);
 }
 

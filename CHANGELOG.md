@@ -7,6 +7,150 @@ Format: [Keep a Changelog](https://keepachangelog.com/de/1.0.0/)
 
 ## [Unreleased]
 
+### Changed (Bühne, Ansichts-Cluster, Logo — Nacharbeiten zum Light-Modus)
+- **Bühnenfarbe folgt dem Theme.** Im Light-Modus steht sie auf `#25211e` (rgb 37,33,30) — ein
+  warmes Dunkelbraun, das den Papierton der hellen Oberfläche aufnimmt, ohne dem Modell Kontrast
+  zu nehmen. Im Dark-Modus bleibt es bei `#0d0d0d`. Die Bühne bleibt damit in beiden Themes
+  dunkel, wechselt aber den Ton statt hart schwarz zu bleiben.
+  **Eine selbst gewählte Raumfarbe hat Vorrang:** sobald jemand im Einstellungs-Panel eine Farbe
+  anfasst, hört der Theme-Wechsel auf, sie zu überschreiben — sonst würde ein Klick auf
+  Sonne/Mond die eigene Einstellung stillschweigend wegwerfen. „Zurücksetzen" gibt die Hoheit
+  ans Theme zurück. `#524a42` steht zusätzlich als Swatch „Taupe" zur Wahl.
+- **Der Ansichts-Cluster steht wieder mittig.** Er hing auf `left: 41%` — ein Rest aus der Zeit
+  der immer offenen Sidebar, als er zwischen Rail und Leiste zentriert sitzen sollte. Seit die
+  Leiste eingeklappt startet und jederzeit auf- und zufährt, hat diese Fläche keine feste Breite
+  mehr, der Cluster wanderte je nach Zustand woanders hin. Dazu wich er bei offenem
+  Settings-Flyout zusätzlich nach rechts aus. Beides ist raus: **ein Bedienelement, das seine
+  Position ändert, ist schwerer zu treffen als eines, das leicht überlappt.** `left: 50%`, fest.
+  Der `flyoutOpen`-Prop von `ViewCluster` entfällt ersatzlos.
+- **Das Logo war im Light-Modus unsichtbar.** `af-logo.png` ist die **weiße** Markenvariante —
+  auf dem nun hellen Glas der Rail und auf dem hellen Ladebildschirm verschwand sie. Es gibt
+  jetzt zwei Dateien und die Wahl fällt pro Theme, genau wie im Muskelfinder (`BrandMark.tsx`):
+  `af-logo.png` auf Dunkel, das neue `af-logo-dark.png` auf Hell. Betrifft Icon-Rail und
+  Ladebildschirm.
+
+### Added (Design — Light-Modus als Standard, Dark bleibt umschaltbar)
+- **Die App hatte nur Dunkel.** Das Schwesterprojekt Muskelfinder-V2 führt dieselbe Marke
+  („Anatomie Fokus", Variante A) längst in zwei Themes mit **Light als Standard** — und dessen
+  Dark-Werte sind exakt die dieser App. Die Palette ist von dort übernommen statt neu erfunden:
+  `src/styles/theme.css` → `css/theme/variables.css`. Gleiche Token-Namen für alles Neue,
+  gleiches Orange `#ff6a00`.
+- **`variables.css` ist jetzt dreigeteilt:** theme-agnostisch (Akzent, Typo, Spacing, Radien,
+  Motion, z-Ebenen, Gruppenfarben), dann `:root, [data-theme="light"]` und `[data-theme="dark"]`.
+  Das Theme hängt als `[data-theme]` an `<html>`, gesteuert aus dem Store.
+- **Die 3D-Bühne bleibt in beiden Themes dunkel.** Der Three.js-Canvas holt seine Farbe weiter
+  aus `roomSettings.js` und ist über die Einstellungen frei wählbar. Knochen und Muskeln lesen
+  sich auf dunklem Grund klarer — derselbe Grund, aus dem der Muskelfinder sein Bildfenster
+  (`--media-well`) auch im Light-Modus dunkel lässt. Was direkt auf der Bühne liegt, ist in
+  `variables.css` als **bühnenfest** markiert und wechselt nicht mit: Struktur-Beschriftungen
+  und der Fotomodus.
+- **Orange als Schrift brauchte eigene Töne.** `#ff6a00` auf hellem Grund sind **2,87:1**, WCAG
+  1.4.3 verlangt 4,5:1. Neu daher `--accent-on-surface` (#bd4800) und `--accent-on-tint`
+  (#b34400) für Text und Icons, `--accent-hi-on-surface` (#8f3600) für Hover — im Dark-Modus
+  sind alle drei schlicht `#ff6a00` bzw. `#ff9d3d`. **Wer Orange als Schrift setzt, nimmt die
+  `-on-`-Variante, nicht `--accent`.** 22 Stellen umgestellt.
+- **Rund 20 weiße Alpha-Schleier steckten hart in den Komponenten** — Slider-Schienen, Knöpfe,
+  Schalter, Tastenkappen. Auf hellem Glas ist Weiß-auf-Weiß unsichtbar. Sie sind jetzt Tokens:
+  `--track-bg`, `--knob-bg`, `--control-off-bg`, `--control-off-hover`, `--field-bg`. Der
+  Slider-Knopf ist im Light-Modus **dunkel**, nicht weiß: er läuft über die orange Füllung UND
+  über die helle Schiene, ein weißer Knopf verschwände auf der Schiene.
+- **Zwei Fehler, die erst im Hellen sichtbar wurden:** die Struktur-Beschriftungen auf der Bühne
+  standen auf `--text-primary` (dunkler Text auf dunklem Chip) und das Busy-Overlay der
+  Einstellungen auf `rgba(0,0,0,0.7)` mit hellem Text. Beide auf passende Tokens gesetzt.
+- **Sonne/Mond-Schalter** in der Icon-Rail über dem Zahnrad. **Bewusst nicht persistiert:**
+  browser storage ist projektweit untersagt (CLAUDE.md) — das Schwesterprojekt legt die Wahl
+  in `localStorage` ab, hier gilt sie für die Sitzung. Vier neue Store-Tests (64 gesamt).
+
+### Fixed (Strukturen — Entladen wirkte nicht, das Auge tat gar nichts)
+- **Entladene Gruppen blieben im Bild stehen.** Der Renderer arbeitet on demand
+  (`startApp.js`): er zeichnet nur nach einem `requestRender()`. `loadGroupByName` fordert
+  intern an — deshalb erschienen Gruppen beim Laden. `unloadGroupSilent` forderte **nicht** an,
+  also flogen die Modelle aus der Szene, während der Bildschirm das letzte Bild weiter zeigte.
+  Der Rail-Knopf links war davon verschont, weil `AppShell` sein `requestRender()` von Hand
+  nachschob. Die Anforderung sitzt jetzt in `unloadGroupSilent` selbst und gilt damit für
+  jeden Aufrufer.
+- **Das Auge in der Gruppen-Zeile schaltete nichts.** Es rief `getStore().setGroupVisible(…)`
+  — die **Store-Aktion**, die nur einen Boolean umlegt. Die Funktion, die tatsächlich die
+  Szene anfasst, heißt `setGroupVisibility` und liegt in `features/visibility.js`, wo sie
+  zusätzlich als `setGroupVisible` exportiert wird: die Namensgleichheit war die Falle. Eine
+  Subscription, die Store-Zustand auf die Szene überträgt, gibt es nirgends — der Klick
+  verpuffte vollständig.
+- **Der Batch-Pfad in `unloadGroupSilent` vergaß `unloadGroup`** und ließ die Modell-Liste im
+  Store stehen. Derzeit folgenlos, weil `performance.batchedGroups` auf `false` steht, aber
+  eine Falle für Phase 2 von ADR 0007. Mitgeflickt.
+
+### Changed (Strukturen — ein Schalter pro Gruppe statt zweier Knöpfe)
+- **Jede Zeile hatte zwei Bedienelemente, deren Unterschied niemand ansah:** ein Auge für die
+  Sichtbarkeit und ein `+`/`✕` fürs Laden. Zwei Wege, dieselbe Gruppe „auszumachen" — und der
+  eine davon kaputt. Beide sind jetzt **ein Schalter**: an heißt geladen und sichtbar, aus
+  heißt unsichtbar.
+- **Ausgeschaltete Gruppen bleiben im Speicher.** Wieder-Einschalten ist damit sofort da; bei
+  den Muskeln (465 Dateien, 16 MB) wäre Nachladen sonst jedes Mal eine spürbare Pause. Der
+  Preis ist dauerhaft belegter Arbeitsspeicher.
+- **Muskeln stehen jetzt oben** (`sortPanelGroups`, bewusst abweichend von der kanonischen
+  `GROUP_ORDER`): sie sind die einzige Gruppe, die beim Start aus ist, und damit die einzige
+  Zeile, die man überhaupt anfassen muss. Darunter Knochen, Knorpel, Bänder, Zähne.
+- **Das Startbild ist das Skelett:** Knochen, Knorpel und Zähne an, **Muskeln und Bänder aus**.
+  Beide werden erst auf Wunsch geladen und stehen deshalb oben in der Liste — die Reihenfolge
+  ist `Muskeln · Bänder · Knochen · Knorpel · Zähne`, oben also die Zeilen, die man überhaupt
+  anfassen muss.
+- **Die Icon-Rail koppelt Bänder nicht mehr an den Muskel-Schalter.** Bänder haben im Tab einen
+  eigenen Schalter, und zwei Bedienelemente, die dieselbe Gruppe verschieden weit mitnehmen,
+  sind genau die Verwirrung, die dieser Tab gerade losgeworden ist. Rail-Knopf und
+  Muskel-Schalter meinen jetzt dasselbe. Nach dem Laden setzt die Rail außerdem die
+  Sichtbarkeit ausdrücklich, sonst stünde der Schalter auf aus, während das Modell längst in
+  der Szene liegt.
+- Optisch: Karte je Gruppe statt gedrängter Zeile, 36×20-Pille als Schalter, Gruppenfarbe als
+  Kante der aktiven Karte, und die Röntgen-Transparenz rückt in eine eigene Zeile darunter —
+  sichtbar nur, wenn die Gruppe an ist. Fünf neue Tests für `sortPanelGroups` (60 gesamt).
+
+### Changed (Info-Panel — der Details-Aufklapper trägt jetzt das Marken-Orange)
+- **Der Balken, hinter dem Ursprung und Ansatz stecken, sah nicht klickbar aus.** Grauer
+  Versalien-Text (`--text-secondary`) auf 3 % Weiß, mit einer `--hairline-soft`-Kante: das
+  liest sich wie eine Abschnittsüberschrift, nicht wie ein Schalter. Dahinter liegen aber
+  **sechs Abschnitte für 150 Muskeln** — Ursprung, Ansatz, Bewegung, Funktion, Innervation,
+  Klinischer Bezug (`public/data/muskelfinder-details.json`). Genau der Inhalt, wegen dem
+  Studierende die Seite öffnen, verbarg sich hinter dem unauffälligsten Element des Panels.
+- **Jetzt auf den Akzent-Tokens:** `--accent` (#ff6a00) als Schriftfarbe, `--accent-tint` als
+  Fläche, `--accent-border` als Kante, dazu 700 statt 600 Schriftschnitt und etwas mehr
+  Polsterung. Keine neue Farbe — das Marken-Orange steckte längst in `variables.css`, der
+  Aufklapper war schlicht der eine Ort, der es nicht benutzt hat.
+- **Aufgeklappt tritt der Kopf zurück** (`--accent-dim`): die Abschnittstitel darunter tragen
+  bereits `--accent`, zwei volle Orangeflächen übereinander hätten miteinander konkurriert
+  statt zu führen.
+- Reine Stiländerung an `.ip-details__summary`, kein Markup und keine Logik angefasst —
+  entsprechend ohne Unit-Test (Handoff: UI-Pixel werden nicht unit-getestet).
+
+### Added (Sidebar — rechte Leiste auf dem Desktop einklappbar)
+- **Die rechte Leiste war auf dem Desktop nicht abzuschalten.** Sie steht `position: fixed` mit
+  `min(320px, …)` Breite und war der einzige Teil von Layout B ohne Aus — mobil gibt es die
+  Sheet-Mechanik (`--open`) längst, auf breiten Schirmen nahm sie dem Modell dauerhaft rund
+  320 px. Wer eine Struktur von allen Seiten betrachten wollte, hatte keine Möglichkeit,
+  die Bühne freizuräumen.
+- **Neu: ein Chevron im Sidebar-Kopf klappt sie ganz nach rechts aus dem Bild.** Übrig bleibt
+  ein 26 px schmaler Griff am rechten Rand, der sie zurückholt. Nicht auf einen Icon-Streifen
+  geschrumpft, sondern vollständig weg — das ist der ganze Punkt der Übung.
+- **Zustand liegt im Store** (`sidebarCollapsed` + `setSidebarCollapsed`/`toggleSidebarCollapsed`),
+  additiv neben `sidebarTab`, `openFlyout` und `mobileSheet`. **Bewusst nicht persistiert:**
+  browser storage ist projektweit untersagt, der Zustand gilt für die Sitzung.
+- **Bei Auswahl klappt die Leiste von selbst wieder auf.** Der bestehende Auto-Wechsel auf den
+  Info-Tab (ADR 0006) lief sonst ins Leere: Tab richtig gesetzt, Panel unsichtbar, Details erst
+  nach einem zweiten Klick. Auf Schmal-Screens bleibt es beim Sheet-Verhalten, unverändert.
+- **Mobil bewusst neutralisiert.** `responsive.css` setzt `--collapsed` unter 768 px auf die
+  Sheet-Regel zurück und blendet Griff wie Chevron aus. Ohne diesen Rückbau bliebe das
+  Bottom-Sheet unsichtbar, sobald jemand am Desktop einklappt und dann das Fenster verschmälert.
+- **A11y:** Chevron und Griff tragen `aria-expanded`/`aria-controls` auf dieselbe Region; die
+  eingeklappte Leiste ist `inert`, fängt also keinen Tab-Fokus und wird nicht vorgelesen. Das
+  offene Mobile-Sheet hat dabei Vorrang. Unter `prefers-reduced-motion` springt sie, statt zu
+  fahren — die Transition steht ausgeschrieben und greift die Token-Abschaltung nicht.
+- **Die App startet eingeklappt.** Beim Öffnen steht das Modell auf der vollen Bühne, die
+  Leiste kommt auf Wunsch — oder von selbst, sobald eine Struktur ausgewählt wird.
+- **Der Griff trägt das Marken-Orange und ist gefüllt statt gläsern** (30×96 px, auf 36 px
+  verbreitert beim Überfahren). Damit ist er der einzige Weg zur Leiste, und ein dezenter
+  Glasstreifen am Bildrand wäre auf der dunklen Bühne schlicht nicht gefunden worden.
+- Vier Store-Tests decken Toggle, Idempotenz und die Unabhängigkeit von Tab/Flyout/Sheet ab
+  (60 Tests gesamt, grün). Die Sichtprüfung am laufenden Dev-Server steht noch aus.
+
 ### Fixed (Der Muskelfinder-Link führte in eine tote App)
 - **Wer im Muskelfinder auf „In 3D ansehen" tippte, landete auf einer Seite ohne Bedienung.**
   Live nachgemessen: **0 Knöpfe, 0 Links, `#ui-root` leer.** Kein Rückweg, keine Werkzeuge — man

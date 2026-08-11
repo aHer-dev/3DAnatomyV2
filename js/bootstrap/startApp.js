@@ -149,12 +149,15 @@ export async function startApp() {
 
         // 4) Raum-/Lichteinstellungen initialisieren (React-UI ist bereits gemountet)
         if (!previewMode) {
-            initRoomSettings();
+            initRoomSettings(getStore().theme);
         }
         updateLoadingCircle(45);
 
         // 5) Initiale Gruppen laden
 
+        // Startbild: das Skelett. Muskeln und Bänder bleiben aus und werden erst
+        // auf Wunsch geladen — im Tab „Strukturen" stehen sie deshalb oben.
+        // Die Muskeln sind mit 465 Dateien / 16 MB ohnehin die schwerste Gruppe.
         await loadGroupByName('bones', { centerCamera: true });
         getStore().setGroupVisible('bones', true);
         updateLoadingCircle(65);

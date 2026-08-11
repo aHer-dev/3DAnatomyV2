@@ -8,6 +8,8 @@ import { assetPath } from '../../../core/path.js'
 import { requestRender } from '../../../core/renderScheduler.js'
 import { TOOL, getActiveTool, setActiveTool as setTool, onToolChange } from '../../toolbar.js'
 import { loadGroupByName, unloadGroupSilent } from '../../../features/modelLoader-core.js'
+import { setGroupVisibility } from '../../../features/visibility.js'
+import { applyThemeRoomColor } from '../../../features/roomSettings.js'
 import { enterPhotoMode } from '../../photoMode.js'
 import { toggleLabels } from '../../../features/labels.js'
 import { useReactStore } from '../useReactStore.js'
@@ -33,9 +35,13 @@ function useActiveTool() {
 }
 
 // ─── Layer-Konfiguration ────────────────────────────────────────────────────
+// Bänder gehören nicht zum Muskel-Schalter: sie haben im Tab „Strukturen" einen
+// eigenen Schalter, und zwei Bedienelemente, die dieselbe Gruppe verschieden
+// weit mitnehmen, sind genau die Verwirrung, die dieser Tab gerade losgeworden
+// ist. Der Rail-Knopf und der Muskel-Schalter meinen jetzt dasselbe.
 const LAYER_GROUPS: Record<string, string[]> = {
   bones:   ['bones', 'cartilage', 'teeth'],
-  muscles: ['muscles', 'ligaments'],
+  muscles: ['muscles'],
 }
 
 // ─── Icons ──────────────────────────────────────────────────────────────────
@@ -51,6 +57,10 @@ const I = {
   cube: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>,
   photo: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>,
   settings: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>,
+  chevronRight: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>,
+  chevronLeft: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"/></svg>,
+  sun: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>,
+  moon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>,
 }
 
 const TABS: { id: 'structures' | 'collection' | 'info'; label: string }[] = [
@@ -88,9 +98,22 @@ export function AppShell() {
   const multiCount      = useReactStore(s => s.multiSelected.size)
   const isolationActive = useReactStore(s => s.isolation.model !== null)
   const sidebarTab      = useReactStore(s => s.sidebarTab)
+  const sidebarCollapsed = useReactStore(s => s.sidebarCollapsed)
   const openFlyout      = useReactStore(s => s.openFlyout)
   const mobileSheet     = useReactStore(s => s.mobileSheet)
   const setSidebarTab       = useReactStore(s => s.setSidebarTab)
+  const setSidebarCollapsed    = useReactStore(s => s.setSidebarCollapsed)
+  const toggleSidebarCollapsed = useReactStore(s => s.toggleSidebarCollapsed)
+  const theme       = useReactStore(s => s.theme)
+  const toggleTheme = useReactStore(s => s.toggleTheme)
+
+  // Das Theme lebt als [data-theme] auf <html>; variables.css hängt die
+  // Token-Sätze daran. Die Bühne bleibt in beiden Themes dunkel, wechselt aber
+  // den Ton mit — es sei denn, jemand hat selbst eine Raumfarbe gewählt.
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme)
+    applyThemeRoomColor(theme)
+  }, [theme])
   const openFlyoutExclusive = useReactStore(s => s.openFlyoutExclusive)
   const closeFlyout         = useReactStore(s => s.closeFlyout)
   const openMobileSheet     = useReactStore(s => s.openMobileSheet)
@@ -98,11 +121,15 @@ export function AppShell() {
 
   // Auto-Switch: Auswahl (einzeln oder mehrfach) → „Info", Aufhebung → „Strukturen" (ADR 0006).
   // Auf Schmal-Screens poppt die Auswahl zusätzlich das Panel-Sheet auf (Frame „Info-Sheet").
+  // Auf Desktop klappt eine eingeklappte Sidebar wieder auf — die Details wären sonst
+  // hinter einem zweiten Klick versteckt, obwohl der Tab bereits auf „Info" steht.
   useEffect(() => {
     const selecting = !!selectedRoot || multiCount > 0
     setSidebarTab(selecting ? 'info' : 'structures')
-    if (selecting && isNarrowScreen()) openMobileSheet('panel')
-  }, [selectedRoot, multiCount, setSidebarTab, openMobileSheet])
+    if (!selecting) return
+    if (isNarrowScreen()) openMobileSheet('panel')
+    else setSidebarCollapsed(false)
+  }, [selectedRoot, multiCount, setSidebarTab, openMobileSheet, setSidebarCollapsed])
 
   // A11y (§14): ESC schließt das offene Settings-Flyout bzw. Mobile-Sheet und gibt
   // den Fokus an das auslösende Bedienelement zurück (Rail-⚙ / Tab-Leiste). Nur aktiv,
@@ -128,7 +155,13 @@ export function AppShell() {
       if (isLoaded) {
         for (const g of groupList) await unloadGroupSilent(g)
       } else {
-        for (const g of groupList) await loadGroupByName(g, { centerCamera: false })
+        for (const g of groupList) {
+          await loadGroupByName(g, { centerCamera: false })
+          // Sichtbarkeit ausdrücklich setzen, sonst kennt der Store die Gruppe
+          // als „geladen, aber unsichtbar" — der Schalter im Tab „Strukturen"
+          // stünde auf aus, während das Modell längst in der Szene liegt.
+          setGroupVisibility(g, true)
+        }
       }
       requestRender()
     } catch (e) {
@@ -158,7 +191,16 @@ export function AppShell() {
     <>
       {/* ── Icon-Rail (links) ── */}
       <nav className="shell-rail" aria-label="Werkzeuge">
-        <img className="shell-rail__logo" src={assetPath('af-logo.png')} alt="Anatomie Fokus" width={36} height={36} />
+        {/* Zwei Logo-Dateien, eine pro Theme — dieselbe Wahl wie im Muskelfinder
+            (BrandMark.tsx): die weiße Marke verschwindet auf hellem Glas, die
+            dunkle auf schwarzem. */}
+        <img
+          className="shell-rail__logo"
+          src={assetPath(theme === 'dark' ? 'af-logo.png' : 'af-logo-dark.png')}
+          alt="Anatomie Fokus"
+          width={36}
+          height={36}
+        />
 
         <div className="shell-rail__group">
           {railBtn('select', activeTool === TOOL.SELECT, 'Einzelauswahl', () => setTool(TOOL.SELECT))}
@@ -182,7 +224,16 @@ export function AppShell() {
         </div>
 
         <button
-          className={`shell-rail__btn shell-rail__settings${openFlyout === 'settings' ? ' shell-rail__btn--active' : ''}`}
+          className="shell-rail__btn shell-rail__theme"
+          title={theme === 'light' ? 'Dunkles Design' : 'Helles Design'}
+          aria-label={theme === 'light' ? 'Zu dunklem Design wechseln' : 'Zu hellem Design wechseln'}
+          onClick={toggleTheme}
+        >
+          {theme === 'light' ? I.moon : I.sun}
+        </button>
+
+        <button
+          className={`shell-rail__btn${openFlyout === 'settings' ? ' shell-rail__btn--active' : ''}`}
           title="Einstellungen"
           aria-label="Einstellungen"
           aria-pressed={openFlyout === 'settings'}
@@ -194,11 +245,28 @@ export function AppShell() {
 
       {/* ── Tab-Sidebar (rechts) · mobil: Bottom-Sheet (--open steuert Slide) ── */}
       <aside
-        className={`shell-sidebar${mobileSheet === 'panel' ? ' shell-sidebar--open' : ''}`}
+        id="shell-sidebar"
+        className={`shell-sidebar${mobileSheet === 'panel' ? ' shell-sidebar--open' : ''}${sidebarCollapsed ? ' shell-sidebar--collapsed' : ''}`}
         aria-label="Inhalt"
+        // Eingeklappt liegt die Leiste außerhalb des Bildes: kein Tab-Fokus, keine
+        // Vorlesung durch Screenreader. Das offene Mobile-Sheet hat Vorrang, sonst
+        // wäre es nach einem Wechsel Desktop→Mobil tot.
+        inert={sidebarCollapsed && mobileSheet !== 'panel'}
       >
         <div className="shell-sidebar__head">
-          <div className="shell-searchhost"><SearchBar /></div>
+          <div className="shell-sidebar__headrow">
+            <div className="shell-searchhost"><SearchBar /></div>
+            <button
+              className="shell-collapse"
+              title="Leiste ausblenden"
+              aria-label="Leiste ausblenden"
+              aria-expanded={true}
+              aria-controls="shell-sidebar"
+              onClick={toggleSidebarCollapsed}
+            >
+              {I.chevronRight}
+            </button>
+          </div>
           <div className="shell-tabs" role="tablist" aria-label="Ansicht">
             {TABS.map(({ id, label }) => (
               <button
@@ -234,10 +302,26 @@ export function AppShell() {
         <div className="shell-sidebar__foot"><Footer /></div>
       </aside>
 
+      {/* ── Griff am rechten Rand — einziger Rest der eingeklappten Leiste.
+             Nur Desktop; mobil blendet responsive.css ihn aus (dort regelt die
+             Tab-Leiste das Öffnen). ── */}
+      {sidebarCollapsed && (
+        <button
+          className="shell-grip"
+          title="Leiste einblenden"
+          aria-label="Leiste einblenden"
+          aria-expanded={false}
+          aria-controls="shell-sidebar"
+          onClick={toggleSidebarCollapsed}
+        >
+          {I.chevronLeft}
+        </button>
+      )}
+
       {/* ── Unten-mittig: Ansichts-Cluster, in der Isolation der Untertitel (Frame 2e).
-             Mobil ist der Float-Cluster ausgeblendet (→ „Ansicht"-Sheet). Bei offenem
-             Settings-Flyout weicht der Cluster nach rechts aus (sonst ~19px Überlappung). ── */}
-      {isolationActive ? <IsolationSubtitle /> : <ViewCluster flyoutOpen={openFlyout === 'settings'} />}
+             Mobil ist der Float-Cluster ausgeblendet (→ „Ansicht"-Sheet). Er steht fest
+             in der Fenstermitte und weicht nichts mehr aus — siehe view-cluster.css. ── */}
+      {isolationActive ? <IsolationSubtitle /> : <ViewCluster />}
 
       {/* ── Settings-Flyout links neben der Rail (S8, Frame 2f) · mobil als Sheet ── */}
       {openFlyout === 'settings' && <SettingsPanel onClose={closeFlyout} />}

@@ -99,7 +99,7 @@
   text-align: center;
   background: var(--accent-dim);
   border: 1px solid var(--accent-border);
-  color: var(--accent);
+  color: var(--accent-on-surface);
   font: 600 12px/1.2 var(--font-ui);
 }
 

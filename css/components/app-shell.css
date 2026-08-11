@@ -60,12 +60,13 @@
 }
 .shell-rail__btn svg { width: 22px; height: 22px; }
 .shell-rail__btn:hover { background: var(--glass-bg-hover); color: var(--text-primary); }
-.shell-rail__btn--active { background: var(--accent-tint); color: var(--accent); }
+.shell-rail__btn--active { background: var(--accent-tint); color: var(--accent-on-tint); }
 .shell-rail__btn:disabled { opacity: 0.5; cursor: default; }
 .shell-rail__btn.is-loading { opacity: 0.6; cursor: progress; }
 
-/* ⚙ ganz unten */
-.shell-rail__settings { margin-top: auto; }
+/* Sonne/Mond + ⚙ ganz unten. Das margin-top sitzt auf dem Theme-Schalter,
+   damit beide als Block nach unten rutschen statt einzeln. */
+.shell-rail__theme { margin-top: auto; }
 
 /* ── Tab-Sidebar (rechts) ──────────────────────────────────────────────── */
 .shell-sidebar {
@@ -84,6 +85,18 @@
   border-radius: var(--radius-xl);
   box-shadow: var(--glass-shadow-lg);
   color: var(--text-primary);
+  transition: transform 0.28s var(--ease-smooth), opacity 0.28s var(--ease-smooth);
+}
+
+/* Eingeklappt (Desktop): komplett nach rechts raus, Bühne bekommt die volle
+   Breite. `visibility` beendet den Blur-Layer nach der Fahrt — sonst rechnet
+   der Compositor das Glas unsichtbar weiter. */
+.shell-sidebar--collapsed {
+  transform: translateX(calc(100% + 24px));
+  opacity: 0;
+  visibility: hidden;
+  transition: transform 0.28s var(--ease-smooth), opacity 0.28s var(--ease-smooth),
+              visibility 0s linear 0.28s;
 }
 
 .shell-sidebar__head {
@@ -93,6 +106,66 @@
   padding: 12px;
   border-bottom: 1px solid var(--hairline-soft);
 }
+
+/* Suche + Einklapp-Knopf in einer Zeile */
+.shell-sidebar__headrow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.shell-sidebar__headrow .shell-searchhost {
+  flex: 1;
+  min-width: 0;
+}
+
+.shell-collapse {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px; height: 32px;
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: var(--transition-smooth);
+}
+.shell-collapse svg { width: 18px; height: 18px; }
+.shell-collapse:hover { background: var(--glass-bg-hover); color: var(--text-primary); }
+
+/* ── Griff am rechten Rand — sichtbarer Rest der eingeklappten Leiste ─────
+   Im Marken-Orange und gefüllt statt gläsern: seit die App eingeklappt startet,
+   ist er der einzige Weg zur Leiste. Ein dezenter Glasstreifen am Bildrand wäre
+   auf der dunklen Bühne schlicht nicht gefunden worden. */
+.shell-grip {
+  position: fixed;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: var(--z-controls);
+  pointer-events: all;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px; height: 96px;
+  padding: 0;
+  background: var(--accent);
+  border: none;
+  border-radius: var(--radius-lg) 0 0 var(--radius-lg);
+  box-shadow: -4px 0 24px color-mix(in srgb, var(--accent) 35%, transparent),
+              var(--glass-shadow-lg);
+  color: var(--accent-on);
+  cursor: pointer;
+  transition: var(--transition-smooth);
+}
+.shell-grip svg { width: 20px; height: 20px; stroke-width: 2.5; }
+.shell-grip:hover {
+  width: 36px;
+  background: var(--accent-hi);
+}
+.shell-grip:focus-visible { outline: 2px solid var(--focus-ring); outline-offset: 3px; }
 
 /* Suchfeld-Host — SearchBar sitzt (noch als Bestandsform) im Sidebar-Kopf;
    S4 baut sie zur persistenten Suchpille um. */
@@ -124,7 +197,7 @@
   transition: var(--transition-smooth);
 }
 .shell-tab:hover { background: var(--glass-bg-hover); color: var(--text-secondary); }
-.shell-tab--active { background: var(--accent-tint); color: var(--accent); }
+.shell-tab--active { background: var(--accent-tint); color: var(--accent-on-tint); }
 .shell-tab__badge {
   min-width: 16px; height: 16px;
   padding: 0 5px;

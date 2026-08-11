@@ -6,9 +6,12 @@ import React, { useState, useEffect, useCallback } from 'react'
 import {
   applyLighting,
   applyRoomColor,
+  resetRoomColor,
   getRoomSettings,
   ROOM_DEFAULTS,
+  ROOM_COLOR_BY_THEME,
 } from '../../../features/roomSettings.js'
+import { useReactStore } from '../useReactStore.js'
 import { resetColors } from '../../ui-reset.js'
 import { loadPresetManifest, applyPreset } from '../../../features/presets.js'
 import { LicenseModal } from './LicenseModal.js'
@@ -35,7 +38,9 @@ const SHORTCUTS: [string, string][] = [
 
 // Hintergrund-Swatches (§9.7) — Szenen-Farbdaten, keine UI-Tokens.
 const BG_SWATCHES: { hex: string; label: string }[] = [
-  { hex: '#0d0d0d', label: 'Schwarz' },
+  { hex: '#25211e', label: 'Dunkelbraun' },  // Standard im Light-Modus
+  { hex: '#0d0d0d', label: 'Schwarz' },      // Standard im Dark-Modus
+  { hex: '#524a42', label: 'Taupe' },
   { hex: '#34373c', label: 'Anthrazit' },
   { hex: '#0a0e27', label: 'Navy' },
 ]
@@ -136,6 +141,13 @@ export function SettingsPanel({ onClose }: SettingsPanelProps) {
   const [brightness, setBrightness] = useState<number>(initial.brightness)
   const [color, setColor] = useState<string>(initial.color)
   const [licenseOpen, setLicenseOpen] = useState(false)
+  const theme = useReactStore(s => s.theme)
+
+  // Wechselt das Theme, während das Panel offen ist, zieht die Bühne nach —
+  // der Regler muss dann denselben Wert anzeigen wie die Szene.
+  useEffect(() => {
+    setColor(getRoomSettings().color)
+  }, [theme])
 
   const onLighting = useCallback((v: number) => {
     setLighting(v)
@@ -152,13 +164,16 @@ export function SettingsPanel({ onClose }: SettingsPanelProps) {
     applyRoomColor(hex, brightness)
   }, [brightness])
 
+  // Zurücksetzen gibt die Bühnenfarbe ans Theme zurück, statt sie hart auf
+  // Schwarz zu stellen — sonst stünde nach dem Reset im Light-Modus wieder die
+  // Dark-Farbe da, und der Theme-Wechsel bliebe für den Rest der Sitzung stumm.
   const resetRoom = useCallback(() => {
     setLighting(ROOM_DEFAULTS.lighting)
     setBrightness(ROOM_DEFAULTS.brightness)
-    setColor(ROOM_DEFAULTS.color)
+    setColor(ROOM_COLOR_BY_THEME[theme] ?? ROOM_DEFAULTS.color)
     applyLighting(ROOM_DEFAULTS.lighting)
-    applyRoomColor(ROOM_DEFAULTS.color, ROOM_DEFAULTS.brightness)
-  }, [])
+    resetRoomColor(theme)
+  }, [theme])
 
   const activeSwatch = BG_SWATCHES.find(s => s.hex === color.toLowerCase())?.hex ?? null
 

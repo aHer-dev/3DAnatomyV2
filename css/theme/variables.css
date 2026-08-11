@@ -1,58 +1,37 @@
 /* =========================================================================
    Anatomie Fokus — Design-Tokens  ·  css/theme/variables.css
-   Rebranding auf die YouTube-Identität „Variante A" (tiefes Schwarz + Orange).
-   Ersetzt die bisherigen Navy/Blau-Tokens des Design-Briefs.
+   Marke „Variante A": Orange als EINZIGER Akzent.
+   Zwei Themes über [data-theme] auf <html>. DEFAULT = LIGHT (Warm/Atlas).
    REGEL: In Komponenten IMMER diese Variablen nutzen, nie Hardcodes.
+
+   Die Palette ist aus dem Schwesterprojekt Muskelfinder-V2 übernommen
+   (src/styles/theme.css) — gleiche Marke, gleiches Orange, gleiche Namen für
+   die neu hinzugekommenen Tokens. Was dort über Kontrast nachgemessen wurde,
+   gilt hier unverändert und ist an den jeweiligen Tokens vermerkt.
+
+   AUSNAHME 3D-BÜHNE: Der Three.js-Canvas bleibt in BEIDEN Themes dunkel
+   (Raumfarbe aus roomSettings.js, per Einstellungen frei wählbar). Knochen
+   und Muskeln lesen sich auf dunklem Grund klarer. Alles, was direkt auf der
+   Bühne liegt — Beschriftungen, Fotomodus, Ladebildschirm — bleibt deshalb
+   ebenfalls dunkel und ist unten als „bühnenfest" markiert.
    ========================================================================= */
 
+/* ---- Theme-AGNOSTISCH (gilt für light & dark) --------------------------- */
 :root {
-  /* ---- Bühne / Hintergrund  (vorher Navy #0a0e27 → jetzt Marken-Schwarz) ---- */
-  --color-bg-dark:        #0b0c0e;
-  --color-bg-secondary:   #16181d;
-  /* Der Canvas-Hintergrund ist der Three.js-Canvas selbst. Fallback-Verlauf: */
-  --stage-gradient:       radial-gradient(135% 115% at 50% 8%, #181a1f 0%, #0b0c0e 56%, #060607 100%);
-
-  /* ---- Glas (an Marken-Schwarz neutralisiert, blaustich entfernt) ---- */
-  --glass-bg:             rgba(255,255,255,0.03);
-  --glass-bg-hover:       rgba(255,255,255,0.06);
-  --glass-bg-panel:       rgba(15,16,20,0.82);   /* Info/Browser/Collection/Settings */
-  --glass-bg-controls:    rgba(13,14,17,0.82);   /* Toolbar / Rail / kontextuelle Bars */
-  --modal-bg:             rgba(18,19,23,0.94);   /* LicenseModal-Card (§9.10, fast opak) */
-  --glass-border:         rgba(255,255,255,0.08);
-  --glass-shadow:         0 12px 40px rgba(0,0,0,0.50);
-  --glass-shadow-lg:      0 16px 48px rgba(0,0,0,0.55);
-  --glass-blur:           blur(10px);
-  --glass-blur-strong:    blur(14px);   /* Handoff: 22px — reduziert, da über dem live
-                                           rendernden Canvas jeder Blur-Pixel pro Frame
-                                           kostet (Zielhardware: Schul-Laptops) */
-
-  /* ---- Akzent (vorher Blau #4A9EFF primär → jetzt Marken-Orange primär) ---- */
+  /* ---- Akzent — Marken-Orange, in BEIDEN Themes identisch als Füllung ---- */
   --accent:               #ff6a00;
   --accent-strong:        #e64500;
   --accent-hi:            #ff9d3d;
   --accent-gradient:      linear-gradient(90deg, #e64500, #ff9d3d);
-  --accent-dim:           color-mix(in srgb, var(--accent) 12%, transparent);  /* Zeilen-Highlight */
-  --accent-tint:          color-mix(in srgb, var(--accent) 16%, transparent);  /* aktiver Tool-Button */
-  --accent-border:        color-mix(in srgb, var(--accent) 50%, transparent);  /* Outline-CTA / aktives Panel */
-  --accent-on:            #0b0b0b;               /* Textfarbe AUF gefülltem Orange */
-  --focus-ring:           #4a9eff;               /* optional: Blau nur für :focus-visible */
-
-  /* ---- Text (Marken-Neutrals) ---- */
-  --text-primary:         #f6f6f7;
-  --text-secondary:       #c9cace;
-  --text-tertiary:        #9a9ca2;
-  --text-muted:           #8a8d93;
-  --text-faint:           #6e7076;
-
-  /* ---- Hairlines / Divider ---- */
-  --hairline:             rgba(255,255,255,0.08);
-  --hairline-soft:        rgba(255,255,255,0.06);
+  --accent-on:            #0b0b0b;   /* Text/Icon AUF gefülltem Orange (near-black) */
+  --focus-ring:           #4a9eff;   /* Blau nur für :focus-visible, beide Themes */
 
   /* ---- Spacing ---- */
   --spacing-xs: 4px;  --spacing-sm: 8px;  --spacing-md: 16px;  --spacing-lg: 24px;  --spacing-xl: 32px;
 
   /* ---- Radien ---- */
   --radius-sm: 8px;  --radius-md: 12px;  --radius-lg: 16px;  --radius-xl: 20px;  --radius-pill: 999px;
+  --radius-sheet: 28px;   /* Sheet-Oberkante (§13, S10) */
 
   /* ---- Typografie ---- */
   --font-display: 'Sora', system-ui, -apple-system, 'Segoe UI', sans-serif;   /* Titel/Headlines/Wortmarke */
@@ -67,12 +46,6 @@
 
   /* ---- z-index-Ebenen (aus Brief) ---- */
   --z-canvas: 1;  --z-controls: 100;  --z-info-panel: 1000;  --z-menu-icon: 1100;  --z-modal: 2000;
-
-  /* ---- Mobile Bottom-Sheets (§13, S10) ---- */
-  --radius-sheet:      28px;                    /* Sheet-Oberkante */
-  --sheet-bg:          rgba(15, 16, 20, 0.94);  /* deckender als Panel-Glas — sitzt über Backdrop */
-  --sheet-grabber:     rgba(255, 255, 255, 0.22);
-  --sheet-backdrop-bg: rgba(6, 7, 9, 0.5);
   --z-sheet-backdrop:  1400;   /* > Tab-Leiste (--z-controls), < Sheet */
   --z-sheet:           1500;   /* < LicenseModal (--z-modal) */
 
@@ -80,7 +53,17 @@
   --ease-smooth:        cubic-bezier(0.4, 0, 0.2, 1);
   --transition-smooth:  all 0.28s cubic-bezier(0.4, 0, 0.2, 1);
 
-  /* ---- Anatomische Gruppenfarben (semantisch, s. config.ts) ---- */
+  /* ---- Glas-Unschärfe (theme-unabhängig) ---- */
+  --glass-blur:           blur(10px);
+  --glass-blur-strong:    blur(14px);   /* Handoff: 22px — reduziert, da über dem live
+                                           rendernden Canvas jeder Blur-Pixel pro Frame
+                                           kostet (Zielhardware: Schul-Laptops) */
+
+  /* ---- Anatomische Gruppenfarben (semantisch, s. config.ts) ----
+     Bewusst in BEIDEN Themes gleich: sie kodieren Gewebe, nicht Oberfläche.
+     Ein Muskelrot, das je nach Design die Sättigung wechselt, wäre keine
+     verlässliche Legende mehr. Sie liegen ohnehin fast immer auf der dunklen
+     Bühne oder als kleiner Farbpunkt auf Glas. */
   --group-bones:      #E8E6DD;
   --group-muscles:    #E85861;
   --group-nerves:     #FFD166;
@@ -90,6 +73,135 @@
   --group-vessels:    #C0504D;   /* Reserve für Skalierung auf ≤16 Gruppen */
   --group-organs:     #B39DDB;   /* Reserve */
   --group-default:    #CCCCCC;
+
+  /* ---- BÜHNENFEST: liegt direkt auf dem dunklen Canvas ----
+     Diese Werte wechseln NICHT mit dem Theme. Beschriftungen, Fotomodus und
+     Ladebildschirm sitzen auf der 3D-Bühne, und die bleibt in beiden Themes
+     dunkel. Ein heller Kasten mit dunkler Schrift wäre dort ein Fremdkörper
+     und würde das Modell überstrahlen. */
+  --stage-fg:          #f6f6f7;
+  --stage-chip-bg:     rgba(13, 14, 17, 0.92);
+  --stage-hairline:    rgba(255, 255, 255, 0.12);
+}
+
+/* =========================================================================
+   LIGHT  ·  Palette „Warm / Atlas"  ·  DEFAULT
+   (:root deckt den Default ab, [data-theme="light"] macht es explizit)
+   ========================================================================= */
+:root,
+[data-theme="light"] {
+  color-scheme: light;
+
+  /* ---- Bühne / App-Hintergrund (hinter dem Canvas, meist verdeckt) ---- */
+  --color-bg-dark:        #f1efe9;   /* warmes Papier — Name historisch, s. Kopf */
+  --color-bg-secondary:   #eae7df;
+  --stage-gradient:       radial-gradient(135% 115% at 46% 6%, #fbfaf7 0%, #f1efe9 56%, #eae7df 100%);
+
+  /* ---- Glas (Rail / Sidebar / Sheet) ----
+     Deckender als im Dark-Modus (0.86 statt 0.82): Das Glas liegt hier auf der
+     DUNKLEN Bühne, nicht auf hellem Grund. Bei gleicher Deckkraft schlüge das
+     Schwarz des Canvas durch und die dunkle Schrift verlöre ihren Untergrund. */
+  --glass-bg:             rgba(28,26,23,0.04);
+  --glass-bg-hover:       rgba(28,26,23,0.07);
+  --glass-bg-panel:       rgba(252,251,248,0.86);   /* Info/Browser/Collection/Settings */
+  --glass-bg-controls:    rgba(252,251,248,0.86);   /* Toolbar / Rail / kontextuelle Bars */
+  --modal-bg:             rgba(255,255,255,0.97);   /* LicenseModal-Card (§9.10, fast opak) */
+  --glass-border:         rgba(28,26,23,0.10);
+  --glass-shadow:         0 12px 40px rgba(60,54,44,0.16);
+  --glass-shadow-lg:      0 16px 48px rgba(60,54,44,0.20);
+
+  /* ---- Text ---- */
+  --text-primary:         #1c1b18;   /* warmes Anthrazit */
+  --text-secondary:       #55524c;
+  --text-tertiary:        #6f6c64;   /* AA ≥4.5:1 auf Glas */
+  --text-muted:           #6f6b64;
+  --text-faint:           #6f6b63;
+
+  /* ---- Hairlines / Divider ---- */
+  --hairline:             rgba(28,26,23,0.10);
+  --hairline-soft:        rgba(28,26,23,0.07);
+
+  /* ---- Akzent auf heller Fläche ----
+     Orange als SCHRIFT braucht hier einen dunkleren Ton: #ff6a00 auf Weiß sind
+     nur 2.87:1, WCAG 1.4.3 verlangt 4.5:1. Wer Orange als Text oder Icon setzt,
+     nimmt `--accent-on-surface` (bzw. `--accent-on-tint` auf getönter Fläche) —
+     NICHT `--accent`. Werte aus dem Muskelfinder übernommen und dort gemessen. */
+  --accent-on-surface:    #bd4800;   /* 4.9:1 auf hellem Glas */
+  --accent-on-tint:       #b34400;   /* der Tint hebt den Grund an → nochmals dunkler */
+  --accent-dim:           color-mix(in srgb, var(--accent) 11%, transparent);
+  --accent-tint:          color-mix(in srgb, var(--accent) 13%, transparent);
+  --accent-border:        color-mix(in srgb, var(--accent) 52%, transparent);
+
+  /* ---- Formularfelder — MUSS DECKEND SEIN, keine rgba-Transparenz.
+     Chromium malt die Optionsliste eines <select> mit exakt dessen
+     background-color; ein durchscheinender Wert verschwimmt dort. ---- */
+  --field-bg:             #ffffff;
+
+  /* ---- Mobile Bottom-Sheets (§13, S10) ---- */
+  --sheet-bg:             rgba(252, 251, 248, 0.97);
+  --sheet-grabber:        rgba(28, 26, 23, 0.22);
+  --sheet-backdrop-bg:    rgba(28, 26, 23, 0.38);
+
+  /* ---- Bedienelemente: Schienen, Knöpfe, Schalter ----
+     Standen früher als weiße Alpha-Schleier hart in den Komponenten. Auf hellem
+     Glas ist Weiß-auf-Weiß unsichtbar, deshalb sind sie jetzt Tokens.
+     `--knob-bg` ist hier DUNKEL: Der Knopf läuft über die orange Füllung UND
+     über die helle Schiene — ein weißer Knopf verschwände auf der Schiene. */
+  --track-bg:             rgba(28, 26, 23, 0.18);   /* ungefüllter Slider-Rest */
+  --knob-bg:              #55524c;                  /* Slider-Knopf */
+  --control-off-bg:       rgba(28, 26, 23, 0.22);   /* Schalter im Aus-Zustand */
+  --control-off-hover:    rgba(28, 26, 23, 0.32);
+  /* Heller Orange-Ton als SCHRIFT (Hover-Zustände). #ff9d3d wäre auf hellem
+     Grund ~2:1 — hier muss der Hover dunkler werden, nicht heller. */
+  --accent-hi-on-surface: #8f3600;
+}
+
+/* =========================================================================
+   DARK  ·  Marken-Schwarz + Orange (das bisherige Design dieser App)
+   ========================================================================= */
+[data-theme="dark"] {
+  color-scheme: dark;
+
+  --color-bg-dark:        #0b0c0e;
+  --color-bg-secondary:   #16181d;
+  --stage-gradient:       radial-gradient(135% 115% at 50% 8%, #181a1f 0%, #0b0c0e 56%, #060607 100%);
+
+  --glass-bg:             rgba(255,255,255,0.03);
+  --glass-bg-hover:       rgba(255,255,255,0.06);
+  --glass-bg-panel:       rgba(15,16,20,0.82);
+  --glass-bg-controls:    rgba(13,14,17,0.82);
+  --modal-bg:             rgba(18,19,23,0.94);
+  --glass-border:         rgba(255,255,255,0.08);
+  --glass-shadow:         0 12px 40px rgba(0,0,0,0.50);
+  --glass-shadow-lg:      0 16px 48px rgba(0,0,0,0.55);
+
+  --text-primary:         #f6f6f7;
+  --text-secondary:       #c9cace;
+  --text-tertiary:        #9a9ca2;
+  --text-muted:           #8a8d93;
+  --text-faint:           #6e7076;
+
+  --hairline:             rgba(255,255,255,0.08);
+  --hairline-soft:        rgba(255,255,255,0.06);
+
+  /* Auf Schwarz kann Orange direkt als Text/Icon stehen — auch auf dem Tint. */
+  --accent-on-surface:    #ff6a00;
+  --accent-on-tint:       #ff6a00;
+  --accent-dim:           color-mix(in srgb, var(--accent) 12%, transparent);
+  --accent-tint:          color-mix(in srgb, var(--accent) 16%, transparent);
+  --accent-border:        color-mix(in srgb, var(--accent) 50%, transparent);
+
+  --field-bg:             #1b1e24;
+
+  --sheet-bg:             rgba(15, 16, 20, 0.94);
+  --sheet-grabber:        rgba(255, 255, 255, 0.22);
+  --sheet-backdrop-bg:    rgba(6, 7, 9, 0.5);
+
+  --track-bg:             rgba(255, 255, 255, 0.14);
+  --knob-bg:              #ffffff;
+  --control-off-bg:       rgba(255, 255, 255, 0.14);
+  --control-off-hover:    rgba(255, 255, 255, 0.22);
+  --accent-hi-on-surface: #ff9d3d;
 }
 
 @media (prefers-reduced-motion: reduce) {

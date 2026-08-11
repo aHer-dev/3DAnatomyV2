@@ -3,6 +3,10 @@ import type * as THREE from 'three'
 import store from './useStore.js'
 import type { CollectionItem, MetaEntry } from '../types/index.js'
 
+// Startwerte gleich beim Import festhalten — die Tests weiter unten verstellen sie.
+const INITIAL_SIDEBAR_COLLAPSED = store.getState().sidebarCollapsed
+const INITIAL_THEME = store.getState().theme
+
 const mockMesh = () => ({ uuid: crypto.randomUUID(), type: 'Mesh', name: 'testMesh', isMesh: true }) as unknown as THREE.Object3D
 const mockMeta = () => ({ id: 'fma12345', labels: { de: 'Test', en: 'Test', la: 'Test' } }) as MetaEntry
 
@@ -325,6 +329,77 @@ describe('Overlay-UI', () => {
     expect(store.getState().openFlyout).toBe('settings')
     store.getState().closeFlyout()
     expect(store.getState().openFlyout).toBeNull()
+  })
+})
+
+// ─── Sidebar einklappen (Desktop) ──────────────────────────────────────────────
+
+describe('Sidebar einklappen', () => {
+  beforeEach(() => {
+    store.setState({ sidebarCollapsed: false })
+  })
+
+  it('startet eingeklappt — die App öffnet auf der freien Bühne', () => {
+    expect(INITIAL_SIDEBAR_COLLAPSED).toBe(true)
+  })
+
+  it('toggle schaltet hin und zurück', () => {
+    store.getState().toggleSidebarCollapsed()
+    expect(store.getState().sidebarCollapsed).toBe(true)
+    store.getState().toggleSidebarCollapsed()
+    expect(store.getState().sidebarCollapsed).toBe(false)
+  })
+
+  it('setzt den Zustand direkt und ist idempotent', () => {
+    store.getState().setSidebarCollapsed(true)
+    store.getState().setSidebarCollapsed(true)
+    expect(store.getState().sidebarCollapsed).toBe(true)
+    store.getState().setSidebarCollapsed(false)
+    expect(store.getState().sidebarCollapsed).toBe(false)
+  })
+
+  it('rührt Theme, Tab, Flyout und Mobile-Sheet nicht an', () => {
+    store.setState({ sidebarTab: 'collection', openFlyout: 'settings', mobileSheet: 'view', theme: 'dark' })
+    store.getState().toggleSidebarCollapsed()
+    expect(store.getState().sidebarCollapsed).toBe(true)
+    expect(store.getState().sidebarTab).toBe('collection')
+    expect(store.getState().openFlyout).toBe('settings')
+    expect(store.getState().mobileSheet).toBe('view')
+    expect(store.getState().theme).toBe('dark')
+    store.setState({ openFlyout: null, mobileSheet: null, theme: 'light' })
+  })
+})
+
+// ─── Theme (Light/Dark der Bedienoberfläche) ───────────────────────────────────
+
+describe('Theme', () => {
+  beforeEach(() => {
+    store.setState({ theme: 'light' })
+  })
+
+  it('startet hell — Marke „Warm/Atlas", wie im Muskelfinder', () => {
+    expect(INITIAL_THEME).toBe('light')
+  })
+
+  it('schaltet zwischen hell und dunkel hin und her', () => {
+    store.getState().toggleTheme()
+    expect(store.getState().theme).toBe('dark')
+    store.getState().toggleTheme()
+    expect(store.getState().theme).toBe('light')
+  })
+
+  it('setzt das Theme direkt und ist idempotent', () => {
+    store.getState().setTheme('dark')
+    store.getState().setTheme('dark')
+    expect(store.getState().theme).toBe('dark')
+    store.getState().setTheme('light')
+    expect(store.getState().theme).toBe('light')
+  })
+
+  it('lässt den Einklapp-Zustand der Sidebar unberührt', () => {
+    store.setState({ sidebarCollapsed: true })
+    store.getState().toggleTheme()
+    expect(store.getState().sidebarCollapsed).toBe(true)
   })
 })
 

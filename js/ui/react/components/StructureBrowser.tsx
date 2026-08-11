@@ -1,25 +1,16 @@
-import React, { useCallback, useTransition } from 'react'
+import React, { useCallback, useState } from 'react'
 import { useReactStore } from '../useReactStore.js'
-import { getGroupLabel, sortGroups, ENABLED_GROUPS } from '../groupLabels.js'
-import { loadGroupByName, unloadGroupSilent } from '../../../features/modelLoader-core.js'
+import { getGroupLabel, sortPanelGroups, ENABLED_GROUPS } from '../groupLabels.js'
+import { loadGroupByName } from '../../../features/modelLoader-core.js'
+// setGroupVisibility (features/visibility.js) fasst die Szene an UND pflegt den
+// Store. Die gleichnamige Store-Aktion `setGroupVisible` legt dagegen nur einen
+// Boolean um — mit der stand hier vorher das Auge, das sichtbar nichts tat.
+import { setGroupVisibility } from '../../../features/visibility.js'
 import { setGroupOpacity } from '../../../features/appearance.js'
-import { getStore } from '../../../store/useStore.js'
 
 // Röntgen-Slider-Grenzen (siehe handleOpacity)
 const OPACITY_MIN = 0.15
 const OPACITY_MAX = 1
-
-// Auge / Auge-durchgestrichen (§9.3), Inline-SVG statt Emoji — keine externen Icons.
-const EyeIcon = (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-    <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z" /><circle cx="12" cy="12" r="3" />
-  </svg>
-)
-const EyeOffIcon = (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-    <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" /><line x1="1" y1="1" x2="23" y2="23" />
-  </svg>
-)
 
 interface GroupRowProps {
   group: string
@@ -29,87 +20,75 @@ interface GroupRowProps {
 }
 
 function GroupRow({ group, isLoaded, isVisible, opacity }: GroupRowProps) {
-  const [isPending, startTransition] = useTransition()
+  const [busy, setBusy] = useState(false)
+  // „An" heißt: geladen UND sichtbar. Alles andere ist aus.
+  const isOn = isLoaded && isVisible
+  const label = getGroupLabel(group)
 
-  const handleToggle = useCallback(() => {
-    startTransition(async () => {
-      if (isLoaded) {
-        await unloadGroupSilent(group)
-      } else {
-        await loadGroupByName(group, { centerCamera: false })
-      }
-    })
-  }, [group, isLoaded])
-
-  const handleVisibility = useCallback(() => {
-    getStore().setGroupVisible(group, !isVisible)
-  }, [group, isVisible])
+  // Ein Schalter für beides. Beim ersten Einschalten wird geladen (bei den
+  // Muskeln 465 Dateien, das dauert), danach kostet Umschalten nichts mehr:
+  // ausgeschaltete Gruppen bleiben im Speicher und sind sofort wieder da.
+  const handleToggle = useCallback(async () => {
+    if (busy) return
+    if (isLoaded) {
+      setGroupVisibility(group, !isOn)
+      return
+    }
+    setBusy(true)
+    try {
+      await loadGroupByName(group, { centerCamera: false })
+      setGroupVisibility(group, true)
+    } finally {
+      setBusy(false)
+    }
+  }, [group, isLoaded, isOn, busy])
 
   const handleOpacity = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     setGroupOpacity(group, parseFloat(e.target.value))
   }, [group])
 
-  const label = getGroupLabel(group)
   // Fill-Anteil des Röntgen-Sliders (0.15–1 → 0–100 %).
   const fillPct = Math.round(((opacity - OPACITY_MIN) / (OPACITY_MAX - OPACITY_MIN)) * 100)
   // Gruppenfarbe als Token; steuert Farbpunkt + Slider-Fill.
   const rowStyle = { '--sb-fill': `var(--group-${group}, var(--group-default))` } as React.CSSProperties
 
   return (
-    <div
-      className="sb-row"
-      role="listitem"
-      data-loaded={isLoaded}
-      data-visible={isVisible}
-      data-pending={isPending}
-      style={rowStyle}
-    >
-      {/* Sichtbarkeits-Auge (nur wenn geladen) */}
-      {isLoaded && (
+    <div className="sb-item" role="listitem" data-on={isOn} data-busy={busy} style={rowStyle}>
+      <div className="sb-row">
+        <span className="sb-swatch" aria-hidden="true" />
+        <span className="sb-label">{label}</span>
+        {busy && <span className="sb-hint">lädt …</span>}
         <button
-          className="sb-eye"
+          className="sb-switch"
           role="switch"
-          aria-checked={isVisible}
-          onClick={handleVisibility}
-          aria-label={isVisible ? `${label} ausblenden` : `${label} einblenden`}
-          title={isVisible ? 'Ausblenden' : 'Einblenden'}
+          aria-checked={isOn}
+          aria-label={`${label} ${isOn ? 'ausschalten' : 'einschalten'}`}
+          title={isOn ? 'Ausschalten' : 'Einschalten'}
+          disabled={busy}
+          onClick={handleToggle}
         >
-          {isVisible ? EyeIcon : EyeOffIcon}
+          <span className="sb-switch__knob" aria-hidden="true" />
         </button>
+      </div>
+
+      {/* Röntgen-Transparenz — nur wenn die Gruppe an ist, sonst regelte man Unsichtbares. */}
+      {isOn && (
+        <div className="sb-xray">
+          <span className="sb-xray__label">Transparenz</span>
+          <input
+            type="range"
+            className="sb-slider"
+            min={OPACITY_MIN}
+            max={OPACITY_MAX}
+            step={0.05}
+            value={opacity}
+            onChange={handleOpacity}
+            style={{ '--sb-pct': `${fillPct}%` } as React.CSSProperties}
+            aria-label={`Transparenz ${label}`}
+          />
+          <span className="sb-xray__value">{Math.round(opacity * 100)}%</span>
+        </div>
       )}
-
-      {/* Farbpunkt (Gruppenfarbe) */}
-      <span className="sb-swatch" aria-hidden="true" />
-
-      {/* Label */}
-      <span className="sb-label">{label}</span>
-
-      {/* Röntgen-Slider (nur wenn geladen & sichtbar) */}
-      {isLoaded && isVisible && (
-        <input
-          type="range"
-          className="sb-slider"
-          min={OPACITY_MIN}
-          max={OPACITY_MAX}
-          step={0.05}
-          value={opacity}
-          onChange={handleOpacity}
-          style={{ '--sb-pct': `${fillPct}%` } as React.CSSProperties}
-          aria-label={`Transparenz ${label}`}
-          title={`Transparenz ${Math.round(opacity * 100)}%`}
-        />
-      )}
-
-      {/* Laden / Entladen */}
-      <button
-        className={`sb-load${isLoaded ? ' is-loaded' : ''}`}
-        onClick={handleToggle}
-        disabled={isPending}
-        aria-label={isLoaded ? `${label} entladen` : `${label} laden`}
-        title={isLoaded ? 'Entladen' : 'Laden'}
-      >
-        {isPending ? '…' : isLoaded ? '✕' : '+'}
-      </button>
     </div>
   )
 }
@@ -120,7 +99,7 @@ export function StructureBrowser() {
   const groupStates     = useReactStore(s => s.groupStates)
   const groupOpacity    = useReactStore(s => s.groupOpacity)
 
-  const sorted = sortGroups(availableGroups.filter(g => ENABLED_GROUPS.has(g)))
+  const sorted = sortPanelGroups(availableGroups.filter(g => ENABLED_GROUPS.has(g)))
 
   return (
     <div className="sb-panel" aria-label="Strukturen">

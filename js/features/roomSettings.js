@@ -12,12 +12,26 @@ import { requestRender } from '../core/renderScheduler.js';
 export const ROOM_DEFAULTS = Object.freeze({
   lighting: 0.85,   // 0..2  (Beleuchtung)
   brightness: 1.0,  // 0..1  (Raumhelligkeit) — 1.0 = Raumfarbe unverfälscht
-  color: '#0d0d0d', // Raumfarbe = sichtbarer Start-Hintergrund rgb(13,13,13)
+  color: '#0d0d0d', // Rückfall, falls kein Theme bekannt ist
+});
+
+// Bühnenfarbe je Theme. Die Bühne bleibt in BEIDEN Themes dunkel — Knochen und
+// Muskeln lesen sich auf dunklem Grund klarer. Im Light-Modus aber warm statt
+// neutralschwarz: rgb(82,74,66) nimmt den Papierton der hellen Oberfläche auf,
+// ohne dem Modell Kontrast zu nehmen.
+export const ROOM_COLOR_BY_THEME = Object.freeze({
+  light: '#25211e',   // rgb(37, 33, 30) — warmes Dunkelbraun
+  dark:  '#0d0d0d',   // rgb(13, 13, 13)
 });
 
 let _lighting = ROOM_DEFAULTS.lighting;
 let _brightness = ROOM_DEFAULTS.brightness;
 let _color = ROOM_DEFAULTS.color;
+
+// Sobald jemand selbst eine Raumfarbe wählt, hört der Theme-Wechsel auf, sie zu
+// überschreiben. Sonst würde ein Klick auf Sonne/Mond die eigene Einstellung
+// stillschweigend wegwerfen.
+let _colorChosenByUser = false;
 
 /**
  * Beleuchtungsstärke setzen (0..2).
@@ -37,6 +51,27 @@ export function applyLighting(intensity) {
  * @param {number} [brightness]
  */
 export function applyRoomColor(hex = _color, brightness = _brightness) {
+  _colorChosenByUser = true;
+  setRoomColorInternal(hex, brightness);
+}
+
+/**
+ * Bühnenfarbe auf den Standard des Themes setzen — aber nur, solange niemand
+ * selbst eine gewählt hat. Wird beim Theme-Wechsel gerufen.
+ * @param {'light'|'dark'} theme
+ */
+export function applyThemeRoomColor(theme) {
+  if (_colorChosenByUser) return;
+  setRoomColorInternal(ROOM_COLOR_BY_THEME[theme] ?? ROOM_DEFAULTS.color, _brightness);
+}
+
+/** Zurück auf den Theme-Standard — gibt die Hoheit ans Theme zurück. */
+export function resetRoomColor(theme) {
+  _colorChosenByUser = false;
+  setRoomColorInternal(ROOM_COLOR_BY_THEME[theme] ?? ROOM_DEFAULTS.color, _brightness);
+}
+
+function setRoomColorInternal(hex, brightness) {
   _color = hex;
   _brightness = brightness;
 
@@ -56,8 +91,14 @@ export function getRoomSettings() {
   return { lighting: _lighting, brightness: _brightness, color: _color };
 }
 
-/** Beim App-Start einmalig die Defaults anwenden (ersetzt setupRoomUI-Init). */
-export function initRoomSettings() {
+/**
+ * Beim App-Start einmalig die Defaults anwenden (ersetzt setupRoomUI-Init).
+ * Die Bühnenfarbe kommt aus dem Theme — bewusst NICHT über `applyRoomColor`,
+ * das würde den Start als eigene Wahl verbuchen und den Theme-Wechsel für den
+ * Rest der Sitzung stillstellen.
+ * @param {'light'|'dark'} [theme]
+ */
+export function initRoomSettings(theme = 'light') {
   applyLighting(_lighting);
-  applyRoomColor(_color, _brightness);
+  setRoomColorInternal(ROOM_COLOR_BY_THEME[theme] ?? ROOM_DEFAULTS.color, _brightness);
 }

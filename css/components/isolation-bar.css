@@ -21,7 +21,7 @@
 }
 .iso-banner__icon {
   display: inline-flex;
-  color: var(--accent);
+  color: var(--accent-on-tint);
   flex-shrink: 0;
 }
 .iso-banner__icon svg { width: 20px; height: 20px; }

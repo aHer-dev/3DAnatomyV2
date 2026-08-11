@@ -4,9 +4,9 @@
   /* Kein backdrop-filter: bei „alle Labels an" sind das hunderte DOM-Boxen,
      jeder Blur wird pro Frame neu komponiert → Ruckeln. Hintergrund ist
      deckend genug, dass der Blur optisch ohnehin kaum wirkte. */
-  background: rgba(13, 14, 17, 0.92);
-  color: var(--text-primary);
-  border: 1px solid var(--glass-border);
+  background: var(--stage-chip-bg);
+  color: var(--stage-fg);
+  border: 1px solid var(--stage-hairline);
   border-radius: 6px;
   padding: 2px 7px;
   font-size: 10px;
