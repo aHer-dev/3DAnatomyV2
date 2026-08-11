@@ -167,6 +167,24 @@ Format: [Keep a Changelog](https://keepachangelog.com/de/1.0.0/)
 - Vier Store-Tests decken Toggle, Idempotenz und die Unabhängigkeit von Tab/Flyout/Sheet ab
   (60 Tests gesamt, grün). Die Sichtprüfung am laufenden Dev-Server steht noch aus.
 
+### Changed (Abhängigkeiten — Patch- und Minor-Updates innerhalb der Ranges)
+- **Zwölf Pakete lagen hinter ihrem `Wanted`-Stand zurück, ohne dass eine Range angefasst werden
+  musste.** `npm update` holt sie nach: react/react-dom 19.2.7 → **19.2.8**, vitest/@vitest/ui
+  4.1.8 → **4.1.10**, prettier 3.8.4 → **3.9.6**, fuse.js 7.4.2 → **7.5.0**, eslint/@eslint/js
+  9.39.4 → **9.39.5**, die vier `@gltf-transform/*`-Pakete 4.4.0 → **4.4.2**, dazu die
+  `@types/*`-Pakete. Nur `package-lock.json` ändert sich; `package.json` bleibt unberührt.
+- **Nachgemessen statt angenommen:** nach dem Rebase auf den aktuellen Stand erneut geprüft —
+  Tests **64/64 grün**, Lint ohne Befund, Build durch (112 Module, 6,1 s). `vendor` steht bei
+  27,24 kB (+0,23 kB durch fuse.js), `three` 631,68 kB, `react` 194,03 kB, `main` 151,61 kB.
+- **Bewusst nicht mitgenommen:** die zehn Major-Sprünge — vite 6 → 8, eslint 9 → 10, three
+  0.179 → 0.185, @vitejs/plugin-react 4 → 6, dependency-cruiser 16 → 17, globals 15 → 17,
+  p-limit 6 → 7, @types/node 25 → 26. Besonders three.js fasst genau die Ebene an, auf der die
+  imperative 3D-Logik und der BatchedMesh-Pfad (ADR 0007) sitzen; das gehört auf einen eigenen
+  Branch mit eigenem Durchlauf, nicht in ein Wartungs-Update.
+- **Offen, ohne Auswirkung im Moment:** `npm` warnt, dass die transitive Abhängigkeit
+  `language-tags@2.1.0` Node ≥ 22 verlangt — installiert ist Node v20.20.2. Reine
+  Installationswarnung, Tests und Build laufen unbeeindruckt durch.
+
 ### Fixed (Der Muskelfinder-Link führte in eine tote App)
 - **Wer im Muskelfinder auf „In 3D ansehen" tippte, landete auf einer Seite ohne Bedienung.**
   Live nachgemessen: **0 Knöpfe, 0 Links, `#ui-root` leer.** Kein Rückweg, keine Werkzeuge — man
