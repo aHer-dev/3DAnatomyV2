@@ -7,6 +7,23 @@ Format: [Keep a Changelog](https://keepachangelog.com/de/1.0.0/)
 
 ## [Unreleased]
 
+### Changed (Info-Panel — der Details-Aufklapper trägt jetzt das Marken-Orange)
+- **Der Balken, hinter dem Ursprung und Ansatz stecken, sah nicht klickbar aus.** Grauer
+  Versalien-Text (`--text-secondary`) auf 3 % Weiß, mit einer `--hairline-soft`-Kante: das
+  liest sich wie eine Abschnittsüberschrift, nicht wie ein Schalter. Dahinter liegen aber
+  **sechs Abschnitte für 150 Muskeln** — Ursprung, Ansatz, Bewegung, Funktion, Innervation,
+  Klinischer Bezug (`public/data/muskelfinder-details.json`). Genau der Inhalt, wegen dem
+  Studierende die Seite öffnen, verbarg sich hinter dem unauffälligsten Element des Panels.
+- **Jetzt auf den Akzent-Tokens:** `--accent` (#ff6a00) als Schriftfarbe, `--accent-tint` als
+  Fläche, `--accent-border` als Kante, dazu 700 statt 600 Schriftschnitt und etwas mehr
+  Polsterung. Keine neue Farbe — das Marken-Orange steckte längst in `variables.css`, der
+  Aufklapper war schlicht der eine Ort, der es nicht benutzt hat.
+- **Aufgeklappt tritt der Kopf zurück** (`--accent-dim`): die Abschnittstitel darunter tragen
+  bereits `--accent`, zwei volle Orangeflächen übereinander hätten miteinander konkurriert
+  statt zu führen.
+- Reine Stiländerung an `.ip-details__summary`, kein Markup und keine Logik angefasst —
+  entsprechend ohne Unit-Test (Handoff: UI-Pixel werden nicht unit-getestet).
+
 ### Added (Sidebar — rechte Leiste auf dem Desktop einklappbar)
 - **Die rechte Leiste war auf dem Desktop nicht abzuschalten.** Sie steht `position: fixed` mit
   `min(320px, …)` Breite und war der einzige Teil von Layout B ohne Aus — mobil gibt es die
