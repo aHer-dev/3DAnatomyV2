@@ -51,6 +51,8 @@ const I = {
   cube: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>,
   photo: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>,
   settings: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>,
+  chevronRight: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>,
+  chevronLeft: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"/></svg>,
 }
 
 const TABS: { id: 'structures' | 'collection' | 'info'; label: string }[] = [
@@ -88,9 +90,12 @@ export function AppShell() {
   const multiCount      = useReactStore(s => s.multiSelected.size)
   const isolationActive = useReactStore(s => s.isolation.model !== null)
   const sidebarTab      = useReactStore(s => s.sidebarTab)
+  const sidebarCollapsed = useReactStore(s => s.sidebarCollapsed)
   const openFlyout      = useReactStore(s => s.openFlyout)
   const mobileSheet     = useReactStore(s => s.mobileSheet)
   const setSidebarTab       = useReactStore(s => s.setSidebarTab)
+  const setSidebarCollapsed    = useReactStore(s => s.setSidebarCollapsed)
+  const toggleSidebarCollapsed = useReactStore(s => s.toggleSidebarCollapsed)
   const openFlyoutExclusive = useReactStore(s => s.openFlyoutExclusive)
   const closeFlyout         = useReactStore(s => s.closeFlyout)
   const openMobileSheet     = useReactStore(s => s.openMobileSheet)
@@ -98,11 +103,15 @@ export function AppShell() {
 
   // Auto-Switch: Auswahl (einzeln oder mehrfach) → „Info", Aufhebung → „Strukturen" (ADR 0006).
   // Auf Schmal-Screens poppt die Auswahl zusätzlich das Panel-Sheet auf (Frame „Info-Sheet").
+  // Auf Desktop klappt eine eingeklappte Sidebar wieder auf — die Details wären sonst
+  // hinter einem zweiten Klick versteckt, obwohl der Tab bereits auf „Info" steht.
   useEffect(() => {
     const selecting = !!selectedRoot || multiCount > 0
     setSidebarTab(selecting ? 'info' : 'structures')
-    if (selecting && isNarrowScreen()) openMobileSheet('panel')
-  }, [selectedRoot, multiCount, setSidebarTab, openMobileSheet])
+    if (!selecting) return
+    if (isNarrowScreen()) openMobileSheet('panel')
+    else setSidebarCollapsed(false)
+  }, [selectedRoot, multiCount, setSidebarTab, openMobileSheet, setSidebarCollapsed])
 
   // A11y (§14): ESC schließt das offene Settings-Flyout bzw. Mobile-Sheet und gibt
   // den Fokus an das auslösende Bedienelement zurück (Rail-⚙ / Tab-Leiste). Nur aktiv,
@@ -194,11 +203,28 @@ export function AppShell() {
 
       {/* ── Tab-Sidebar (rechts) · mobil: Bottom-Sheet (--open steuert Slide) ── */}
       <aside
-        className={`shell-sidebar${mobileSheet === 'panel' ? ' shell-sidebar--open' : ''}`}
+        id="shell-sidebar"
+        className={`shell-sidebar${mobileSheet === 'panel' ? ' shell-sidebar--open' : ''}${sidebarCollapsed ? ' shell-sidebar--collapsed' : ''}`}
         aria-label="Inhalt"
+        // Eingeklappt liegt die Leiste außerhalb des Bildes: kein Tab-Fokus, keine
+        // Vorlesung durch Screenreader. Das offene Mobile-Sheet hat Vorrang, sonst
+        // wäre es nach einem Wechsel Desktop→Mobil tot.
+        inert={sidebarCollapsed && mobileSheet !== 'panel'}
       >
         <div className="shell-sidebar__head">
-          <div className="shell-searchhost"><SearchBar /></div>
+          <div className="shell-sidebar__headrow">
+            <div className="shell-searchhost"><SearchBar /></div>
+            <button
+              className="shell-collapse"
+              title="Leiste ausblenden"
+              aria-label="Leiste ausblenden"
+              aria-expanded={true}
+              aria-controls="shell-sidebar"
+              onClick={toggleSidebarCollapsed}
+            >
+              {I.chevronRight}
+            </button>
+          </div>
           <div className="shell-tabs" role="tablist" aria-label="Ansicht">
             {TABS.map(({ id, label }) => (
               <button
@@ -233,6 +259,22 @@ export function AppShell() {
 
         <div className="shell-sidebar__foot"><Footer /></div>
       </aside>
+
+      {/* ── Griff am rechten Rand — einziger Rest der eingeklappten Leiste.
+             Nur Desktop; mobil blendet responsive.css ihn aus (dort regelt die
+             Tab-Leiste das Öffnen). ── */}
+      {sidebarCollapsed && (
+        <button
+          className="shell-grip"
+          title="Leiste einblenden"
+          aria-label="Leiste einblenden"
+          aria-expanded={false}
+          aria-controls="shell-sidebar"
+          onClick={toggleSidebarCollapsed}
+        >
+          {I.chevronLeft}
+        </button>
+      )}
 
       {/* ── Unten-mittig: Ansichts-Cluster, in der Isolation der Untertitel (Frame 2e).
              Mobil ist der Float-Cluster ausgeblendet (→ „Ansicht"-Sheet). Bei offenem

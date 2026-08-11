@@ -7,6 +7,31 @@ Format: [Keep a Changelog](https://keepachangelog.com/de/1.0.0/)
 
 ## [Unreleased]
 
+### Added (Sidebar — rechte Leiste auf dem Desktop einklappbar)
+- **Die rechte Leiste war auf dem Desktop nicht abzuschalten.** Sie steht `position: fixed` mit
+  `min(320px, …)` Breite und war der einzige Teil von Layout B ohne Aus — mobil gibt es die
+  Sheet-Mechanik (`--open`) längst, auf breiten Schirmen nahm sie dem Modell dauerhaft rund
+  320 px. Wer eine Struktur von allen Seiten betrachten wollte, hatte keine Möglichkeit,
+  die Bühne freizuräumen.
+- **Neu: ein Chevron im Sidebar-Kopf klappt sie ganz nach rechts aus dem Bild.** Übrig bleibt
+  ein 26 px schmaler Griff am rechten Rand, der sie zurückholt. Nicht auf einen Icon-Streifen
+  geschrumpft, sondern vollständig weg — das ist der ganze Punkt der Übung.
+- **Zustand liegt im Store** (`sidebarCollapsed` + `setSidebarCollapsed`/`toggleSidebarCollapsed`),
+  additiv neben `sidebarTab`, `openFlyout` und `mobileSheet`. **Bewusst nicht persistiert:**
+  browser storage ist projektweit untersagt, der Zustand gilt für die Sitzung.
+- **Bei Auswahl klappt die Leiste von selbst wieder auf.** Der bestehende Auto-Wechsel auf den
+  Info-Tab (ADR 0006) lief sonst ins Leere: Tab richtig gesetzt, Panel unsichtbar, Details erst
+  nach einem zweiten Klick. Auf Schmal-Screens bleibt es beim Sheet-Verhalten, unverändert.
+- **Mobil bewusst neutralisiert.** `responsive.css` setzt `--collapsed` unter 768 px auf die
+  Sheet-Regel zurück und blendet Griff wie Chevron aus. Ohne diesen Rückbau bliebe das
+  Bottom-Sheet unsichtbar, sobald jemand am Desktop einklappt und dann das Fenster verschmälert.
+- **A11y:** Chevron und Griff tragen `aria-expanded`/`aria-controls` auf dieselbe Region; die
+  eingeklappte Leiste ist `inert`, fängt also keinen Tab-Fokus und wird nicht vorgelesen. Das
+  offene Mobile-Sheet hat dabei Vorrang. Unter `prefers-reduced-motion` springt sie, statt zu
+  fahren — die Transition steht ausgeschrieben und greift die Token-Abschaltung nicht.
+- Vier Store-Tests decken Toggle, Idempotenz und die Unabhängigkeit von Tab/Flyout/Sheet ab
+  (55 Tests gesamt, grün). Die Sichtprüfung am laufenden Dev-Server steht noch aus.
+
 ### Fixed (Der Muskelfinder-Link führte in eine tote App)
 - **Wer im Muskelfinder auf „In 3D ansehen" tippte, landete auf einer Seite ohne Bedienung.**
   Live nachgemessen: **0 Knöpfe, 0 Links, `#ui-root` leer.** Kein Rückweg, keine Werkzeuge — man

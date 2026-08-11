@@ -53,6 +53,21 @@
   .shell-sidebar--open { transform: translateY(0); }
   .shell-sidebar__foot { padding-bottom: calc(10px + env(safe-area-inset-bottom, 0px)); }
 
+  /* ── Desktop-Einklappen hat mobil keine Bedeutung ─────────────────────────
+     Hier regelt `--open` (untere Tab-Leiste) die Sichtbarkeit. Ohne diesen
+     Rückbau bliebe das Sheet unsichtbar, sobald jemand am Desktop eingeklappt
+     und dann das Fenster verschmälert hat. Griff und Einklapp-Knopf entfallen,
+     ihr Zustand wäre mobil folgenlos. */
+  .shell-sidebar--collapsed {
+    transform: translateY(calc(100% + 40px));
+    opacity: 1;
+    visibility: visible;
+    transition: transform 0.32s var(--ease-smooth);
+  }
+  .shell-sidebar--collapsed.shell-sidebar--open { transform: translateY(0); }
+  .shell-grip,
+  .shell-collapse { display: none; }
+
   /* ── Settings-Sheet: von unten einschieben statt von links ────────────── */
   .stp-flyout {
     animation: sheet-rise 0.3s var(--ease-smooth) both;
@@ -172,4 +187,12 @@
   .shell-sidebar { transition: none; }
   .stp-flyout,
   .vc-sheet { animation: none; }
+}
+
+/* Dasselbe für das Desktop-Einklappen: die Leiste springt, statt zu fahren.
+   Die Transition steht dort ausgeschrieben und nicht auf `--transition-smooth`,
+   greift die Token-Abschaltung aus variables.css also nicht. */
+@media (prefers-reduced-motion: reduce) {
+  .shell-sidebar,
+  .shell-sidebar--collapsed { transition: none; }
 }

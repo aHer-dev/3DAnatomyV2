@@ -328,6 +328,43 @@ describe('Overlay-UI', () => {
   })
 })
 
+// ─── Sidebar einklappen (Desktop) ──────────────────────────────────────────────
+
+describe('Sidebar einklappen', () => {
+  beforeEach(() => {
+    store.setState({ sidebarCollapsed: false })
+  })
+
+  it('startet ausgeklappt', () => {
+    expect(store.getState().sidebarCollapsed).toBe(false)
+  })
+
+  it('toggle schaltet hin und zurück', () => {
+    store.getState().toggleSidebarCollapsed()
+    expect(store.getState().sidebarCollapsed).toBe(true)
+    store.getState().toggleSidebarCollapsed()
+    expect(store.getState().sidebarCollapsed).toBe(false)
+  })
+
+  it('setzt den Zustand direkt und ist idempotent', () => {
+    store.getState().setSidebarCollapsed(true)
+    store.getState().setSidebarCollapsed(true)
+    expect(store.getState().sidebarCollapsed).toBe(true)
+    store.getState().setSidebarCollapsed(false)
+    expect(store.getState().sidebarCollapsed).toBe(false)
+  })
+
+  it('rührt Tab, Flyout und Mobile-Sheet nicht an', () => {
+    store.setState({ sidebarTab: 'collection', openFlyout: 'settings', mobileSheet: 'view' })
+    store.getState().toggleSidebarCollapsed()
+    expect(store.getState().sidebarCollapsed).toBe(true)
+    expect(store.getState().sidebarTab).toBe('collection')
+    expect(store.getState().openFlyout).toBe('settings')
+    expect(store.getState().mobileSheet).toBe('view')
+    store.setState({ openFlyout: null, mobileSheet: null })
+  })
+})
+
 // ─── Mobile-Sheets (§13 / S10) ──────────────────────────────────────────────────
 
 describe('Mobile-Sheets', () => {

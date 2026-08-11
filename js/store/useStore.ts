@@ -43,6 +43,12 @@ export type Flyout = 'settings' | null
 // umgeformt). Auf Desktop ohne Effekt (Media-Query neutralisiert es).
 export type MobileSheet = 'panel' | 'view' | null
 
+// Desktop-Only: die rechte Sidebar ist einklappbar, damit das Modell die volle
+// Breite bekommt. Eingeklappt bleibt nur der Griff am Bildschirmrand stehen.
+// Auf Schmal-Screens ohne Wirkung — dort regelt `mobileSheet` die Sichtbarkeit
+// (responsive.css neutralisiert die Klasse).
+// Bewusst nicht persistiert: browser storage ist projektweit untersagt.
+
 // ─── Laden (Initial-/Preset-Fortschritt) ─────────────────────────────────────
 // Gefüllt von js/modelLoader/progress.js (Adapter der Lade-Pipeline),
 // gerendert von LoadingScreen.tsx (§9.11, ADR 0008).
@@ -97,6 +103,7 @@ export interface StoreState {
 
   // ─── Overlay-UI (Layout B) ────────────────────────────────────────────────
   sidebarTab: SidebarTab
+  sidebarCollapsed: boolean
   openFlyout: Flyout
   mobileSheet: MobileSheet
 
@@ -151,6 +158,8 @@ export interface StoreState {
 
   // ─── Actions: Overlay-UI ──────────────────────────────────────────────────
   setSidebarTab: (tab: SidebarTab) => void
+  setSidebarCollapsed: (collapsed: boolean) => void
+  toggleSidebarCollapsed: () => void
   openFlyoutExclusive: (name: Exclude<Flyout, null>) => void
   closeFlyout: () => void
   openMobileSheet: (sheet: Exclude<MobileSheet, null>) => void
@@ -197,6 +206,7 @@ const useStore = createStore<StoreState>((set, get) => ({
   collection: [],
   clickCounts: {},
   sidebarTab: 'structures',
+  sidebarCollapsed: false,
   openFlyout: null,
   mobileSheet: null,
   loading: emptyLoading,
@@ -322,6 +332,8 @@ const useStore = createStore<StoreState>((set, get) => ({
   // Overlay-UI (Layout B). Flyout und Mobile-Sheet teilen sich auf Schmal-Screens
   // die untere Bühne → gegenseitig exklusiv (nur eines gleichzeitig offen).
   setSidebarTab: (tab) => set({ sidebarTab: tab }),
+  setSidebarCollapsed: (collapsed) => set({ sidebarCollapsed: collapsed }),
+  toggleSidebarCollapsed: () => set(s => ({ sidebarCollapsed: !s.sidebarCollapsed })),
   openFlyoutExclusive: (name) => set({ openFlyout: name, mobileSheet: null }),
   closeFlyout: () => set({ openFlyout: null }),
   openMobileSheet: (sheet) => set({ mobileSheet: sheet, openFlyout: null }),
