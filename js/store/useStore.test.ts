@@ -5,6 +5,7 @@ import type { CollectionItem, MetaEntry } from '../types/index.js'
 
 // Startwerte gleich beim Import festhalten — die Tests weiter unten verstellen sie.
 const INITIAL_SIDEBAR_COLLAPSED = store.getState().sidebarCollapsed
+const INITIAL_THEME = store.getState().theme
 
 const mockMesh = () => ({ uuid: crypto.randomUUID(), type: 'Mesh', name: 'testMesh', isMesh: true }) as unknown as THREE.Object3D
 const mockMeta = () => ({ id: 'fma12345', labels: { de: 'Test', en: 'Test', la: 'Test' } }) as MetaEntry
@@ -357,14 +358,48 @@ describe('Sidebar einklappen', () => {
     expect(store.getState().sidebarCollapsed).toBe(false)
   })
 
-  it('rührt Tab, Flyout und Mobile-Sheet nicht an', () => {
-    store.setState({ sidebarTab: 'collection', openFlyout: 'settings', mobileSheet: 'view' })
+  it('rührt Theme, Tab, Flyout und Mobile-Sheet nicht an', () => {
+    store.setState({ sidebarTab: 'collection', openFlyout: 'settings', mobileSheet: 'view', theme: 'dark' })
     store.getState().toggleSidebarCollapsed()
     expect(store.getState().sidebarCollapsed).toBe(true)
     expect(store.getState().sidebarTab).toBe('collection')
     expect(store.getState().openFlyout).toBe('settings')
     expect(store.getState().mobileSheet).toBe('view')
-    store.setState({ openFlyout: null, mobileSheet: null })
+    expect(store.getState().theme).toBe('dark')
+    store.setState({ openFlyout: null, mobileSheet: null, theme: 'light' })
+  })
+})
+
+// ─── Theme (Light/Dark der Bedienoberfläche) ───────────────────────────────────
+
+describe('Theme', () => {
+  beforeEach(() => {
+    store.setState({ theme: 'light' })
+  })
+
+  it('startet hell — Marke „Warm/Atlas", wie im Muskelfinder', () => {
+    expect(INITIAL_THEME).toBe('light')
+  })
+
+  it('schaltet zwischen hell und dunkel hin und her', () => {
+    store.getState().toggleTheme()
+    expect(store.getState().theme).toBe('dark')
+    store.getState().toggleTheme()
+    expect(store.getState().theme).toBe('light')
+  })
+
+  it('setzt das Theme direkt und ist idempotent', () => {
+    store.getState().setTheme('dark')
+    store.getState().setTheme('dark')
+    expect(store.getState().theme).toBe('dark')
+    store.getState().setTheme('light')
+    expect(store.getState().theme).toBe('light')
+  })
+
+  it('lässt den Einklapp-Zustand der Sidebar unberührt', () => {
+    store.setState({ sidebarCollapsed: true })
+    store.getState().toggleTheme()
+    expect(store.getState().sidebarCollapsed).toBe(true)
   })
 })
 

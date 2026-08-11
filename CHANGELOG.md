@@ -7,6 +7,38 @@ Format: [Keep a Changelog](https://keepachangelog.com/de/1.0.0/)
 
 ## [Unreleased]
 
+### Added (Design — Light-Modus als Standard, Dark bleibt umschaltbar)
+- **Die App hatte nur Dunkel.** Das Schwesterprojekt Muskelfinder-V2 führt dieselbe Marke
+  („Anatomie Fokus", Variante A) längst in zwei Themes mit **Light als Standard** — und dessen
+  Dark-Werte sind exakt die dieser App. Die Palette ist von dort übernommen statt neu erfunden:
+  `src/styles/theme.css` → `css/theme/variables.css`. Gleiche Token-Namen für alles Neue,
+  gleiches Orange `#ff6a00`.
+- **`variables.css` ist jetzt dreigeteilt:** theme-agnostisch (Akzent, Typo, Spacing, Radien,
+  Motion, z-Ebenen, Gruppenfarben), dann `:root, [data-theme="light"]` und `[data-theme="dark"]`.
+  Das Theme hängt als `[data-theme]` an `<html>`, gesteuert aus dem Store.
+- **Die 3D-Bühne bleibt in beiden Themes dunkel.** Der Three.js-Canvas holt seine Farbe weiter
+  aus `roomSettings.js` und ist über die Einstellungen frei wählbar. Knochen und Muskeln lesen
+  sich auf dunklem Grund klarer — derselbe Grund, aus dem der Muskelfinder sein Bildfenster
+  (`--media-well`) auch im Light-Modus dunkel lässt. Was direkt auf der Bühne liegt, ist in
+  `variables.css` als **bühnenfest** markiert und wechselt nicht mit: Struktur-Beschriftungen
+  und der Fotomodus.
+- **Orange als Schrift brauchte eigene Töne.** `#ff6a00` auf hellem Grund sind **2,87:1**, WCAG
+  1.4.3 verlangt 4,5:1. Neu daher `--accent-on-surface` (#bd4800) und `--accent-on-tint`
+  (#b34400) für Text und Icons, `--accent-hi-on-surface` (#8f3600) für Hover — im Dark-Modus
+  sind alle drei schlicht `#ff6a00` bzw. `#ff9d3d`. **Wer Orange als Schrift setzt, nimmt die
+  `-on-`-Variante, nicht `--accent`.** 22 Stellen umgestellt.
+- **Rund 20 weiße Alpha-Schleier steckten hart in den Komponenten** — Slider-Schienen, Knöpfe,
+  Schalter, Tastenkappen. Auf hellem Glas ist Weiß-auf-Weiß unsichtbar. Sie sind jetzt Tokens:
+  `--track-bg`, `--knob-bg`, `--control-off-bg`, `--control-off-hover`, `--field-bg`. Der
+  Slider-Knopf ist im Light-Modus **dunkel**, nicht weiß: er läuft über die orange Füllung UND
+  über die helle Schiene, ein weißer Knopf verschwände auf der Schiene.
+- **Zwei Fehler, die erst im Hellen sichtbar wurden:** die Struktur-Beschriftungen auf der Bühne
+  standen auf `--text-primary` (dunkler Text auf dunklem Chip) und das Busy-Overlay der
+  Einstellungen auf `rgba(0,0,0,0.7)` mit hellem Text. Beide auf passende Tokens gesetzt.
+- **Sonne/Mond-Schalter** in der Icon-Rail über dem Zahnrad. **Bewusst nicht persistiert:**
+  browser storage ist projektweit untersagt (CLAUDE.md) — das Schwesterprojekt legt die Wahl
+  in `localStorage` ab, hier gilt sie für die Sitzung. Vier neue Store-Tests (64 gesamt).
+
 ### Fixed (Strukturen — Entladen wirkte nicht, das Auge tat gar nichts)
 - **Entladene Gruppen blieben im Bild stehen.** Der Renderer arbeitet on demand
   (`startApp.js`): er zeichnet nur nach einem `requestRender()`. `loadGroupByName` fordert

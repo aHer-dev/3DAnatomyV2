@@ -152,7 +152,7 @@
   }
   .shell-tabbar__btn svg { width: 23px; height: 23px; }
   .shell-tabbar__btn:hover { color: var(--text-primary); }
-  .shell-tabbar__btn--active { background: var(--accent-tint); color: var(--accent); }
+  .shell-tabbar__btn--active { background: var(--accent-tint); color: var(--accent-on-tint); }
 
   /* ── Float-Cluster (Desktop) weicht dem Ansicht-Sheet; Isolation-Untertitel
         über die Tab-Leiste heben ──────────────────────────────────────────── */

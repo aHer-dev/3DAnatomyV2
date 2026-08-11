@@ -60,12 +60,13 @@
 }
 .shell-rail__btn svg { width: 22px; height: 22px; }
 .shell-rail__btn:hover { background: var(--glass-bg-hover); color: var(--text-primary); }
-.shell-rail__btn--active { background: var(--accent-tint); color: var(--accent); }
+.shell-rail__btn--active { background: var(--accent-tint); color: var(--accent-on-tint); }
 .shell-rail__btn:disabled { opacity: 0.5; cursor: default; }
 .shell-rail__btn.is-loading { opacity: 0.6; cursor: progress; }
 
-/* ⚙ ganz unten */
-.shell-rail__settings { margin-top: auto; }
+/* Sonne/Mond + ⚙ ganz unten. Das margin-top sitzt auf dem Theme-Schalter,
+   damit beide als Block nach unten rutschen statt einzeln. */
+.shell-rail__theme { margin-top: auto; }
 
 /* ── Tab-Sidebar (rechts) ──────────────────────────────────────────────── */
 .shell-sidebar {
@@ -196,7 +197,7 @@
   transition: var(--transition-smooth);
 }
 .shell-tab:hover { background: var(--glass-bg-hover); color: var(--text-secondary); }
-.shell-tab--active { background: var(--accent-tint); color: var(--accent); }
+.shell-tab--active { background: var(--accent-tint); color: var(--accent-on-tint); }
 .shell-tab__badge {
   min-width: 16px; height: 16px;
   padding: 0 5px;
