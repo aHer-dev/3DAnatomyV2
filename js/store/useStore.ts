@@ -206,7 +206,10 @@ const useStore = createStore<StoreState>((set, get) => ({
   collection: [],
   clickCounts: {},
   sidebarTab: 'structures',
-  sidebarCollapsed: false,
+  // Start eingeklappt: die App öffnet auf der freien Bühne, das Modell steht
+  // ungeschnitten da. Die Leiste kommt auf Wunsch über den Griff am Rand —
+  // oder von selbst, sobald eine Struktur ausgewählt wird.
+  sidebarCollapsed: true,
   openFlyout: null,
   mobileSheet: null,
   loading: emptyLoading,

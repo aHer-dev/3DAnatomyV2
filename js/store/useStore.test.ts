@@ -3,6 +3,9 @@ import type * as THREE from 'three'
 import store from './useStore.js'
 import type { CollectionItem, MetaEntry } from '../types/index.js'
 
+// Startwerte gleich beim Import festhalten — die Tests weiter unten verstellen sie.
+const INITIAL_SIDEBAR_COLLAPSED = store.getState().sidebarCollapsed
+
 const mockMesh = () => ({ uuid: crypto.randomUUID(), type: 'Mesh', name: 'testMesh', isMesh: true }) as unknown as THREE.Object3D
 const mockMeta = () => ({ id: 'fma12345', labels: { de: 'Test', en: 'Test', la: 'Test' } }) as MetaEntry
 
@@ -335,8 +338,8 @@ describe('Sidebar einklappen', () => {
     store.setState({ sidebarCollapsed: false })
   })
 
-  it('startet ausgeklappt', () => {
-    expect(store.getState().sidebarCollapsed).toBe(false)
+  it('startet eingeklappt — die App öffnet auf der freien Bühne', () => {
+    expect(INITIAL_SIDEBAR_COLLAPSED).toBe(true)
   })
 
   it('toggle schaltet hin und zurück', () => {

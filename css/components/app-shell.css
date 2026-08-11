@@ -134,7 +134,10 @@
 .shell-collapse svg { width: 18px; height: 18px; }
 .shell-collapse:hover { background: var(--glass-bg-hover); color: var(--text-primary); }
 
-/* ── Griff am rechten Rand — sichtbarer Rest der eingeklappten Leiste ───── */
+/* ── Griff am rechten Rand — sichtbarer Rest der eingeklappten Leiste ─────
+   Im Marken-Orange und gefüllt statt gläsern: seit die App eingeklappt startet,
+   ist er der einzige Weg zur Leiste. Ein dezenter Glasstreifen am Bildrand wäre
+   auf der dunklen Bühne schlicht nicht gefunden worden. */
 .shell-grip {
   position: fixed;
   right: 0;
@@ -145,21 +148,23 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 26px; height: 84px;
+  width: 30px; height: 96px;
   padding: 0;
-  background: var(--glass-bg-controls);
-  backdrop-filter: var(--glass-blur-strong);
-  -webkit-backdrop-filter: var(--glass-blur-strong);
-  border: 1px solid var(--glass-border);
-  border-right: none;
+  background: var(--accent);
+  border: none;
   border-radius: var(--radius-lg) 0 0 var(--radius-lg);
-  box-shadow: var(--glass-shadow-lg);
-  color: var(--text-secondary);
+  box-shadow: -4px 0 24px color-mix(in srgb, var(--accent) 35%, transparent),
+              var(--glass-shadow-lg);
+  color: var(--accent-on);
   cursor: pointer;
   transition: var(--transition-smooth);
 }
-.shell-grip svg { width: 18px; height: 18px; }
-.shell-grip:hover { background: var(--glass-bg-hover); color: var(--text-primary); }
+.shell-grip svg { width: 20px; height: 20px; stroke-width: 2.5; }
+.shell-grip:hover {
+  width: 36px;
+  background: var(--accent-hi);
+}
+.shell-grip:focus-visible { outline: 2px solid var(--focus-ring); outline-offset: 3px; }
 
 /* Suchfeld-Host — SearchBar sitzt (noch als Bestandsform) im Sidebar-Kopf;
    S4 baut sie zur persistenten Suchpille um. */

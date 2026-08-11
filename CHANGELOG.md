@@ -86,8 +86,13 @@ Format: [Keep a Changelog](https://keepachangelog.com/de/1.0.0/)
   eingeklappte Leiste ist `inert`, fängt also keinen Tab-Fokus und wird nicht vorgelesen. Das
   offene Mobile-Sheet hat dabei Vorrang. Unter `prefers-reduced-motion` springt sie, statt zu
   fahren — die Transition steht ausgeschrieben und greift die Token-Abschaltung nicht.
+- **Die App startet eingeklappt.** Beim Öffnen steht das Modell auf der vollen Bühne, die
+  Leiste kommt auf Wunsch — oder von selbst, sobald eine Struktur ausgewählt wird.
+- **Der Griff trägt das Marken-Orange und ist gefüllt statt gläsern** (30×96 px, auf 36 px
+  verbreitert beim Überfahren). Damit ist er der einzige Weg zur Leiste, und ein dezenter
+  Glasstreifen am Bildrand wäre auf der dunklen Bühne schlicht nicht gefunden worden.
 - Vier Store-Tests decken Toggle, Idempotenz und die Unabhängigkeit von Tab/Flyout/Sheet ab
-  (55 Tests gesamt, grün). Die Sichtprüfung am laufenden Dev-Server steht noch aus.
+  (60 Tests gesamt, grün). Die Sichtprüfung am laufenden Dev-Server steht noch aus.
 
 ### Fixed (Der Muskelfinder-Link führte in eine tote App)
 - **Wer im Muskelfinder auf „In 3D ansehen" tippte, landete auf einer Seite ohne Bedienung.**
