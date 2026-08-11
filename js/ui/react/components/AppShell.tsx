@@ -191,17 +191,10 @@ export function AppShell() {
     <>
       {/* ── Icon-Rail (links) ── */}
       <nav className="shell-rail" aria-label="Werkzeuge">
-        {/* Zwei Logo-Dateien, eine pro Theme — dieselbe Wahl wie im Muskelfinder
-            (BrandMark.tsx): die weiße Marke verschwindet auf hellem Glas, die
-            dunkle auf schwarzem. */}
-        <img
-          className="shell-rail__logo"
-          src={assetPath(theme === 'dark' ? 'af-logo.png' : 'af-logo-dark.png')}
-          alt="Anatomie Fokus"
-          width={36}
-          height={36}
-        />
-
+        {/* Das Zeichen stand bis hierher hier oben. Es sitzt jetzt als volle
+            Wortmarke im Kopf der Sidebar — genau EINMAL pro Bildschirm.
+            Dasselbe Logo zweimal ist kein Branding, sondern ein Versehen
+            (dieselbe Entscheidung wie im Muskelfinder, BrandMark.tsx). */}
         <div className="shell-rail__group">
           {railBtn('select', activeTool === TOOL.SELECT, 'Einzelauswahl', () => setTool(TOOL.SELECT))}
           {railBtn('multi',  activeTool === TOOL.MULTI,  'Mehrfachauswahl', () => setTool(TOOL.MULTI))}
@@ -254,6 +247,25 @@ export function AppShell() {
         inert={sidebarCollapsed && mobileSheet !== 'panel'}
       >
         <div className="shell-sidebar__head">
+          {/* Wortmarke als Überschrift der Leiste. Die Datei ist 985 × 892, also
+              nicht quadratisch — die echten Maße stehen im Markup (der Browser
+              reserviert den richtigen Kasten, kein Layout-Sprung), die Größe
+              macht das CSS über die Höhe. Die Rail zwang das Zeichen vorher in
+              36 × 36 und stauchte den Keil dabei um rund 10 %. */}
+          <div className="shell-brand">
+            <img
+              src={assetPath(theme === 'dark' ? 'af-logo.png' : 'af-logo-dark.png')}
+              alt=""
+              width={985}
+              height={892}
+              aria-hidden="true"
+            />
+            <span className="shell-brand__text">
+              <strong>Anatomie Fokus</strong>
+              <em>3D Anatomie</em>
+            </span>
+          </div>
+
           <div className="shell-sidebar__headrow">
             <div className="shell-searchhost"><SearchBar /></div>
             <button

@@ -7,6 +7,22 @@ Format: [Keep a Changelog](https://keepachangelog.com/de/1.0.0/)
 
 ## [Unreleased]
 
+### Added (Marke — Wortmarke als Kopf der Sidebar, Zeichen aus der Rail entfernt)
+- **Die Leiste beginnt jetzt mit der Marke:** Zeichen, darunter „Anatomie Fokus" (Sora 700) und
+  „3D ANATOMIE" gesperrt im Akzent-Orange — dieselbe Lockup-Form wie im Muskelfinder, wo an
+  derselben Stelle „MUSKELFINDER" steht. Der Produktname nimmt den orangen Bogen im Zeichen auf,
+  statt mit der ersten Zeile um Aufmerksamkeit zu streiten.
+- **Das Zeichen ist dafür aus der Icon-Rail verschwunden.** Genau einmal pro Bildschirm:
+  dasselbe Logo zweimal ist kein Branding, sondern ein Versehen. Der Muskelfinder hat beim
+  Einführen seiner Wortmarke genau dieselbe Entscheidung getroffen und begründet
+  (`BrandMark.tsx`). Die Rail gewinnt dadurch 40 px für Werkzeuge.
+- **Der Keil wird nicht mehr gestaucht.** Die Datei ist 985 × 892, also nicht quadratisch; die
+  Rail zwang sie in 36 × 36 und drückte den Keil um rund 10 % zusammen. Jetzt stehen die echten
+  Maße im Markup — der Browser reserviert den richtigen Kasten, kein Layout-Sprung — und das CSS
+  setzt nur die Höhe, die Breite rechnet der Browser.
+- Kein Link: anders als im Muskelfinder gibt es hier keine Startseite, zu der die Marke führen
+  könnte. Ein Logo, das nur so aussieht, als wäre es anklickbar, ist eine Enttäuschung.
+
 ### Changed (Bühne, Ansichts-Cluster, Logo — Nacharbeiten zum Light-Modus)
 - **Bühnenfarbe folgt dem Theme.** Im Light-Modus steht sie auf `#25211e` (rgb 37,33,30) — ein
   warmes Dunkelbraun, das den Papierton der hellen Oberfläche aufnimmt, ohne dem Modell Kontrast

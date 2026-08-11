@@ -26,13 +26,6 @@
   box-shadow: var(--glass-shadow-lg);
 }
 
-.shell-rail__logo {
-  width: 36px; height: 36px;
-  object-fit: contain;
-  margin-bottom: 4px;
-  user-select: none;
-}
-
 .shell-rail__group {
   display: flex;
   flex-direction: column;
@@ -105,6 +98,45 @@
   gap: 10px;
   padding: 12px;
   border-bottom: 1px solid var(--hairline-soft);
+}
+
+/* ── Wortmarke als Kopf der Leiste ───────────────────────────────────────
+   Steht bewusst ÜBER der Suche: sie ist die Überschrift der Leiste, nicht
+   eines ihrer Bedienelemente. Kein Link — anders als im Muskelfinder gibt es
+   hier keine Startseite, zu der sie führen könnte. */
+.shell-brand {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding-bottom: 2px;
+}
+/* Höhe setzen, Breite rechnen lassen — die Datei ist 985 × 892, ein fester
+   quadratischer Kasten würde den Keil stauchen. */
+.shell-brand img {
+  flex: none;
+  height: 34px;
+  width: auto;
+  user-select: none;
+}
+.shell-brand__text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.25;
+  min-width: 0;
+}
+.shell-brand__text strong {
+  font: 700 15.5px/1.25 var(--font-display);
+  letter-spacing: -0.01em;
+  color: var(--text-primary);
+}
+/* Der Produktname darunter: kleiner, gesperrt, im Akzent — er nimmt den orangen
+   Bogen im Zeichen auf, statt mit der ersten Zeile um Aufmerksamkeit zu streiten. */
+.shell-brand__text em {
+  font: 600 10.5px/1.25 var(--font-ui);
+  font-style: normal;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--accent-on-surface);
 }
 
 /* Suche + Einklapp-Knopf in einer Zeile */
