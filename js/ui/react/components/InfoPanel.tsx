@@ -66,10 +66,15 @@ function StructureLabel({ label }: { label: string }) {
   return <>{main}<span className="ip-title__side"> {match[1]}</span></>
 }
 
+// Aufgeklappt als Standard: Muskeln sind der Hauptgrund, warum jemand eine
+// Struktur anfasst — Ursprung und Ansatz hinter einem zweiten Klick zu parken,
+// kostet bei jedem einzelnen Muskel eine Handbewegung. Zuklappen bleibt möglich,
+// und weil React `open` bei gleichbleibendem Prop nicht erneut setzt, hält diese
+// Entscheidung, bis die Auswahl den Block neu aufbaut.
 function MuscleSections({ details }: { details: MfDetails }) {
   if (!details.sections.length) return null
   return (
-    <details className="ip-details">
+    <details className="ip-details" open>
       <summary className="ip-details__summary">
         <span>Details</span>
         <svg className="ip-details__chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">

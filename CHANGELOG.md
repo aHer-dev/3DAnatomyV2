@@ -7,6 +7,21 @@ Format: [Keep a Changelog](https://keepachangelog.com/de/1.0.0/)
 
 ## [Unreleased]
 
+### Changed (Info-Panel — Ursprung und Ansatz stehen sofort da)
+- **Der Details-Aufklapper startet offen.** Muskeln sind der Hauptgrund, warum jemand eine
+  Struktur anfasst; Ursprung, Ansatz, Innervation und klinischer Bezug hinter einem zweiten Klick
+  zu parken, kostete bei **jedem einzelnen** Muskel eine Handbewegung. Ein Klick ins Modell
+  reicht jetzt: Leiste fährt auf, Reiter steht auf „Info", Name und Fachfelder sind da.
+- **Zuklappen bleibt möglich und wird respektiert.** Wer den Block schließt, findet ihn auch bei
+  der nächsten Auswahl geschlossen vor — React setzt `open` bei gleichbleibendem Prop nicht
+  erneut. Am laufenden Build nachgemessen, nicht aus der Doku geschlossen: erste Auswahl offen,
+  nach Zuklappen zu, nächster Muskel weiterhin zu.
+- Der Wechsel auf den Info-Reiter existierte bereits (ADR 0006) und ist unverändert. Neu ist
+  allein, dass der Aufklapper nicht mehr zugeklappt startet.
+- Die Aktionsknöpfe (Ausblenden/Isolieren/Kontext) rutschen bei langem Klinik-Text tiefer,
+  bleiben aber im Sichtfeld; `shell-sidebar__body` scrollt wie vorgesehen. Nachgemessen am
+  M. rectus femoris, dem Eintrag mit dem längsten Text.
+
 ### Fixed (Anatomie — der M. flexor pollicis longus entsprang am falschen Knochen)
 - **Der Ursprung nannte den `Epicondylus medialis humeri` an erster Stelle.** Der FPL entspringt
   an der `Facies anterior` des Radius und an der `Membrana interossea` — der Humerus ist keine
