@@ -7,6 +7,21 @@ Format: [Keep a Changelog](https://keepachangelog.com/de/1.0.0/)
 
 ## [Unreleased]
 
+### Changed (Zurücksetzen wandert in die Rail — und heißt endlich, was es tut)
+- **Der Reset saß in der Ansichts-Leiste und wäre mit ihr verschwunden.** Er steht jetzt in der
+  Icon-Rail, direkt unter dem Auge, und ist damit unabhängig davon erreichbar, ob die Leiste
+  eingeblendet ist.
+- **Nicht dupliziert, sondern umgezogen.** Der Desktop-Float bekommt `showReset={false}` und
+  zeigt nur noch die sechs Blickrichtungen; dasselbe Bedienelement zweimal auf einem Bildschirm
+  ist keine Erleichterung, sondern eine Frage danach, ob die beiden dasselbe tun.
+- **Das Handy behält ihn in der Leiste** — dort gibt es keine Icon-Rail, an die er abgegeben
+  werden könnte. Am 390×844-Format nachgemessen: Sheet öffnet, sieben Knöpfe, Reset dabei.
+- **Umbenannt von „Ansicht zurücksetzen" auf „Alles zurücksetzen".** Der Knopf ruft `resetApp()`,
+  und das ist kein Kamera-Reset: es leert die Sammlung, hebt die Auswahl auf, entfernt **alle**
+  Modelle aus der Szene und lädt Knochen/Knorpel/Zähne neu. Wer Muskeln geladen hatte (465
+  Dateien, rund 25 s) und eine Sammlung angelegt hatte, verliert beides. Ein Knopf, der einen
+  Klick entfernt in der Rail sitzt, muss sagen, was er anrichtet.
+
 ### Added (Ansichts-Leiste — ein Auge in der Rail, direkt unter der Kamera)
 - **Die Kamera-Leiste unten (`.vc-bar`) lässt sich jetzt ein- und ausblenden.** Neues Augen-Symbol
   in der Icon-Rail, unmittelbar unter dem Fotomodus, in derselben Gruppe wie Beschriftungen und
