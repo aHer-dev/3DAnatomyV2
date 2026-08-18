@@ -7,6 +7,20 @@ Format: [Keep a Changelog](https://keepachangelog.com/de/1.0.0/)
 
 ## [Unreleased]
 
+### Added (Ansichts-Leiste — ein Auge in der Rail, direkt unter der Kamera)
+- **Die Kamera-Leiste unten (`.vc-bar`) lässt sich jetzt ein- und ausblenden.** Neues Augen-Symbol
+  in der Icon-Rail, unmittelbar unter dem Fotomodus, in derselben Gruppe wie Beschriftungen und
+  Kamera — es sind alles Schalter über das, was auf der Bühne zu sehen ist.
+- **Standard ist ausgeblendet.** Aus demselben Grund, aus dem die Leiste rechts eingeklappt
+  startet: die App öffnet auf der freien Bühne, das Modell steht ungeschnitten da. Wer die
+  Ansichten braucht, holt sie mit einem Klick; der Knopf zeigt sich dann aktiv.
+- **Das Handy-Sheet bleibt unangetastet.** Dort kommt derselbe Cluster über „Ansicht" in der
+  unteren Tab-Leiste — an den neuen Schalter ist nur der Desktop-Float gehängt, sonst hätte das
+  Auge auf dem Handy einen Weg gekappt, der gar nicht sichtbar ist. Am 390×844-Format
+  nachgemessen: Sheet öffnet, alle sieben Knöpfe da.
+- Vier Store-Tests (`viewBarVisible`, `toggleViewBar`, `setViewBarVisible`) decken Start,
+  Umschalten, Idempotenz und die Unabhängigkeit von Sidebar/Tab/Flyout/Sheet ab — 68 gesamt.
+
 ### Changed (Info-Panel — Ursprung und Ansatz stehen sofort da)
 - **Der Details-Aufklapper startet offen.** Muskeln sind der Hauptgrund, warum jemand eine
   Struktur anfasst; Ursprung, Ansatz, Innervation und klinischer Bezug hinter einem zweiten Klick

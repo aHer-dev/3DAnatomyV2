@@ -116,6 +116,7 @@ export interface StoreState {
   // ─── Overlay-UI (Layout B) ────────────────────────────────────────────────
   sidebarTab: SidebarTab
   sidebarCollapsed: boolean
+  viewBarVisible: boolean
   openFlyout: Flyout
   mobileSheet: MobileSheet
   theme: Theme
@@ -173,6 +174,8 @@ export interface StoreState {
   setSidebarTab: (tab: SidebarTab) => void
   setSidebarCollapsed: (collapsed: boolean) => void
   toggleSidebarCollapsed: () => void
+  setViewBarVisible: (visible: boolean) => void
+  toggleViewBar: () => void
   setTheme: (theme: Theme) => void
   toggleTheme: () => void
   openFlyoutExclusive: (name: Exclude<Flyout, null>) => void
@@ -225,6 +228,9 @@ const useStore = createStore<StoreState>((set, get) => ({
   // ungeschnitten da. Die Leiste kommt auf Wunsch über den Griff am Rand —
   // oder von selbst, sobald eine Struktur ausgewählt wird.
   sidebarCollapsed: true,
+  // Aus dem gleichen Grund wie die Leiste: die App oeffnet auf der freien Buehne.
+  // Die Ansichts-Leiste kommt ueber das Auge in der Rail, direkt unter der Kamera.
+  viewBarVisible: false,
   openFlyout: null,
   mobileSheet: null,
   theme: 'light',
@@ -353,6 +359,8 @@ const useStore = createStore<StoreState>((set, get) => ({
   setSidebarTab: (tab) => set({ sidebarTab: tab }),
   setSidebarCollapsed: (collapsed) => set({ sidebarCollapsed: collapsed }),
   toggleSidebarCollapsed: () => set(s => ({ sidebarCollapsed: !s.sidebarCollapsed })),
+  setViewBarVisible: (visible) => set({ viewBarVisible: visible }),
+  toggleViewBar: () => set(s => ({ viewBarVisible: !s.viewBarVisible })),
   setTheme: (theme) => set({ theme }),
   toggleTheme: () => set(s => ({ theme: s.theme === 'light' ? 'dark' : 'light' })),
   openFlyoutExclusive: (name) => set({ openFlyout: name, mobileSheet: null }),

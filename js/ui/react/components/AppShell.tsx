@@ -55,6 +55,7 @@ const I = {
   labels: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>,
   layers: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>,
   cube: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>,
+  eye: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>,
   photo: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>,
   settings: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>,
   chevronRight: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>,
@@ -102,6 +103,8 @@ export function AppShell() {
   const openFlyout      = useReactStore(s => s.openFlyout)
   const mobileSheet     = useReactStore(s => s.mobileSheet)
   const setSidebarTab       = useReactStore(s => s.setSidebarTab)
+  const viewBarVisible      = useReactStore(s => s.viewBarVisible)
+  const toggleViewBar       = useReactStore(s => s.toggleViewBar)
   const setSidebarCollapsed    = useReactStore(s => s.setSidebarCollapsed)
   const toggleSidebarCollapsed = useReactStore(s => s.toggleSidebarCollapsed)
   const theme       = useReactStore(s => s.theme)
@@ -214,6 +217,7 @@ export function AppShell() {
         <div className="shell-rail__group">
           {railBtn('labels', labelsOn, 'Beschriftungen', () => setLabelsOn(toggleLabels()))}
           {railBtn('photo',  false,    'Fotomodus',        () => enterPhotoMode())}
+          {railBtn('eye',    viewBarVisible, 'Ansichts-Leiste', () => toggleViewBar())}
         </div>
 
         <button
@@ -333,7 +337,7 @@ export function AppShell() {
       {/* ── Unten-mittig: Ansichts-Cluster, in der Isolation der Untertitel (Frame 2e).
              Mobil ist der Float-Cluster ausgeblendet (→ „Ansicht"-Sheet). Er steht fest
              in der Fenstermitte und weicht nichts mehr aus — siehe view-cluster.css. ── */}
-      {isolationActive ? <IsolationSubtitle /> : <ViewCluster />}
+      {isolationActive ? <IsolationSubtitle /> : (viewBarVisible && <ViewCluster />)}
 
       {/* ── Settings-Flyout links neben der Rail (S8, Frame 2f) · mobil als Sheet ── */}
       {openFlyout === 'settings' && <SettingsPanel onClose={closeFlyout} />}

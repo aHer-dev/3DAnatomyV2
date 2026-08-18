@@ -5,6 +5,7 @@ import type { CollectionItem, MetaEntry } from '../types/index.js'
 
 // Startwerte gleich beim Import festhalten — die Tests weiter unten verstellen sie.
 const INITIAL_SIDEBAR_COLLAPSED = store.getState().sidebarCollapsed
+const INITIAL_VIEWBAR_VISIBLE = store.getState().viewBarVisible
 const INITIAL_THEME = store.getState().theme
 
 const mockMesh = () => ({ uuid: crypto.randomUUID(), type: 'Mesh', name: 'testMesh', isMesh: true }) as unknown as THREE.Object3D
@@ -467,5 +468,43 @@ describe('Loading', () => {
     expect(loading.active).toBe(false)
     expect(loading.progress).toBe(100)
     expect(loading.label).toBe('x')
+  })
+})
+
+// ─── Ansichts-Leiste (Auge in der Rail) ────────────────────────────────────────
+
+describe('Ansichts-Leiste', () => {
+  beforeEach(() => {
+    store.setState({ viewBarVisible: false })
+  })
+
+  it('startet ausgeblendet — die App öffnet auf der freien Bühne', () => {
+    expect(INITIAL_VIEWBAR_VISIBLE).toBe(false)
+  })
+
+  it('toggle schaltet hin und zurück', () => {
+    store.getState().toggleViewBar()
+    expect(store.getState().viewBarVisible).toBe(true)
+    store.getState().toggleViewBar()
+    expect(store.getState().viewBarVisible).toBe(false)
+  })
+
+  it('setzt den Zustand direkt und ist idempotent', () => {
+    store.getState().setViewBarVisible(true)
+    store.getState().setViewBarVisible(true)
+    expect(store.getState().viewBarVisible).toBe(true)
+    store.getState().setViewBarVisible(false)
+    expect(store.getState().viewBarVisible).toBe(false)
+  })
+
+  it('rührt Sidebar, Tab, Flyout und Mobile-Sheet nicht an', () => {
+    store.setState({ sidebarCollapsed: true, sidebarTab: 'collection', openFlyout: 'settings', mobileSheet: 'view' })
+    store.getState().toggleViewBar()
+    expect(store.getState().viewBarVisible).toBe(true)
+    expect(store.getState().sidebarCollapsed).toBe(true)
+    expect(store.getState().sidebarTab).toBe('collection')
+    expect(store.getState().openFlyout).toBe('settings')
+    // Das Handy-Sheet haengt an der Tab-Leiste, nicht an diesem Schalter.
+    expect(store.getState().mobileSheet).toBe('view')
   })
 })
