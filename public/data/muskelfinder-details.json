@@ -1,12 +1,12 @@
 {
   "version": 1,
-  "generatedAt": "2026-04-08T21:07:30.394Z",
+  "generatedAt": "2026-08-18T19:16:35.136Z",
   "source": "scripts/build-muskelfinder-map.js",
   "summary": {
     "totalDetailEntries": 150,
-    "mappedDetailEntries": 121,
-    "unmappedDetailEntries": 29,
-    "mappedModelIds": 290,
+    "mappedDetailEntries": 129,
+    "unmappedDetailEntries": 21,
+    "mappedModelIds": 306,
     "mappingConflicts": 0
   },
   "entries": [
@@ -3140,7 +3140,7 @@
           "label": "Ursprung",
           "items": [
             {
-              "text": "Epicondylus medialis humeri, ventrale Seite des Radius und Membrana interossea"
+              "text": "Facies anterior des Radius und Membrana interossea"
             }
           ]
         },
@@ -10012,6 +10012,8 @@
     "fma46444": "m_coccygeus__wirbelsaeule__beckenboden",
     "fma37665": "m_coracobrachialis__obere_extremitaet__schulter",
     "fma37666": "m_coracobrachialis__obere_extremitaet__schulter",
+    "fma46796": "m_corrugator_supercilii__kopf_hals__mimikmuskulatur",
+    "fma46797": "m_corrugator_supercilii__kopf_hals__mimikmuskulatur",
     "fma34680": "m_deltoideus__obere_extremitaet__schulter",
     "fma34681": "m_deltoideus__obere_extremitaet__schulter",
     "fma34682": "m_deltoideus__obere_extremitaet__schulter",
@@ -10096,12 +10098,16 @@
     "fma22323": "m_iliacus__untere_extremitaet__huefte",
     "fma32547": "m_infraspinatus__obere_extremitaet__schulter",
     "fma32548": "m_infraspinatus__obere_extremitaet__schulter",
+    "fma13358": "m_latissimus_dorsi__obere_extremitaet__schulter",
+    "fma13359": "m_latissimus_dorsi__obere_extremitaet__schulter",
     "fma32540": "m_levator_scapulae__obere_extremitaet__schulter",
     "fma32541": "m_levator_scapulae__obere_extremitaet__schulter",
     "fma46309": "m_longus_capitis__kopf_hals__praevertebralis",
     "fma46310": "m_longus_capitis__kopf_hals__praevertebralis",
     "fma46321": "m_mylohyoideus__kopf_hals__suprahyoidal",
     "fma46322": "m_mylohyoideus__kopf_hals__suprahyoidal",
+    "fma55606": "m_nasalis__kopf_hals__mimikmuskulatur",
+    "fma55607": "m_nasalis__kopf_hals__mimikmuskulatur",
     "fma13336": "m_obliquus_externus_abdominis__wirbelsaeule__bauch",
     "fma13337": "m_obliquus_externus_abdominis__wirbelsaeule__bauch",
     "fma22326": "m_obturatorius_externus__untere_extremitaet__huefte",
@@ -10134,6 +10140,8 @@
     "fma22561": "m_plantaris__untere_extremitaet__fuss",
     "fma22591": "m_popliteus__untere_extremitaet__knie",
     "fma22592": "m_popliteus__untere_extremitaet__knie",
+    "fma55610": "m_procerus__kopf_hals__mimikmuskulatur",
+    "fma55611": "m_procerus__kopf_hals__mimikmuskulatur",
     "fma38454": "m_pronator_quadratus__obere_extremitaet__ellenbogen",
     "fma38455": "m_pronator_quadratus__obere_extremitaet__ellenbogen",
     "fma38560": "m_pronator_teres__obere_extremitaet__ellenbogen",
@@ -10142,10 +10150,14 @@
     "fma38563": "m_pronator_teres__obere_extremitaet__ellenbogen",
     "fma22342": "m_psoas_major__untere_extremitaet__huefte",
     "fma22343": "m_psoas_major__untere_extremitaet__huefte",
+    "fma49012": "m_pterygoideus_medialis__kopf_hals__kaumuskulatur",
+    "fma49013": "m_pterygoideus_medialis__kopf_hals__kaumuskulatur",
     "fma22338": "m_quadratus_femoris__untere_extremitaet__huefte",
     "fma22339": "m_quadratus_femoris__untere_extremitaet__huefte",
     "fma37465": "m_quadratus_plantae__untere_extremitaet__fuss",
     "fma37466": "m_quadratus_plantae__untere_extremitaet__fuss",
+    "fma13377": "m_rectus_abdominis__wirbelsaeule__bauch",
+    "fma13378": "m_rectus_abdominis__wirbelsaeule__bauch",
     "fma38928": "m_rectus_femoris__untere_extremitaet__knie",
     "fma38929": "m_rectus_femoris__untere_extremitaet__knie",
     "fma13381": "m_rhomboideus_major__obere_extremitaet__schulter",
@@ -10188,6 +10200,8 @@
     "fma38514": "m_supinator__obere_extremitaet__ellenbogen",
     "fma32544": "m_supraspinatus__obere_extremitaet__schulter",
     "fma32545": "m_supraspinatus__obere_extremitaet__schulter",
+    "fma49007": "m_temporalis__kopf_hals__kaumuskulatur",
+    "fma49008": "m_temporalis__kopf_hals__kaumuskulatur",
     "fma22425": "m_tensor_fasciae_latae__untere_extremitaet__huefte",
     "fma22426": "m_tensor_fasciae_latae__untere_extremitaet__huefte",
     "fma32551": "m_teres_major__obere_extremitaet__schulter",
@@ -10200,6 +10214,8 @@
     "fma22545": "m_tibialis_anterior__untere_extremitaet__fuss",
     "fma65018": "m_tibialis_posterior__untere_extremitaet__fuss",
     "fma65019": "m_tibialis_posterior__untere_extremitaet__fuss",
+    "fma22344": "m_transversus_abdominis__wirbelsaeule__bauch",
+    "fma22345": "m_transversus_abdominis__wirbelsaeule__bauch",
     "fma33581": "m_trapezius_pars_ascendens__obere_extremitaet__schulter",
     "fma33583": "m_trapezius_pars_ascendens__obere_extremitaet__schulter",
     "fma33586": "m_trapezius_pars_descendens__obere_extremitaet__schulter",

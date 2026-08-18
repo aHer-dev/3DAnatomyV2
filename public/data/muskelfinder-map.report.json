@@ -1,15 +1,15 @@
 {
   "version": 1,
-  "generatedAt": "2026-04-08T21:07:30.386Z",
+  "generatedAt": "2026-08-18T19:16:35.132Z",
   "source": "scripts/build-muskelfinder-map.js",
   "summary": {
     "muskelfinderMuscles": 150,
-    "metaMuscleEntries": 410,
+    "metaMuscleEntries": 464,
     "manualEntries": 5,
-    "exactMatches": 116,
-    "ambiguousMatches": 1,
-    "missingMatches": 28,
-    "autoCoveragePercent": 80.7
+    "exactMatches": 125,
+    "ambiguousMatches": 3,
+    "missingMatches": 17,
+    "autoCoveragePercent": 86.7
   },
   "exactMatches": [
     {
@@ -140,6 +140,22 @@
         "fma79980"
       ],
       "source": "generated-group",
+      "region": "obere-extremitaet",
+      "subgroup": "schulter",
+      "sourceFile": "obere-extremitaet.json"
+    },
+    {
+      "muscleKey": "m_latissimus_dorsi",
+      "group": "muscles",
+      "muskelfinderNames": [
+        "M. latissimus dorsi"
+      ],
+      "latinLabel": "Musculus latissimus dorsi",
+      "ids": [
+        "fma13358",
+        "fma13359"
+      ],
+      "source": "generated-alias",
       "region": "obere-extremitaet",
       "subgroup": "schulter",
       "sourceFile": "obere-extremitaet.json"
@@ -1709,6 +1725,22 @@
       "sourceFile": "wirbelsaeule.json"
     },
     {
+      "muscleKey": "m_rectus_abdominis",
+      "group": "muscles",
+      "muskelfinderNames": [
+        "M. rectus abdominis"
+      ],
+      "latinLabel": "Musculus rectus abdominis",
+      "ids": [
+        "fma13377",
+        "fma13378"
+      ],
+      "source": "generated-alias",
+      "region": "wirbelsaeule",
+      "subgroup": "bauch",
+      "sourceFile": "wirbelsaeule.json"
+    },
+    {
       "muscleKey": "m_obliquus_externus_abdominis",
       "group": "muscles",
       "muskelfinderNames": [
@@ -1718,6 +1750,22 @@
       "ids": [
         "fma13336",
         "fma13337"
+      ],
+      "source": "generated-alias",
+      "region": "wirbelsaeule",
+      "subgroup": "bauch",
+      "sourceFile": "wirbelsaeule.json"
+    },
+    {
+      "muscleKey": "m_transversus_abdominis",
+      "group": "muscles",
+      "muskelfinderNames": [
+        "M. transversus abdominis"
+      ],
+      "latinLabel": "Musculus transversus abdominis",
+      "ids": [
+        "fma22344",
+        "fma22345"
       ],
       "source": "generated-alias",
       "region": "wirbelsaeule",
@@ -1739,6 +1787,38 @@
       "region": "wirbelsaeule",
       "subgroup": "beckenboden",
       "sourceFile": "wirbelsaeule.json"
+    },
+    {
+      "muscleKey": "m_temporalis",
+      "group": "muscles",
+      "muskelfinderNames": [
+        "M. temporalis"
+      ],
+      "latinLabel": "Musculus temporalis",
+      "ids": [
+        "fma49007",
+        "fma49008"
+      ],
+      "source": "generated-alias",
+      "region": "kopf-hals",
+      "subgroup": "kaumuskulatur",
+      "sourceFile": "kopf-hals.json"
+    },
+    {
+      "muscleKey": "m_pterygoideus_medialis",
+      "group": "muscles",
+      "muskelfinderNames": [
+        "M. pterygoideus medialis"
+      ],
+      "latinLabel": "Musculus pterygoideus medialis",
+      "ids": [
+        "fma49012",
+        "fma49013"
+      ],
+      "source": "generated-alias",
+      "region": "kopf-hals",
+      "subgroup": "kaumuskulatur",
+      "sourceFile": "kopf-hals.json"
     },
     {
       "muscleKey": "m_mylohyoideus",
@@ -1901,6 +1981,70 @@
       "sourceFile": "kopf-hals.json"
     },
     {
+      "muscleKey": "m_procerus",
+      "group": "muscles",
+      "muskelfinderNames": [
+        "M. procerus"
+      ],
+      "latinLabel": "Musculus procerus",
+      "ids": [
+        "fma55610",
+        "fma55611"
+      ],
+      "source": "generated-alias",
+      "region": "kopf-hals",
+      "subgroup": "mimikmuskulatur",
+      "sourceFile": "kopf-hals.json"
+    },
+    {
+      "muscleKey": "m_nasalis",
+      "group": "muscles",
+      "muskelfinderNames": [
+        "M. nasalis"
+      ],
+      "latinLabel": "Musculus nasalis",
+      "ids": [
+        "fma55606",
+        "fma55607"
+      ],
+      "source": "generated-alias",
+      "region": "kopf-hals",
+      "subgroup": "mimikmuskulatur",
+      "sourceFile": "kopf-hals.json"
+    },
+    {
+      "muscleKey": "m_nasalis",
+      "group": "muscles",
+      "muskelfinderNames": [
+        "M. nasalis"
+      ],
+      "latinLabel": "Musculus nasalis",
+      "ids": [
+        "fma55606",
+        "fma55607"
+      ],
+      "source": "generated-alias",
+      "region": "kopf-hals",
+      "subgroup": "mimikmuskulatur",
+      "sourceFile": "kopf-hals.json"
+    },
+    {
+      "muscleKey": "m_corrugator_supercilii",
+      "group": "muscles",
+      "muskelfinderNames": [
+        "M. corrugator supercilii"
+      ],
+      "latinLabel": "Musculus corrugator supercilii",
+      "ids": [
+        "fma46796",
+        "fma46797"
+      ],
+      "source": "generated-alias",
+      "region": "kopf-hals",
+      "subgroup": "mimikmuskulatur",
+      "sourceFile": "kopf-hals.json"
+    },
+    {
       "muscleKey": "m_platysma",
       "group": "muscles",
       "muskelfinderNames": [
@@ -1934,17 +2078,43 @@
           "englishLabel": "Medial lumbar intertransversarius"
         }
       ]
+    },
+    {
+      "muscleKey": "m_obliquus_internus_abdominis",
+      "name": "M. obliquus internus abdominis",
+      "region": "wirbelsaeule",
+      "subgroup": "bauch",
+      "sourceFile": "wirbelsaeule.json",
+      "matchCount": 1,
+      "candidates": [
+        {
+          "id": "fma13892",
+          "group": "muscles",
+          "side": "right",
+          "latinLabel": "Musculus obliquus internus abdominis",
+          "englishLabel": "Right internal oblique"
+        }
+      ]
+    },
+    {
+      "muscleKey": "m_orbicularis_oris",
+      "name": "M. orbicularis oris",
+      "region": "kopf-hals",
+      "subgroup": "mimikmuskulatur",
+      "sourceFile": "kopf-hals.json",
+      "matchCount": 1,
+      "candidates": [
+        {
+          "id": "fma46841",
+          "group": "muscles",
+          "side": "",
+          "latinLabel": "Musculus orbicularis oris",
+          "englishLabel": "Orbicularis oris"
+        }
+      ]
     }
   ],
   "missingMatches": [
-    {
-      "muscleKey": "m_latissimus_dorsi",
-      "name": "M. latissimus dorsi",
-      "region": "obere-extremitaet",
-      "subgroup": "schulter",
-      "sourceFile": "obere-extremitaet.json",
-      "reason": "no-meta-match"
-    },
     {
       "muscleKey": "m_palmaris_brevis",
       "name": "M. palmaris brevis",
@@ -2002,30 +2172,6 @@
       "reason": "no-meta-match"
     },
     {
-      "muscleKey": "m_rectus_abdominis",
-      "name": "M. rectus abdominis",
-      "region": "wirbelsaeule",
-      "subgroup": "bauch",
-      "sourceFile": "wirbelsaeule.json",
-      "reason": "no-meta-match"
-    },
-    {
-      "muscleKey": "m_obliquus_internus_abdominis",
-      "name": "M. obliquus internus abdominis",
-      "region": "wirbelsaeule",
-      "subgroup": "bauch",
-      "sourceFile": "wirbelsaeule.json",
-      "reason": "no-meta-match"
-    },
-    {
-      "muscleKey": "m_transversus_abdominis",
-      "name": "M. transversus abdominis",
-      "region": "wirbelsaeule",
-      "subgroup": "bauch",
-      "sourceFile": "wirbelsaeule.json",
-      "reason": "no-meta-match"
-    },
-    {
       "muscleKey": "m_quadratus_lumborum",
       "name": "M. quadratus lumborum",
       "region": "wirbelsaeule",
@@ -2066,22 +2212,6 @@
       "reason": "no-meta-match"
     },
     {
-      "muscleKey": "m_temporalis",
-      "name": "M. temporalis",
-      "region": "kopf-hals",
-      "subgroup": "kaumuskulatur",
-      "sourceFile": "kopf-hals.json",
-      "reason": "no-meta-match"
-    },
-    {
-      "muscleKey": "m_pterygoideus_medialis",
-      "name": "M. pterygoideus medialis",
-      "region": "kopf-hals",
-      "subgroup": "kaumuskulatur",
-      "sourceFile": "kopf-hals.json",
-      "reason": "no-meta-match"
-    },
-    {
       "muscleKey": "m_pterygoideus_lateralis",
       "name": "M. pterygoideus lateralis",
       "region": "kopf-hals",
@@ -2098,48 +2228,8 @@
       "reason": "no-meta-match"
     },
     {
-      "muscleKey": "m_orbicularis_oris",
-      "name": "M. orbicularis oris",
-      "region": "kopf-hals",
-      "subgroup": "mimikmuskulatur",
-      "sourceFile": "kopf-hals.json",
-      "reason": "no-meta-match"
-    },
-    {
       "muscleKey": "m_orbicularis_oculi",
       "name": "M. orbicularis oculi",
-      "region": "kopf-hals",
-      "subgroup": "mimikmuskulatur",
-      "sourceFile": "kopf-hals.json",
-      "reason": "no-meta-match"
-    },
-    {
-      "muscleKey": "m_procerus",
-      "name": "M. procerus",
-      "region": "kopf-hals",
-      "subgroup": "mimikmuskulatur",
-      "sourceFile": "kopf-hals.json",
-      "reason": "no-meta-match"
-    },
-    {
-      "muscleKey": "m_nasalis",
-      "name": "M. nasalis",
-      "region": "kopf-hals",
-      "subgroup": "mimikmuskulatur",
-      "sourceFile": "kopf-hals.json",
-      "reason": "no-meta-match"
-    },
-    {
-      "muscleKey": "m_nasalis",
-      "name": "M. nasalis",
-      "region": "kopf-hals",
-      "subgroup": "mimikmuskulatur",
-      "sourceFile": "kopf-hals.json",
-      "reason": "no-meta-match"
-    },
-    {
-      "muscleKey": "m_corrugator_supercilii",
-      "name": "M. corrugator supercilii",
       "region": "kopf-hals",
       "subgroup": "mimikmuskulatur",
       "sourceFile": "kopf-hals.json",

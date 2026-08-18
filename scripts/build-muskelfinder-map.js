@@ -2,11 +2,11 @@
 /**
  * build-muskelfinder-map.js
  *
- * Liest die Muskelfinder-Datenquellen sowie data/meta.json aus 3DAnatomy und
+ * Liest die Muskelfinder-Datenquellen sowie public/data/meta.json aus 3DAnatomy und
  * erzeugt:
- *   - data/muskelfinder-map.json
- *   - data/muskelfinder-map.generated.json
- *   - data/muskelfinder-map.report.json
+ *   - public/data/muskelfinder-map.json
+ *   - public/data/muskelfinder-map.generated.json
+ *   - public/data/muskelfinder-map.report.json
  *
  * Ziel:
  *   - bestehende manuelle Zuordnungen aus muskelfinder-map.manual.json beibehalten
@@ -17,18 +17,20 @@
  *   node scripts/build-muskelfinder-map.js
  */
 
-const fs = require('fs');
-const path = require('path');
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
-const ROOT_DIR = path.join(__dirname, '..');
-const META_FILE = path.join(ROOT_DIR, 'data', 'meta.json');
-const MAP_FILE = path.join(ROOT_DIR, 'data', 'muskelfinder-map.json');
-const MANUAL_MAP_FILE = path.join(ROOT_DIR, 'data', 'muskelfinder-map.manual.json');
-const GENERATED_MAP_FILE = path.join(ROOT_DIR, 'data', 'muskelfinder-map.generated.json');
-const REPORT_FILE = path.join(ROOT_DIR, 'data', 'muskelfinder-map.report.json');
-const DETAILS_FILE = path.join(ROOT_DIR, 'data', 'muskelfinder-details.json');
+const ROOT_DIR = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
+const DATA_DIR = path.join(ROOT_DIR, 'public', 'data');
+const META_FILE = path.join(DATA_DIR, 'meta.json');
+const MAP_FILE = path.join(DATA_DIR, 'muskelfinder-map.json');
+const MANUAL_MAP_FILE = path.join(DATA_DIR, 'muskelfinder-map.manual.json');
+const GENERATED_MAP_FILE = path.join(DATA_DIR, 'muskelfinder-map.generated.json');
+const REPORT_FILE = path.join(DATA_DIR, 'muskelfinder-map.report.json');
+const DETAILS_FILE = path.join(DATA_DIR, 'muskelfinder-details.json');
 
-const MUSKELFINDER_DIR = path.join(ROOT_DIR, '..', 'Muskelfinder', 'data');
+const MUSKELFINDER_DIR = path.join(ROOT_DIR, '..', '..', 'Muskelfinder', 'data');
 const MUSKELFINDER_FILES = [
   'obere-extremitaet.json',
   'untere-extremitaet.json',

@@ -7,6 +7,34 @@ Format: [Keep a Changelog](https://keepachangelog.com/de/1.0.0/)
 
 ## [Unreleased]
 
+### Fixed (Anatomie — der M. flexor pollicis longus entsprang am falschen Knochen)
+- **Der Ursprung nannte den `Epicondylus medialis humeri` an erster Stelle.** Der FPL entspringt
+  an der `Facies anterior` des Radius und an der `Membrana interossea` — der Humerus ist keine
+  Ursprungsfläche dieses Muskels. Nachgeschlagen bei DocCheck Flexikon und Kenhub, beide
+  deutschsprachig und übereinstimmend.
+- **Die Daten widersprachen sich selbst.** Jeder andere Muskel des Datensatzes mit Ursprung am
+  Epicondylus medialis führt `Art. cubiti` in den Gelenken — Pronator teres, Flexor carpi
+  radialis und ulnaris, Palmaris longus, Flexor digitorum superficialis. Nur der FPL nicht, weil
+  er den Ellenbogen tatsächlich nicht überquert. Die Gelenkliste war richtig, der Ursprung falsch.
+- **Der akzessorische Kopf bleibt bewusst draußen.** Es gibt ihn (Gantzer-Muskel, vom Processus
+  coronoideus oder Epicondylus medialis, in Studien bis zu zwei Dritteln der Präparate) — aber
+  als Variante. Sie an erster Stelle als *den* Ursprung zu führen, dreht Regel und Ausnahme um.
+- Korrigiert in der Quelle (`Muskelfinder/data/obere-extremitaet.json`, Feld `Origin` und
+  `easy.Origin`), nicht im generierten Ergebnis: eine Korrektur hier allein hielte bis zum
+  nächsten Generatorlauf.
+
+### Fixed (Der Kartengenerator war seit der Vite-Umstellung nicht lauffähig)
+- **`npm run build:muskelfinder-map` brach sofort ab.** Drei Brüche übereinander: das Skript ist
+  CommonJS (`require`), das Projekt trägt längst `"type": "module"`; es las aus `data/`, während
+  die Daten unter `public/data/` liegen; und es suchte die Quelle in `../Muskelfinder`, die seit
+  der Umstrukturierung eine Ebene höher liegt. Alle drei behoben, das Skript ist jetzt ESM.
+- **Dadurch lagen die Daten seit April 2026 brach.** Der erste erfolgreiche Lauf holt acht
+  Muskeln nach, die die Quelle inzwischen kennt und die Karte nie erhielt: Corrugator supercilii,
+  Latissimus dorsi, Nasalis, Procerus, Pterygoideus medialis, Rectus abdominis, Temporalis,
+  Transversus abdominis — 16 Modell-IDs, links und rechts vollständig gepaart. Alle gegen
+  `meta.json` gegengeprüft. Nichts ist weggefallen, keine bestehende Zuordnung hat sich
+  verschoben. Automatische Abdeckung 86,7 %.
+
 ### Added (Marke — Wortmarke als Kopf der Sidebar, Zeichen aus der Rail entfernt)
 - **Die Leiste beginnt jetzt mit der Marke:** Zeichen, darunter „Anatomie Fokus" (Sora 700) und
   „3D ANATOMIE" gesperrt im Akzent-Orange — dieselbe Lockup-Form wie im Muskelfinder, wo an

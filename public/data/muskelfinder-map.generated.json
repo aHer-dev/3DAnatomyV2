@@ -1,12 +1,12 @@
 {
   "version": 1,
-  "generatedAt": "2026-04-08T21:07:30.386Z",
+  "generatedAt": "2026-08-18T19:16:35.132Z",
   "source": "scripts/build-muskelfinder-map.js",
   "manualSource": "muskelfinder-map.manual.json",
   "summary": {
     "manualEntries": 5,
-    "generatedExactEntries": 116,
-    "totalEntries": 121
+    "generatedExactEntries": 125,
+    "totalEntries": 130
   },
   "entries": [
     {
@@ -300,6 +300,22 @@
       "region": "obere-extremitaet",
       "subgroup": "schulter",
       "detailKey": "m_coracobrachialis__obere_extremitaet__schulter"
+    },
+    {
+      "muscleKey": "m_corrugator_supercilii",
+      "group": "muscles",
+      "muskelfinderNames": [
+        "M. corrugator supercilii"
+      ],
+      "latinLabel": "Musculus corrugator supercilii",
+      "ids": [
+        "fma46796",
+        "fma46797"
+      ],
+      "source": "generated-alias",
+      "region": "kopf-hals",
+      "subgroup": "mimikmuskulatur",
+      "detailKey": "m_corrugator_supercilii__kopf_hals__mimikmuskulatur"
     },
     {
       "muscleKey": "m_deltoideus",
@@ -900,6 +916,22 @@
       "detailKey": "m_infraspinatus__obere_extremitaet__schulter"
     },
     {
+      "muscleKey": "m_latissimus_dorsi",
+      "group": "muscles",
+      "muskelfinderNames": [
+        "M. latissimus dorsi"
+      ],
+      "latinLabel": "Musculus latissimus dorsi",
+      "ids": [
+        "fma13358",
+        "fma13359"
+      ],
+      "source": "generated-alias",
+      "region": "obere-extremitaet",
+      "subgroup": "schulter",
+      "detailKey": "m_latissimus_dorsi__obere_extremitaet__schulter"
+    },
+    {
       "muscleKey": "m_levator_scapulae",
       "group": "muscles",
       "muskelfinderNames": [
@@ -946,6 +978,38 @@
       "region": "kopf-hals",
       "subgroup": "suprahyoidal",
       "detailKey": "m_mylohyoideus__kopf_hals__suprahyoidal"
+    },
+    {
+      "muscleKey": "m_nasalis",
+      "group": "muscles",
+      "muskelfinderNames": [
+        "M. nasalis"
+      ],
+      "latinLabel": "Musculus nasalis",
+      "ids": [
+        "fma55606",
+        "fma55607"
+      ],
+      "source": "generated-alias",
+      "region": "kopf-hals",
+      "subgroup": "mimikmuskulatur",
+      "detailKey": "m_nasalis__kopf_hals__mimikmuskulatur"
+    },
+    {
+      "muscleKey": "m_nasalis",
+      "group": "muscles",
+      "muskelfinderNames": [
+        "M. nasalis"
+      ],
+      "latinLabel": "Musculus nasalis",
+      "ids": [
+        "fma55606",
+        "fma55607"
+      ],
+      "source": "generated-alias",
+      "region": "kopf-hals",
+      "subgroup": "mimikmuskulatur",
+      "detailKey": "m_nasalis__kopf_hals__mimikmuskulatur"
     },
     {
       "muscleKey": "m_obliquus_externus_abdominis",
@@ -1176,6 +1240,22 @@
       "detailKey": "m_popliteus__untere_extremitaet__knie"
     },
     {
+      "muscleKey": "m_procerus",
+      "group": "muscles",
+      "muskelfinderNames": [
+        "M. procerus"
+      ],
+      "latinLabel": "Musculus procerus",
+      "ids": [
+        "fma55610",
+        "fma55611"
+      ],
+      "source": "generated-alias",
+      "region": "kopf-hals",
+      "subgroup": "mimikmuskulatur",
+      "detailKey": "m_procerus__kopf_hals__mimikmuskulatur"
+    },
+    {
       "muscleKey": "m_pronator_quadratus",
       "group": "muscles",
       "muskelfinderNames": [
@@ -1224,6 +1304,22 @@
       "detailKey": "m_psoas_major__untere_extremitaet__huefte"
     },
     {
+      "muscleKey": "m_pterygoideus_medialis",
+      "group": "muscles",
+      "muskelfinderNames": [
+        "M. pterygoideus medialis"
+      ],
+      "latinLabel": "Musculus pterygoideus medialis",
+      "ids": [
+        "fma49012",
+        "fma49013"
+      ],
+      "source": "generated-alias",
+      "region": "kopf-hals",
+      "subgroup": "kaumuskulatur",
+      "detailKey": "m_pterygoideus_medialis__kopf_hals__kaumuskulatur"
+    },
+    {
       "muscleKey": "m_quadratus_femoris",
       "group": "muscles",
       "muskelfinderNames": [
@@ -1254,6 +1350,22 @@
       "region": "untere-extremitaet",
       "subgroup": "fuss",
       "detailKey": "m_quadratus_plantae__untere_extremitaet__fuss"
+    },
+    {
+      "muscleKey": "m_rectus_abdominis",
+      "group": "muscles",
+      "muskelfinderNames": [
+        "M. rectus abdominis"
+      ],
+      "latinLabel": "Musculus rectus abdominis",
+      "ids": [
+        "fma13377",
+        "fma13378"
+      ],
+      "source": "generated-alias",
+      "region": "wirbelsaeule",
+      "subgroup": "bauch",
+      "detailKey": "m_rectus_abdominis__wirbelsaeule__bauch"
     },
     {
       "muscleKey": "m_rectus_femoris",
@@ -1560,6 +1672,22 @@
       "detailKey": "m_supraspinatus__obere_extremitaet__schulter"
     },
     {
+      "muscleKey": "m_temporalis",
+      "group": "muscles",
+      "muskelfinderNames": [
+        "M. temporalis"
+      ],
+      "latinLabel": "Musculus temporalis",
+      "ids": [
+        "fma49007",
+        "fma49008"
+      ],
+      "source": "generated-alias",
+      "region": "kopf-hals",
+      "subgroup": "kaumuskulatur",
+      "detailKey": "m_temporalis__kopf_hals__kaumuskulatur"
+    },
+    {
       "muscleKey": "m_tensor_fasciae_latae",
       "group": "muscles",
       "muskelfinderNames": [
@@ -1654,6 +1782,22 @@
       "region": "untere-extremitaet",
       "subgroup": "fuss",
       "detailKey": "m_tibialis_posterior__untere_extremitaet__fuss"
+    },
+    {
+      "muscleKey": "m_transversus_abdominis",
+      "group": "muscles",
+      "muskelfinderNames": [
+        "M. transversus abdominis"
+      ],
+      "latinLabel": "Musculus transversus abdominis",
+      "ids": [
+        "fma22344",
+        "fma22345"
+      ],
+      "source": "generated-alias",
+      "region": "wirbelsaeule",
+      "subgroup": "bauch",
+      "detailKey": "m_transversus_abdominis__wirbelsaeule__bauch"
     },
     {
       "muscleKey": "m_trapezius_pars_ascendens",
