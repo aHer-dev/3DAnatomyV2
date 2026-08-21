@@ -7,6 +7,77 @@ Format: [Keep a Changelog](https://keepachangelog.com/de/1.0.0/)
 
 ## [Unreleased]
 
+### Fixed (Beschriftungen: begrenzt statt alles auf einmal)
+- **Es wurden ALLE Strukturen beschriftet, nicht die sichtbaren und nicht wenige.**
+  `_buildLabels()` lief über jeden Root jeder Gruppe. Die Isolation blendet Knochen,
+  Zähne, Knorpel und Bänder ja bewusst wieder ein — das waren rund **297 dunkle Kästen
+  gleichzeitig**, und CSS2D kennt keine Verdeckung: ein Label hinter dem Becken liegt
+  trotzdem obendrauf. Auf dem Handy ein Brei über dem Modell.
+- **Jetzt: nur sichtbare Strukturen, davon die der Kamera nächsten bis `MAX_LABELS` (12)** —
+  plus Auswahl und Isolation, die immer dabei sind, egal wie weit weg sie stehen. Die Regel
+  liegt als reine Funktion in `labelRanking.ts` (5 Tests); `labels.js` bleibt der Renderer.
+- **Die eigene 60-fps-Schleife ist weg.** `_tick()` rief `requestAnimationFrame` durch,
+  solange Beschriftungen an waren — auch im Leerlauf, und der CSS2D-Renderer läuft dabei
+  jedes Mal durch den ganzen Szenengraph (mit Muskeln 1500+ Knoten). Das hat das
+  Demand-Rendering der App ausgehebelt. `renderLabels()` hängt jetzt im zentralen Loop
+  direkt hinter dem 3D-Bild: kein Bild, keine Kosten.
+- **Label-Objekte kommen aus einem Pool** und werden umgehängt statt neu gebaut. Die Auswahl
+  wird höchstens alle 200 ms neu bestimmt; ein Wechsel der Auswahl und jede Sichtbarkeits-
+  änderung (`setModelVisibility` → `invalidateLabels()`) ziehen sie sofort nach.
+- **`resetApp()` räumt die Beschriftungen mit ab.** Vorher hielt die Registry Referenzen auf
+  Modelle, die längst aus der Szene waren.
+- **Nicht geändert:** der dunkle Chip. `--stage-chip-bg` ist bewusst „bühnenfest" und wechselt
+  nicht mit dem Theme — die 3D-Bühne bleibt in beiden Themes dunkel. Und die Position stimmt:
+  alle 464 Muskel- und 207 Knochen-Wurzeln stehen auf Identität, die Rechnung mit dem
+  Bounding-Box-Mittelpunkt war nie das Problem.
+
+
+### Fixed (Ghost-Kontext: der Absturz auf dem Handy)
+- **„Kontext einblenden" ging über ALLE Modelle aller Gruppen — auch über die 464 Muskeln,
+  die die Isolation längst auf `visible = false` gesetzt hatte.** Pro Mesh legte
+  `setObjectOpacity` zwei Material-Klone an (`__origMats` + `__ownMats`): mit geladenen
+  Muskeln rund 1500 neue Materialien auf einen Schlag, die allermeisten für Meshes, die
+  gar nicht gezeichnet werden. Auf einem Mittelklasse-Android endete das im Tab-Neustart.
+- **Jetzt werden nur sichtbare Meshes angefasst**, und alle teilen sich **ein** Material
+  statt zwei Klone pro Mesh zu bekommen. Beim Verlassen wird die gemerkte Material-Referenz
+  zurückgehängt — nichts wird geklont, nichts muss disposed werden.
+- **Zweiter Modus für große Szenen.** `transparent` mit `depthWrite: false` heißt: jede
+  Schicht wird pro Pixel geblendet. Bei 761 sichtbaren Meshes sind das 761 Schichten
+  übereinander, und genau das bringt Tile-Renderer (Mali/Adreno) um. Über 500 sichtbaren
+  Meshes treten die anderen Strukturen deshalb **gedämpft-opak** zurück statt durchscheinend:
+  der Kontext bleibt sichtbar, kostet aber keinen Blend-Vorgang extra. Darunter — der
+  Isolations-Fall mit rund 297 sichtbaren Meshes — bleibt es beim Durchscheinen.
+- **Der Kontext endet jetzt mit der Isolation.** Er ist eine Funktion von ihr (der Knopf
+  sitzt in ihrer Leiste); vorher behielten alle Strukturen ihr Ghost-Aussehen, nachdem die
+  Isolation beendet war. `resetApp()` lässt den Zustand ebenfalls fallen, sonst hielten
+  hunderte Mesh-Referenzen Speicher fest, den niemand mehr braucht.
+
+### Changed (Mobile Performance: MSAA aus, Geräteprofil greift endlich)
+- **`antialias` nur noch am Desktop.** MSAA lässt den Tile-Renderer eines Handys jeden
+  Kachel-Puffer mehrfach auflösen — teuer genau dort, wo die Füllrate knapp ist, und bei
+  der ohnehin auf 1,25× gedeckelten Auflösung kaum sichtbar.
+- **`getOptimalConfig()` wurde nie aufgerufen.** Die Funktion gab eine *Kopie* der Config
+  zurück, während `getConfig()` aus `APP_CONFIG` liest — das sparsame Profil hat auf keinem
+  Handy je gegriffen. Ersetzt durch `applyDeviceProfile()`, das ins aktive Objekt schreibt
+  und beim Start vor dem ersten Laden aufgerufen wird.
+- **`renderer.frustumCulled = true` entfernt.** Die Eigenschaft gibt es auf `WebGLRenderer`
+  nicht; die Zeile hat nie etwas getan. Culling sitzt pro Objekt und ist ohnehin Standard.
+
+### Added (Messen statt schätzen: Draw-Calls im Performance-Monitor)
+- **Neue Zeile `DRAW: <Calls> / <Dreiecke>`** neben FPS und Speicher, rot ab 200 Calls —
+  dort wird es auf mobilen GPUs eng. Gelesen aus `renderer.info.render`, das im Projekt
+  bisher nirgends ausgewertet wurde.
+- **Zuschaltbar per `?perf` in der URL.** Vorher hätte jede Messung auf dem Zielgerät eine
+  Config-Änderung und einen eigenen Build gebraucht.
+- **Overlay von unten rechts nach oben links.** Unten rechts sitzt auf dem Handy die
+  Marken-Kugel.
+- Zum Einordnen der Zahlen, aus den Bundles gemessen: mit Muskeln stehen **761 Meshes,
+  761 Materialien und ~1,9 Mio Dreiecke** in der Szene (Muskeln allein: 464 Meshes,
+  464 Materialien in nur **2** Varianten, **keine** Texturen). Mobil sind grob 100–200
+  Draw-Calls pro Bild machbar — das ist die Ursache des Ruckelns, nicht die Dreiecksmenge.
+  Der eigentliche Hebel bleibt BatchedMesh (ADR 0007, Phase 2–5): 761 → ~4 Draw-Calls.
+
+
 ### Added (Sheets wegwischen + Zähl-Kugel auf der Marke)
 - **Bottom-Sheets lassen sich nach unten wegwischen.** Panel-Sheet (Info/Strukturen/
   Sammlung), Ansicht-Sheet und Einstellungen. Das Sheet folgt dem Finger und fährt beim

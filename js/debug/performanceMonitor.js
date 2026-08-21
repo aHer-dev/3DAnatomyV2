@@ -4,6 +4,20 @@
 // ============================================
 
 import { getConfig, isFeatureEnabled } from '../config/config.js';
+import { renderer } from '../core/renderer.js';
+
+/**
+ * Der Monitor laesst sich per `?perf` in der URL zuschalten. Ohne das muesste
+ * man fuer jede Messung auf dem Zielgeraet die Config aendern und neu bauen —
+ * und genau dort, auf dem echten Handy, will man ihn ja sehen.
+ */
+function perfFlagInUrl() {
+    try {
+        return new URLSearchParams(window.location.search).has('perf');
+    } catch {
+        return false;
+    }
+}
 
 /**
  * MINIMALER PERFORMANCE MONITOR
@@ -14,9 +28,10 @@ import { getConfig, isFeatureEnabled } from '../config/config.js';
 class MinimalPerformanceMonitor {
     constructor() {
         // Feature-Status
-        this.enabled = isFeatureEnabled('performanceMonitor');
+        this.enabled = isFeatureEnabled('performanceMonitor') || perfFlagInUrl();
         this.showFPS = getConfig('features.performanceConfig.showFPS', true);
         this.showMemory = getConfig('features.performanceConfig.showMemory', true);
+        this.showDrawCalls = getConfig('features.performanceConfig.showDrawCalls', true);
         this.autoWarnings = getConfig('features.performanceConfig.autoWarnings', true);
         this.position = getConfig('features.performanceConfig.position', 'top-left');
 
@@ -173,6 +188,7 @@ class MinimalPerformanceMonitor {
             const content = [];
             if (this.showFPS) content.push('<div>FPS: <span id="fps-value">60</span></div>');
             if (this.showMemory) content.push('<div>MEM: <span id="memory-value">0 MB</span></div>');
+            if (this.showDrawCalls) content.push('<div>DRAW: <span id="draw-value">0</span></div>');
 
             panel.innerHTML = content.join('');
             document.body.appendChild(panel);
@@ -284,6 +300,18 @@ class MinimalPerformanceMonitor {
             }
 
             // Memory aktualisieren
+            if (this.showDrawCalls) {
+                const drawElement = this.fallbackStats.querySelector('#draw-value');
+                if (drawElement) {
+                    const info = renderer?.info?.render;
+                    const calls = info?.calls ?? 0;
+                    const tris = info?.triangles ?? 0;
+                    drawElement.textContent = `${calls} / ${(tris / 1000).toFixed(0)}k Tri`;
+                    // Auf mobilen GPUs wird es ab rund 200 Draw-Calls pro Bild eng.
+                    drawElement.style.color = calls > 200 ? '#ff4444' : '#00ff00';
+                }
+            }
+
             const memoryElement = this.fallbackStats.querySelector('#memory-value');
             if (memoryElement && performance.memory) {
                 const memoryMB = Math.round(performance.memory.usedJSHeapSize / 1024 / 1024);

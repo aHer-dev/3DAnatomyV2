@@ -12,6 +12,7 @@ interface AppConfig {
       enabled: boolean
       showFPS: boolean
       showMemory: boolean
+      showDrawCalls: boolean
       autoWarnings: boolean
       position: string
     }
@@ -74,8 +75,11 @@ export const APP_CONFIG: AppConfig = {
       enabled: true,
       showFPS: true,
       showMemory: true,
+      showDrawCalls: true,
       autoWarnings: true,
-      position: 'bottom-right',
+      // Unten rechts sitzt auf dem Handy die Marken-Kugel. Oben links ist der
+      // einzige Rand, an dem das Overlay nichts verdeckt, was man antippen will.
+      position: 'top-left',
     },
   },
 
@@ -131,37 +135,41 @@ export const APP_CONFIG: AppConfig = {
   },
 }
 
-export function getOptimalConfig(): AppConfig {
+/**
+ * Erkennt Geraete/Verbindungen, denen das volle Profil zu viel ist.
+ * `deviceMemory` deckelt Chrome bei 8 — der Wert taugt als Untergrenze, nicht
+ * als Mass.
+ */
+export function isConstrainedDevice(): boolean {
   const nav = navigator as Navigator & {
     connection?: { effectiveType?: string }
     deviceMemory?: number
   }
-  const isSlowConnection =
+  const slowConnection =
     nav.connection?.effectiveType === 'slow-2g' || nav.connection?.effectiveType === '2g'
-  const isLimitedMemory = nav.deviceMemory !== undefined && nav.deviceMemory < 4
-  const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+  const limitedMemory = nav.deviceMemory !== undefined && nav.deviceMemory < 4
+  const mobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
     navigator.userAgent
   )
+  return slowConnection || limitedMemory || mobile
+}
 
-  if (isSlowConnection || isLimitedMemory || isMobile) {
-    return {
-      ...APP_CONFIG,
-      performance: {
-        ...APP_CONFIG.performance,
-        batchSize: 3,
-        maxModelsInMemory: 50,
-        networkOptimization: {
-          ...APP_CONFIG.performance.networkOptimization,
-          maxConcurrentRequests: 3,
-        },
-      },
-      features: {
-        ...APP_CONFIG.features,
-      },
-    }
-  }
+/**
+ * Schreibt das sparsame Profil in die aktive Konfiguration und meldet, ob es
+ * gegriffen hat. Einmal beim Start aufrufen, VOR dem ersten Laden.
+ *
+ * Schreibt bewusst in `APP_CONFIG` statt eine Kopie zurueckzugeben: `getConfig()`
+ * liest aus genau diesem Objekt. Der Vorgaenger `getOptimalConfig()` gab eine
+ * Kopie zurueck, wurde nirgends aufgerufen und war damit wirkungslos — das
+ * sparsame Profil hat auf keinem Handy je gegriffen.
+ */
+export function applyDeviceProfile(): boolean {
+  if (!isConstrainedDevice()) return false
 
-  return APP_CONFIG
+  APP_CONFIG.performance.batchSize = 3
+  APP_CONFIG.performance.maxModelsInMemory = 50
+  APP_CONFIG.performance.networkOptimization.maxConcurrentRequests = 3
+  return true
 }
 
 export function getConfig<T = unknown>(path: string, fallback: T | null = null): T | null {

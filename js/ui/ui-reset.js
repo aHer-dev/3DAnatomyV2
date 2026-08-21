@@ -13,6 +13,8 @@ import { setModelVisibility } from '../features/visibility.js';
 import { unregisterPickables } from '../features/selection.js';
 import { disposeObject3D } from '../modelLoader/cleanup.js';
 import { clearIsolationState } from '../interaction/isolationView.js';
+import { clearGhostContext } from '../features/ghostContext.js';
+import { clearLabels } from '../features/labels.js';
 
 const STANDARD_GROUPS = ['bones', 'teeth', 'cartilage'];
 
@@ -42,6 +44,8 @@ export async function resetApp() {
     getStore().clearCollection();
     getStore().clearSelection();
     clearIsolationState();
+    clearGhostContext();
+    clearLabels();
 
     getStore().setLoadingProgress(20);
     const toRemove = [];

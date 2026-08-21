@@ -23,9 +23,15 @@ const canvas = document.getElementById('canvas') || (() => {
 })();
 
 // Renderer mit Performance-Optionen
+//
+// `antialias` nur am Desktop. MSAA laesst den Tile-Renderer eines Handys
+// (Mali/Adreno) jeden Kachel-Puffer mehrfach aufloesen — das kostet Fuellrate
+// genau dort, wo sie ohnehin knapp ist, und bringt bei der gedeckelten
+// Aufloesung (1.25x) wenig sichtbaren Gewinn. Die Entscheidung faellt einmal
+// beim Anlegen des Kontexts; spaeter ist sie nicht mehr aenderbar.
 const renderer = new THREE.WebGLRenderer({
   canvas,
-  antialias: true,
+  antialias: !prefersCoarsePointer(),
   alpha: false,
   powerPreference: 'high-performance',
   preserveDrawingBuffer: false
@@ -33,7 +39,6 @@ const renderer = new THREE.WebGLRenderer({
 
 
 // Auflösung deckeln, um GPU-/VRAM-Last zu senken
-renderer.frustumCulled = true; // Nur sichtbare Objekte rendern
 renderer.setPixelRatio(getTargetPixelRatio());
 
 // Startgröße setzen

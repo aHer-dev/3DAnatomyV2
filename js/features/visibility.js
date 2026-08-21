@@ -6,6 +6,7 @@ import { getStore } from '../store/useStore.js';
 import { markPickablesDirty } from '../core/raycaster.js';
 import { setPickable } from './selection.js';
 import { requestRender } from '../core/renderScheduler.js';
+import { invalidateLabels } from './labels.js';
 
 // === PRIVATE HELPER FUNCTIONS ===
 function _asArray(mat) {
@@ -114,6 +115,7 @@ export function setModelVisibility(model, visible) {
 
     requestRender();
     markPickablesDirty();
+    invalidateLabels();
 
     // Sichtbarkeit & Layer für gesamten Subtree setzen
     model.traverse(child => {

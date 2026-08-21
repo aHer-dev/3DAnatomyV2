@@ -3,6 +3,7 @@ import { scene } from '../core/scene.js';
 import { camera } from '../core/camera.js';
 import { setModelVisibility } from '../features/visibility.js';
 import { getStore } from '../store/useStore.js';
+import { isGhostContextActive, exitGhostContext } from '../features/ghostContext.js';
 
 const DEFAULT_STRUCTURAL_GROUPS = ['bones', 'teeth', 'cartilage', 'ligaments'];
 
@@ -86,6 +87,11 @@ export function enterIsolatedView(model, options = {}) {
 }
 
 export function exitIsolatedView() {
+  // „Kontext einblenden" ist eine Funktion DER Isolation — der Knopf sitzt in
+  // ihrer Leiste. Ohne dieses Zuruecksetzen behalten alle Strukturen ihr
+  // Ghost-Material, nachdem die Isolation laengst beendet ist.
+  if (isGhostContextActive()) exitGhostContext();
+
   if (isolationSnapshot) {
     restoreVisibilitySnapshot(isolationSnapshot);
     isolationSnapshot = null;

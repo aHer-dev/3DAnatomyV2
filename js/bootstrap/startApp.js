@@ -15,7 +15,7 @@ import {
 } from '../features/appearance.js';
 
 import { getStore, INITIAL_COLORS, DEFAULT_COLOR } from '../store/useStore.js';
-import { getConfig } from '../config/config.js';
+import { getConfig, applyDeviceProfile } from '../config/config.js';
 import { initializeGroupsFromMeta } from '../data/meta.js';
 import { isMuskelfinderPreviewMode } from '../integration/muskelfinderPreview.js';
 
@@ -32,6 +32,7 @@ import { processDeeplink, setupDeeplinkSync } from '../integration/deeplink.js';
 
 import { initRoomSettings } from '../features/roomSettings.js';
 import { updateModelColors } from '../modelLoader/color.js';
+import { renderLabels } from '../features/labels.js';
 
 import { updatePerformanceMonitor } from '../debug/performanceMonitor.js';
 import { showLoadingCircle, updateLoadingCircle } from '../modelLoader/progress.js';
@@ -64,6 +65,9 @@ function ensureLoopRunning() {
             _needsRender = false;
             updatePerformanceMonitor?.();
             renderer.render(scene, camera);
+            // Beschriftungen teilen sich den Takt mit dem 3D-Bild. Sie hatten
+            // frueher eine eigene 60-fps-Schleife, die auch im Leerlauf weiterlief.
+            renderLabels();
         }
 
         if (_loopKeepAliveFrames > 0) {
@@ -119,6 +123,11 @@ window.addEventListener('beforeunload', () => {
  */
 export async function startApp() {
     const previewMode = isMuskelfinderPreviewMode();
+
+    // Sparsames Profil fuer Handys/schwache Verbindungen — muss VOR dem ersten
+    // Laden stehen, danach liest niemand die Batch-Groessen mehr neu.
+    if (applyDeviceProfile()) console.log('📱 Sparsames Geraeteprofil aktiv');
+
     window.__DISABLE_PROGRESS_OVERLAY = true;
     showLoadingCircle({ label: '3D-Modell wird geladen …' });
     renderer.domElement.style.visibility = 'hidden';

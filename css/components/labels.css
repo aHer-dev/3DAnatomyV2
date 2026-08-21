@@ -1,9 +1,10 @@
 /* css/components/labels.css — CSS2DRenderer Struktur-Pins */
 
 .structure-label {
-  /* Kein backdrop-filter: bei „alle Labels an" sind das hunderte DOM-Boxen,
-     jeder Blur wird pro Frame neu komponiert → Ruckeln. Hintergrund ist
-     deckend genug, dass der Blur optisch ohnehin kaum wirkte. */
+  /* Kein backdrop-filter — inzwischen nicht mehr aus Not (es sind hoechstens
+     MAX_LABELS Kaesten, nicht mehr hunderte), sondern aus der Perf-Regel: keine
+     Dauer-Blur-Flaechen ueber dem Canvas. Der Hintergrund ist ohnehin deckend
+     genug, dass der Blur optisch kaum wirkte. */
   background: var(--stage-chip-bg);
   color: var(--stage-fg);
   border: 1px solid var(--stage-hairline);
