@@ -1,8 +1,9 @@
 /* =========================================================================
    Responsive / Mobile  ·  Handoff §13 (Pflicht), S10
-   Schmal-Screen ≤ 768px: seitliche Sidebar → Bottom-Sheet, Icon-Rail → untere
-   Tab-Leiste, Safe-Area-Insets (viewport-fit=cover). Die Panels werden per
-   Media-Query zu Sheets umgeformt — kein Duplikat der Panel-Logik. Nur Tokens.
+   Schmal-Screen ≤ 768px: seitliche Sidebar → Bottom-Sheet, Icon-Rail → zwei
+   Kugeln in den unteren Ecken (S13), Safe-Area-Insets (viewport-fit=cover).
+   Die Panels werden per Media-Query zu Sheets umgeformt — kein Duplikat der
+   Panel-Logik. Nur Tokens.
 
    Muss NACH allen Komponenten-Dateien geladen werden (siehe main.css), damit
    die Sheet-Overrides bei gleicher Spezifität per Quellreihenfolge gewinnen.
@@ -14,7 +15,7 @@
 
 @media (max-width: 768px) {
 
-  /* ── Icon-Rail entfällt, untere Tab-Leiste übernimmt ──────────────────── */
+  /* ── Icon-Rail entfällt, die beiden Kugeln übernehmen ─────────────────── */
   .shell-rail { display: none; }
 
   /* ── Gemeinsames Sheet-Rezept: bündig unten, Grabber (::before), Safe-Area ─ */
@@ -45,6 +46,31 @@
     background: var(--sheet-grabber);
   }
 
+  /* ── Runterwischen schließt (useSheetSwipe.ts) ────────────────────────────
+        `touch-action:none` macht die vertikale Geste am Sheet zur Zugbewegung,
+        statt sie an den Browser zu geben. Die scrollenden Körper holen sie sich
+        zurück (`auto` gilt für alles darin, auch die quer scrollende Chip-Reihe),
+        und das Suchfeld behält seine eigene Zeigerbehandlung. */
+  .shell-sidebar,
+  .stp-flyout,
+  .vc-sheet { touch-action: none; }
+  .shell-sidebar__body,
+  .stp-body,
+  .shell-searchhost { touch-action: auto; }
+
+  /* Während der Zug läuft, folgt das Sheet dem Finger direkt: Kurve aus, und bei
+     den beiden Sheets mit Einfahr-Animation auch die — ihr `fill-mode: both`
+     würde die Inline-Angabe sonst überstimmen. */
+  .shell-sidebar.sheet-dragging { transition: none; }
+  .stp-flyout.sheet-dragging,
+  .vc-sheet.sheet-dragging { animation: none; }
+
+  /* Der Grabber ist ab jetzt nicht nur Zierde, sondern zeigt einen echten Griff
+     an — deshalb etwas kräftiger. */
+  .shell-sidebar::before,
+  .stp-flyout::before,
+  .vc-sheet::before { cursor: grab; }
+
   /* ── Panel-Sheet (Sidebar): Slide über --open, untere Inset im Fuß ────── */
   .shell-sidebar {
     transform: translateY(calc(100% + 40px));
@@ -54,7 +80,7 @@
   .shell-sidebar__foot { padding-bottom: calc(10px + env(safe-area-inset-bottom, 0px)); }
 
   /* ── Desktop-Einklappen hat mobil keine Bedeutung ─────────────────────────
-     Hier regelt `--open` (untere Tab-Leiste) die Sichtbarkeit. Ohne diesen
+     Hier regelt `--open` (Marken-Kugel rechts) die Sichtbarkeit. Ohne diesen
      Rückbau bliebe das Sheet unsichtbar, sobald jemand am Desktop eingeklappt
      und dann das Fenster verschmälert hat. Griff und Einklapp-Knopf entfallen,
      ihr Zustand wäre mobil folgenlos. */
@@ -116,50 +142,159 @@
     border: none;
   }
 
-  /* ── Untere Tab-Leiste statt Rail (Buttons ≥52px, Safe-Area unten) ─────── */
-  .shell-tabbar {
+  /* ── Zwei Kugeln statt durchgehender Tab-Leiste (§13) ─────────────────────
+        Eine Leiste über die volle Breite verdeckt am Handy genau den Fuß des
+        Modells. Stattdessen sitzt in jeder unteren Ecke eine Kugel und die
+        Bühne dazwischen bleibt frei: links die Werkzeug-Säule, rechts die
+        Wortmarke als Griff zum Panel-Sheet. Beide Docks sind ihre eigene
+        Fläche, damit die Säule über der linken Kugel wachsen kann. */
+  .shell-orbdock {
     display: flex;
+    flex-direction: column;
     position: fixed;
-    left: 16px; right: 16px;
     bottom: calc(16px + env(safe-area-inset-bottom, 0px));
     z-index: var(--z-controls);
-    align-items: center;
-    justify-content: space-between;
-    gap: 4px;
-    padding: 8px;
-    pointer-events: all;
-    background: var(--glass-bg-controls);
-    backdrop-filter: var(--glass-blur-strong);
-    -webkit-backdrop-filter: var(--glass-blur-strong);
-    border: 1px solid var(--glass-border);
-    border-radius: 22px;
-    box-shadow: var(--glass-shadow-lg);
+    pointer-events: none;   /* nur Kugel und Knöpfe fangen Tipper, nicht die Spalte */
+    gap: 12px;
   }
-  .shell-tabbar__btn {
+  .shell-orbdock--left  { left: 16px;  align-items: flex-start; }
+  .shell-orbdock--right { right: 16px; align-items: flex-end; }
+
+  /* Offen muss das Dock über den Backdrop — sonst läge das eigene Schließkreuz
+     unter der Abdunklung, die es wegtippen soll. Unter dem Sheet bleibt es:
+     Säule und Sheet sind nie gleichzeitig offen. */
+  .shell-orbdock--open { z-index: var(--z-orbmenu); }
+
+  .shell-orb {
+    flex: none;
+    pointer-events: all;
     display: flex;
     align-items: center;
     justify-content: center;
-    flex: 1;
-    min-width: var(--touch-min);
-    height: 52px;
+    width: 58px; height: 58px;
     padding: 0;
-    border: none;
-    border-radius: 15px;
-    background: transparent;
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-pill);
+    background: var(--glass-bg-controls);
+    backdrop-filter: var(--glass-blur-strong);
+    -webkit-backdrop-filter: var(--glass-blur-strong);
+    box-shadow: var(--glass-shadow-lg);
     color: var(--text-secondary);
     cursor: pointer;
     transition: var(--transition-smooth);
   }
-  .shell-tabbar__btn svg { width: 23px; height: 23px; }
-  .shell-tabbar__btn:hover { color: var(--text-primary); }
-  .shell-tabbar__btn--active { background: var(--accent-tint); color: var(--accent-on-tint); }
+  .shell-orb { position: relative; }
+  .shell-orb svg { width: 24px; height: 24px; }
+  .shell-orb:active { transform: scale(0.94); }
+  .shell-orb--on { color: var(--accent-on-tint); border-color: var(--accent); }
+  .shell-orb:focus-visible { outline: 2px solid var(--focus-ring); outline-offset: 3px; }
+
+  /* Die Wortmarke ist 985 × 892 — Höhe setzen, Breite rechnen lassen, sonst
+     staucht der runde Kasten den Keil (dieselbe Regel wie im Leisten-Kopf). */
+  .shell-orb--brand img {
+    height: 32px;
+    width: auto;
+    user-select: none;
+    pointer-events: none;
+  }
+
+  /* Kleine Kugel auf der Kugel: Zahl der Mehrfachauswahl. Sitzt oben links,
+     also zur Bildmitte hin — oben rechts liefe sie über den Fensterrand. */
+  .shell-orb__count {
+    position: absolute;
+    top: -3px; left: -3px;
+    min-width: 24px; height: 24px;
+    padding: 0 6px;
+    border-radius: var(--radius-pill);
+    background: var(--accent);
+    color: var(--accent-on);
+    font: 700 12px/24px var(--font-ui);
+    text-align: center;
+    box-shadow: 0 2px 10px color-mix(in srgb, var(--accent) 45%, transparent);
+    animation: orb-count-pop 0.2s var(--ease-smooth) both;
+  }
+  @keyframes orb-count-pop {
+    from { opacity: 0; transform: scale(0.5); }
+    to   { opacity: 1; transform: none; }
+  }
+
+  /* ── Werkzeug-Säule über der linken Kugel ────────────────────────────────
+        Pillen mit Text: sieben Symbole ohne Beschriftung wären auf 390 px
+        Breite ein Ratespiel, und Platz ist über der Kugel genug. */
+  .shell-orbmenu {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    pointer-events: none;
+  }
+  .shell-orbitem {
+    pointer-events: all;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-height: var(--touch-min);
+    padding: 0 16px 0 12px;
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-pill);
+    background: var(--glass-bg-controls);
+    backdrop-filter: var(--glass-blur-strong);
+    -webkit-backdrop-filter: var(--glass-blur-strong);
+    box-shadow: var(--glass-shadow);
+    color: var(--text-secondary);
+    font: 600 13.5px/1 var(--font-ui);
+    white-space: nowrap;
+    cursor: pointer;
+    /* Von der Kugel weg aufsteigen, gestaffelt über --i (0 = unterste Pille). */
+    animation: orb-rise 0.22s var(--ease-smooth) both;
+    animation-delay: calc(var(--i, 0) * 28ms);
+  }
+  .shell-orbitem__icon {
+    flex: none;
+    display: flex;
+    width: 22px; height: 22px;
+  }
+  .shell-orbitem__icon svg { width: 22px; height: 22px; }
+  .shell-orbitem--active {
+    background: var(--accent-tint);
+    border-color: var(--accent);
+    color: var(--accent-on-tint);
+  }
+  .shell-orbitem:disabled { opacity: 0.55; cursor: progress; }
+  .shell-orbitem:focus-visible { outline: 2px solid var(--focus-ring); outline-offset: 2px; }
+
+  @keyframes orb-rise {
+    from { opacity: 0; transform: translateY(14px) scale(0.94); }
+    to   { opacity: 1; transform: none; }
+  }
+
+  /* ── Sheet-Kopf: ⚙ statt Wortmarke ───────────────────────────────────────
+        Das Zeichen sitzt mobil in der rechten Kugel; im Kopf des Sheets, das
+        eben diese Kugel geöffnet hat, wäre es dasselbe Logo ein zweites Mal.
+        An seinen Platz rückt der Weg zu den Einstellungen. */
+  .shell-brand { display: none; }
+  .shell-sheetgear {
+    flex: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--touch-min); height: var(--touch-min);
+    padding: 0;
+    border: none;
+    border-radius: var(--radius-md);
+    background: transparent;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: var(--transition-smooth);
+  }
+  .shell-sheetgear svg { width: 21px; height: 21px; }
+  .shell-sheetgear[aria-pressed="true"] { background: var(--accent-tint); color: var(--accent-on-tint); }
 
   /* ── Float-Cluster (Desktop) weicht dem Ansicht-Sheet; Isolation-Untertitel
-        über die Tab-Leiste heben ──────────────────────────────────────────── */
+        über die Kugeln heben (Fußabdruck 16 + 58 = 74 px) ──────────────────── */
   .vc-bar { display: none; }
   .iso-subtitle {
     left: 50%;
-    bottom: calc(94px + env(safe-area-inset-bottom, 0px));
+    bottom: calc(84px + env(safe-area-inset-bottom, 0px));
   }
 
   /* ── Touch-Ziele im Sheet-Inhalt (Slider-Knobs 15px, größere Zeilen) ───── */
@@ -182,11 +317,28 @@
   .msp-chip { flex: 0 0 auto; }
 }
 
+/* Quer gehaltenes Handy: sieben Pillen (7×44 + 6×8 = 356px) plus Kugel und
+   Abstände brauchen rund 466px Höhe. Darunter scrollt die Säule, statt oben aus
+   dem Bild zu laufen. Bewusst nur hier — `overflow` beschneidet den Schlagschatten
+   der Pillen, und im Hochformat gibt es nichts zu scrollen. */
+@media (max-width: 768px) and (max-height: 470px) {
+  .shell-orbmenu {
+    max-height: calc(100vh - 110px - env(safe-area-inset-bottom, 0px));
+    overflow-y: auto;
+    pointer-events: all;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+  .shell-orbmenu::-webkit-scrollbar { display: none; }
+}
+
 /* Reduced-Motion: keine Sheet-Slides (eine Kurve-Regel + §14). */
 @media (max-width: 768px) and (prefers-reduced-motion: reduce) {
   .shell-sidebar { transition: none; }
   .stp-flyout,
   .vc-sheet { animation: none; }
+  .shell-orbitem,
+  .shell-orb__count { animation: none; }
 }
 
 /* Dasselbe für das Desktop-Einklappen: die Leiste springt, statt zu fahren.

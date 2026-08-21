@@ -7,6 +7,49 @@ Format: [Keep a Changelog](https://keepachangelog.com/de/1.0.0/)
 
 ## [Unreleased]
 
+### Added (Sheets wegwischen + Zähl-Kugel auf der Marke)
+- **Bottom-Sheets lassen sich nach unten wegwischen.** Panel-Sheet (Info/Strukturen/
+  Sammlung), Ansicht-Sheet und Einstellungen. Das Sheet folgt dem Finger und fährt beim
+  Loslassen zu Ende — es springt nicht erst auf die Ausgangslage zurück, um dann
+  geschlossen zu werden. Schwelle: 96px Zugweg **oder** ein Schnipser ab 0,55px/ms
+  (ab 24px Weg, damit ein Zucken nicht zählt). Nach oben gibt das Sheet nur gedämpft nach.
+- **Griff ist alles außer dem scrollenden Körper und den Bedienelementen.** Wer im Body
+  blättert oder am Schieberegler zieht, schiebt nicht das Sheet weg; eine Querbewegung
+  (Chip-Reihe) bricht die Geste ab. Umgesetzt über `touch-action` — die Kurve setzt
+  währenddessen aus, sonst hinkt das Sheet dem Finger hinterher.
+- **Zähl-Kugel auf der Marken-Kugel.** Liegen Strukturen in der Mehrfachauswahl, sitzt
+  oben links auf dem Logo ein kleiner Kreis mit ihrer Zahl (ab 100: `99+`). Vorher musste
+  man das Sheet öffnen, um zu sehen, ob überhaupt etwas ausgewählt ist. Die Zahl steht
+  auch im aria-label — als Textknoten würde das Label sie überschreiben.
+- Neu: `js/ui/react/useSheetSwipe.ts` mit `shouldDismiss()` als prüfbarem Kern (6 Tests).
+
+### Changed (Mobile Navigation: zwei Kugeln statt durchgehender Tab-Leiste)
+- **Die Tab-Leiste lag über die volle Breite genau dort, wo der Fuß des Modells steht.**
+  Auf Schmal-Screens (≤768px) sitzt jetzt in jeder unteren Ecke eine Kugel, dazwischen
+  bleibt die Bühne frei. Das war der ganze Grund für den Umbau — bei einer Anatomie-App
+  ist das Bild der Inhalt, nicht der Rahmen darum.
+- **Links die Werkzeug-Säule.** Ein Tipp auf die Kugel lässt sieben beschriftete Pillen
+  aufsteigen: Auswählen · Mehrfachauswahl · Knochen · Muskeln · Beschriftungen · Ansicht ·
+  Alles zurücksetzen. Häufiges sitzt unten am Daumen, der Reset am weitesten davon
+  entfernt — er löscht Sammlung und geladene Modelle. Die drei reinen Schalter
+  (Knochen, Muskeln, Beschriftungen) lassen die Säule offen, damit sich Ebenen
+  kombinieren lassen, ohne siebenmal neu aufzuklappen; die übrigen schließen sie.
+- **Rechts die Wortmarke als Bedienelement.** Sie öffnet das bestehende Panel-Sheet
+  (Suche, Strukturen, Sammlung, Info) — genau das Sheet, das die Auswahl ohnehin schon
+  aufpoppen lässt. Das Logo steht damit mobil **einmal** auf dem Bildschirm: im Kopf des
+  Sheets ist der Marken-Block ausgeblendet, an seine Stelle rückt das ⚙ zu den
+  Einstellungen (am Desktop bleibt das in der Rail, das ⚙ im Kopf ist dort aus).
+- **Sheets, Store und Panel-Logik unverändert.** Die Kugeln ersetzen nur den Auslöser;
+  `mobileSheet` und das Sheet-Rezept aus S10 bleiben, wie sie waren. Der Zustand der
+  Säule ist reiner Komponenten-State — kein anderer Teil der App fragt danach.
+- **Mitgezogen:** ESC schließt zusätzlich die Säule und gibt den Fokus mobil an die
+  Kugeln zurück statt an ein Bedienelement im gerade wegfahrenden Sheet; der Backdrop
+  liegt auch hinter der offenen Säule; der reservierte Streifen im Fotomodus schrumpft
+  von 84 auf 74px (Kugel-Fußabdruck statt Leisten-Höhe), ebenso der Isolation-Untertitel.
+- **Quer gehaltenes Handy:** unter 470px Fensterhöhe scrollt die Säule, statt oben aus
+  dem Bild zu laufen.
+
+
 ### Changed (Zurücksetzen wandert in die Rail — und heißt endlich, was es tut)
 - **Der Reset saß in der Ansichts-Leiste und wäre mit ihr verschwunden.** Er steht jetzt in der
   Icon-Rail, direkt unter dem Auge, und ist damit unabhängig davon erreichbar, ob die Leiste

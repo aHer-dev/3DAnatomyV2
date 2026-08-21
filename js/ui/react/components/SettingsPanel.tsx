@@ -12,6 +12,7 @@ import {
   ROOM_COLOR_BY_THEME,
 } from '../../../features/roomSettings.js'
 import { useReactStore } from '../useReactStore.js'
+import { useSheetSwipe } from '../useSheetSwipe.js'
 import { resetColors } from '../../ui-reset.js'
 import { loadPresetManifest, applyPreset } from '../../../features/presets.js'
 import { LicenseModal } from './LicenseModal.js'
@@ -136,6 +137,8 @@ function PresetSection() {
 
 // ─── Flyout ─────────────────────────────────────────────────────────────────
 export function SettingsPanel({ onClose }: SettingsPanelProps) {
+  // Mobil ist das Flyout ein Bottom-Sheet — runterwischen schließt es.
+  const sheetSwipe = useSheetSwipe<HTMLElement>(onClose)
   const initial = getRoomSettings()
   const [lighting, setLighting] = useState<number>(initial.lighting)
   const [brightness, setBrightness] = useState<number>(initial.brightness)
@@ -179,7 +182,7 @@ export function SettingsPanel({ onClose }: SettingsPanelProps) {
 
   return (
     <>
-      <aside className="stp-flyout" aria-label="Einstellungen">
+      <aside ref={sheetSwipe} className="stp-flyout" aria-label="Einstellungen">
         <header className="stp-header">
           <span className="stp-header__title">
             <span className="stp-header__gear">{icGear}</span>

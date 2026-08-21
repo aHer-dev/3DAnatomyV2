@@ -52,6 +52,31 @@ Tab-Leiste** die Rail. `viewport-fit=cover` ist gesetzt → Safe-Area-Insets bea
 - **Nicht angefasst** (Briefing-Dateiliste): `js/ui/photoMode.js` `toolbarH=72` bleibt; die
   neue Tab-Leiste ist ~68px hoch, also weiterhin passend. Kandidat für S11, falls Feinschliff.
 
+## Nachtrag S13 — Tab-Leiste → zwei Kugeln
+Die untere Tab-Leiste aus S10 ist abgelöst. Sie war über die volle Breite gebaut und
+verdeckte damit genau den Fuß des Modells; bei einer Anatomie-App ist das Bild aber der
+Inhalt. An ihrer Stelle: eine Kugel in jeder unteren Ecke.
+- **Links (`.shell-orbdock--left`)** — Werkzeug-Säule aus beschrifteten Pillen:
+  Auswählen · Mehrfachauswahl · Knochen · Muskeln · Beschriftungen · Ansicht · Reset.
+  Reihenfolge von unten nach oben nach Häufigkeit; Schalter lassen die Säule offen
+  (`sticky`), Modi und Einmal-Aktionen schließen sie.
+- **Rechts (`.shell-orbdock--right`)** — die Wortmarke öffnet das Panel-Sheet. Damit
+  steht das Logo mobil genau einmal auf dem Bildschirm: `.shell-brand` ist im Sheet-Kopf
+  ausgeblendet, an seiner Stelle sitzt `.shell-sheetgear` (Einstellungen).
+- **Unverändert:** Sheet-Rezept, `mobileSheet`-Kanal, Panel-Logik. Die Kugeln sind nur
+  ein anderer Auslöser. Neuer Token `--z-orbmenu` (1450), damit die offene Säule über
+  dem Backdrop und unter den Sheets liegt.
+- **Nicht-Ziel geblieben:** Fotomodus, Box-/Fokus-Werkzeug und der Theme-Schalter sind
+  mobil weiterhin nicht erreichbar — das war schon bei der Tab-Leiste so.
+- **Wegwischen (`useSheetSwipe.ts`):** alle drei Sheets schließen per Zug nach unten.
+  Griff = das Sheet außer `.shell-sidebar__body` / `.stp-body` und den Bedienelementen
+  darin; geregelt über `touch-action` plus die Klasse `.sheet-dragging`, die Kurve und
+  Einfahr-Animation für die Dauer des Zugs aussetzt. Schwelle als reine Funktion
+  `shouldDismiss(dy, dt)` — dort liegen auch die Tests.
+- **`.shell-orb__count`:** Zahl der Mehrfachauswahl als kleine Kugel oben links auf der
+  Marken-Kugel. Weil das aria-label der Kugel die Zahl mitträgt, greift die
+  ESC-Fokusrückgabe die Kugeln über `data-orb`, nicht mehr über ihr Label.
+
 ## Relevante Dateien
 Sheet-Container (neu) + `css/components/…` · alle Panel-CSS (Media-Queries) ·
 `css/layout/responsive.css` · `AppShell.tsx`

@@ -504,7 +504,7 @@ describe('Ansichts-Leiste', () => {
     expect(store.getState().sidebarCollapsed).toBe(true)
     expect(store.getState().sidebarTab).toBe('collection')
     expect(store.getState().openFlyout).toBe('settings')
-    // Das Handy-Sheet haengt an der Tab-Leiste, nicht an diesem Schalter.
+    // Das Handy-Sheet haengt an den Kugeln, nicht an diesem Schalter.
     expect(store.getState().mobileSheet).toBe('view')
   })
 })

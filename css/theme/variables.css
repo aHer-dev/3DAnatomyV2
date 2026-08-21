@@ -46,7 +46,8 @@
 
   /* ---- z-index-Ebenen (aus Brief) ---- */
   --z-canvas: 1;  --z-controls: 100;  --z-info-panel: 1000;  --z-menu-icon: 1100;  --z-modal: 2000;
-  --z-sheet-backdrop:  1400;   /* > Tab-Leiste (--z-controls), < Sheet */
+  --z-sheet-backdrop:  1400;   /* > Kugel-Docks (--z-controls), < Säule/Sheet */
+  --z-orbmenu:         1450;   /* > Backdrop (die Säule liegt über der Abdunklung) */
   --z-sheet:           1500;   /* < LicenseModal (--z-modal) */
 
   /* ---- Motion (eine Kurve für alles) ---- */

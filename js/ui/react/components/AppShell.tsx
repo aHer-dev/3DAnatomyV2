@@ -3,6 +3,9 @@
 // gehostete Panels + Footer) · ViewCluster unten mittig · kontextuelle Overlays.
 // Werkzeug-Logik aus der abgelösten Toolbar.tsx übernommen; Kamera-Ansichten
 // + Reset leben in ViewCluster.tsx (S5, Handoff §10).
+// Mobil tragen zwei Kugeln in den unteren Ecken die Navigation (S13): links die
+// Werkzeug-Säule, rechts die Wortmarke als Griff zum Panel-Sheet. Sie lösen die
+// durchgehende Tab-Leiste ab — die Bühne bleibt zwischen ihnen frei.
 import React, { useEffect, useState } from 'react'
 import { assetPath } from '../../../core/path.js'
 import { requestRender } from '../../../core/renderScheduler.js'
@@ -13,6 +16,7 @@ import { applyThemeRoomColor } from '../../../features/roomSettings.js'
 import { enterPhotoMode } from '../../photoMode.js'
 import { toggleLabels } from '../../../features/labels.js'
 import { useReactStore } from '../useReactStore.js'
+import { useSheetSwipe } from '../useSheetSwipe.js'
 
 import { SearchBar } from './SearchBar.js'
 import { ViewCluster } from './ViewCluster.js'
@@ -60,6 +64,8 @@ const I = {
   eye: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>,
   photo: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>,
   settings: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>,
+  grid: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="7.5" height="7.5" rx="1.6"/><rect x="13.5" y="3" width="7.5" height="7.5" rx="1.6"/><rect x="3" y="13.5" width="7.5" height="7.5" rx="1.6"/><rect x="13.5" y="13.5" width="7.5" height="7.5" rx="1.6"/></svg>,
+  close: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>,
   chevronRight: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>,
   chevronLeft: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"/></svg>,
   sun: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>,
@@ -75,13 +81,23 @@ const TABS: { id: 'structures' | 'collection' | 'info'; label: string }[] = [
 // Schmal-Screen = derselbe Breakpoint wie die Sheet-Media-Query (responsive.css).
 // Nur zum Auto-Öffnen des Panel-Sheets bei Auswahl; das übrige Umschalten ist CSS-only.
 const MOBILE_QUERY = '(max-width: 768px)'
+
+const ORB_TOOLS = 'Werkzeuge'
+const ORB_BRAND = 'Anatomie Fokus — Inhalt und Einstellungen'
+
+// Die ESC-Behandlung gibt den Fokus an die Kugeln zurück und greift sie über
+// `data-orb`, nicht über ihr aria-label: das der Marken-Kugel trägt die Zahl der
+// Mehrfachauswahl mit und wäre als Selektor eine stille Bruchstelle.
+const SEL_TOOLS = '[data-orb="tools"]'
+const SEL_BRAND = '[data-orb="brand"]'
+
 function isNarrowScreen(): boolean {
   return typeof window !== 'undefined'
     && typeof window.matchMedia === 'function'
     && window.matchMedia(MOBILE_QUERY).matches
 }
 
-// Fokus auf das erste SICHTBARE Element eines Selektors (Rail vs. Tab-Leiste sind
+// Fokus auf das erste SICHTBARE Element eines Selektors (Rail vs. Kugeln sind
 // je nach Breakpoint display:none). Für die Fokus-Rückgabe beim ESC-Schließen.
 function focusVisible(selector: string): void {
   const el = Array.from(document.querySelectorAll<HTMLElement>(selector))
@@ -93,6 +109,9 @@ function focusVisible(selector: string): void {
 export function AppShell() {
   const activeTool = useActiveTool()
   const [labelsOn, setLabelsOn] = useState(false)
+  // Nur mobil sichtbar und rein flüchtig — deshalb Komponenten-State und kein
+  // Store-Feld: kein anderer Teil der App fragt danach, ob die Säule offen ist.
+  const [toolsOpen, setToolsOpen] = useState(false)
   const [loadingLayer, setLoadingLayer] = useState<string | null>(null)
 
   const groups          = useReactStore(s => s.groups)
@@ -132,24 +151,35 @@ export function AppShell() {
     const selecting = !!selectedRoot || multiCount > 0
     setSidebarTab(selecting ? 'info' : 'structures')
     if (!selecting) return
-    if (isNarrowScreen()) openMobileSheet('panel')
+    if (isNarrowScreen()) { setToolsOpen(false); openMobileSheet('panel') }
     else setSidebarCollapsed(false)
   }, [selectedRoot, multiCount, setSidebarTab, openMobileSheet, setSidebarCollapsed])
 
   // A11y (§14): ESC schließt das offene Settings-Flyout bzw. Mobile-Sheet und gibt
-  // den Fokus an das auslösende Bedienelement zurück (Rail-⚙ / Tab-Leiste). Nur aktiv,
+  // den Fokus an das auslösende Bedienelement zurück (Rail-⚙ / Kugeln). Nur aktiv,
   // solange etwas offen ist. Das LicenseModal hat einen eigenen Trap (fängt ESC vorher ab).
   useEffect(() => {
-    if (openFlyout !== 'settings' && mobileSheet === null) return
+    if (openFlyout !== 'settings' && mobileSheet === null && !toolsOpen) return
     const onKey = (e: KeyboardEvent) => {
       if (e.key !== 'Escape') return
-      if (openFlyout === 'settings')       { closeFlyout();      focusVisible('[aria-label="Einstellungen"]') }
-      else if (mobileSheet === 'panel')    { closeMobileSheet(); focusVisible('[aria-label="Strukturen"]') }
-      else if (mobileSheet === 'view')     { closeMobileSheet(); focusVisible('[aria-label="Ansicht"]') }
+      // Mobil geht der Fokus an die Kugeln zurück, nicht an das Bedienelement im
+      // Sheet: das Sheet fährt mit dem Schließen aus dem Bild, sein ⚙ wäre ein
+      // Fokusziel außerhalb des Sichtfelds. Die Kugeln stehen immer da.
+      const narrow = isNarrowScreen()
+      if (openFlyout === 'settings') {
+        closeFlyout()
+        focusVisible(narrow ? SEL_BRAND : '[aria-label="Einstellungen"]')
+      } else if (mobileSheet === 'panel') {
+        closeMobileSheet(); focusVisible(SEL_BRAND)
+      } else if (mobileSheet === 'view') {
+        closeMobileSheet(); focusVisible(SEL_TOOLS)
+      } else {
+        setToolsOpen(false); focusVisible(SEL_TOOLS)
+      }
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [openFlyout, mobileSheet, closeFlyout, closeMobileSheet])
+  }, [openFlyout, mobileSheet, toolsOpen, closeFlyout, closeMobileSheet])
 
   async function handleLayerToggle(system: string) {
     if (loadingLayer) return
@@ -192,6 +222,33 @@ export function AppShell() {
   const toggleSettings = () =>
     openFlyout === 'settings' ? closeFlyout() : openFlyoutExclusive('settings')
 
+  // Runterwischen schließt das Sheet. Am Desktop tut der Haken nichts — dort ist
+  // dasselbe Element die angedockte Leiste, und der Haken prüft den Breakpoint.
+  const panelSwipe = useSheetSwipe<HTMLElement>(closeMobileSheet)
+  const viewSwipe  = useSheetSwipe<HTMLDivElement>(closeMobileSheet)
+
+  const bonesOn   = LAYER_GROUPS.bones.some(g => (groups[g]?.length ?? 0) > 0)
+  const musclesOn = LAYER_GROUPS.muscles.some(g => (groups[g]?.length ?? 0) > 0)
+
+  // ── Werkzeug-Säule der linken Kugel (mobil) ──────────────────────────────
+  // Reihenfolge von oben nach unten. Was am häufigsten gebraucht wird, sitzt
+  // unten — dort steht der Daumen ohnehin; „Alles zurücksetzen" liegt bewusst
+  // am weitesten davon entfernt, es löscht Sammlung und geladene Modelle.
+  // `sticky`: reine Schalter lassen die Säule offen, damit sich Knochen und
+  // Muskeln kombinieren lassen, ohne siebenmal neu aufzuklappen.
+  const toolItems: {
+    icon: keyof typeof I; label: string; on: boolean
+    toggle: boolean; sticky?: boolean; loading?: boolean; run: () => void
+  }[] = [
+    { icon: 'reset',   label: 'Alles zurücksetzen', on: false, toggle: false, run: () => resetApp() },
+    { icon: 'cube',    label: 'Ansicht',            on: mobileSheet === 'view', toggle: true, run: () => openMobileSheet('view') },
+    { icon: 'labels',  label: 'Beschriftungen',     on: labelsOn,  toggle: true, sticky: true, run: () => setLabelsOn(toggleLabels()) },
+    { icon: 'muscles', label: 'Muskeln',            on: musclesOn, toggle: true, sticky: true, loading: !!loadingLayer, run: () => handleLayerToggle('muscles') },
+    { icon: 'bones',   label: 'Knochen',            on: bonesOn,   toggle: true, sticky: true, loading: !!loadingLayer, run: () => handleLayerToggle('bones') },
+    { icon: 'multi',   label: 'Mehrfachauswahl',    on: activeTool === TOOL.MULTI,  toggle: true, run: () => setTool(TOOL.MULTI) },
+    { icon: 'select',  label: 'Auswählen',          on: activeTool === TOOL.SELECT, toggle: true, run: () => setTool(TOOL.SELECT) },
+  ]
+
   return (
     <>
       {/* ── Icon-Rail (links) ── */}
@@ -210,8 +267,8 @@ export function AppShell() {
         <div className="shell-rail__sep" />
 
         <div className="shell-rail__group">
-          {railBtn('layer-bones',   LAYER_GROUPS.bones.some(g => (groups[g]?.length ?? 0) > 0),   'Knochen / Knorpel / Zähne', () => handleLayerToggle('bones'),   loadingLayer === 'bones' ? 'is-loading' : undefined)}
-          {railBtn('layer-muscles', LAYER_GROUPS.muscles.some(g => (groups[g]?.length ?? 0) > 0), 'Muskeln / Bänder',          () => handleLayerToggle('muscles'), loadingLayer === 'muscles' ? 'is-loading' : undefined)}
+          {railBtn('layer-bones',   bonesOn,   'Knochen / Knorpel / Zähne', () => handleLayerToggle('bones'),   loadingLayer === 'bones' ? 'is-loading' : undefined)}
+          {railBtn('layer-muscles', musclesOn, 'Muskeln / Bänder',          () => handleLayerToggle('muscles'), loadingLayer === 'muscles' ? 'is-loading' : undefined)}
         </div>
 
         <div className="shell-rail__sep" />
@@ -245,6 +302,7 @@ export function AppShell() {
 
       {/* ── Tab-Sidebar (rechts) · mobil: Bottom-Sheet (--open steuert Slide) ── */}
       <aside
+        ref={panelSwipe}
         id="shell-sidebar"
         className={`shell-sidebar${mobileSheet === 'panel' ? ' shell-sidebar--open' : ''}${sidebarCollapsed ? ' shell-sidebar--collapsed' : ''}`}
         aria-label="Inhalt"
@@ -285,6 +343,20 @@ export function AppShell() {
             >
               {I.chevronRight}
             </button>
+            {/* Mobil führt kein Weg mehr über eine Rail zu den Einstellungen —
+                die Marken-Kugel öffnet dieses Sheet, das ⚙ hier ist der zweite
+                Schritt. Am Desktop ausgeblendet (app-shell.css), dort sitzt es
+                in der Rail; zweimal dasselbe ⚙ auf einem Bildschirm wäre eine
+                Frage danach, ob die beiden dasselbe tun. */}
+            <button
+              className="shell-sheetgear"
+              title="Einstellungen"
+              aria-label="Einstellungen"
+              aria-pressed={openFlyout === 'settings'}
+              onClick={toggleSettings}
+            >
+              {I.settings}
+            </button>
           </div>
           <div className="shell-tabs" role="tablist" aria-label="Ansicht">
             {TABS.map(({ id, label }) => (
@@ -323,7 +395,7 @@ export function AppShell() {
 
       {/* ── Griff am rechten Rand — einziger Rest der eingeklappten Leiste.
              Nur Desktop; mobil blendet responsive.css ihn aus (dort regelt die
-             Tab-Leiste das Öffnen). ── */}
+             Marken-Kugel das Öffnen). ── */}
       {sidebarCollapsed && (
         <button
           className="shell-grip"
@@ -346,63 +418,97 @@ export function AppShell() {
       {openFlyout === 'settings' && <SettingsPanel onClose={closeFlyout} />}
 
       {/* ── Mobile: Backdrop hinter offenen Sheets (Desktop via CSS unsichtbar) ── */}
-      {(mobileSheet !== null || openFlyout === 'settings') && (
+      {(mobileSheet !== null || openFlyout === 'settings' || toolsOpen) && (
         <div
           className="sheet-backdrop"
           aria-hidden="true"
-          onClick={() => { closeMobileSheet(); closeFlyout() }}
+          onClick={() => { closeMobileSheet(); closeFlyout(); setToolsOpen(false) }}
         />
       )}
 
       {/* ── Mobile: Ansicht-Sheet (Kamera-Cluster, wiederverwendet als Sheet-Inhalt) ── */}
       {mobileSheet === 'view' && (
-        <div className="vc-sheet" role="dialog" aria-label="Ansicht">
+        <div ref={viewSwipe} className="vc-sheet" role="dialog" aria-label="Ansicht">
           <ViewCluster />
         </div>
       )}
 
-      {/* ── Mobile: untere Tab-Leiste statt Rail (§13) — Desktop via CSS ausgeblendet ── */}
-      <nav className="shell-tabbar" aria-label="Navigation">
+      {/* ── Mobil: zwei Kugeln in den unteren Ecken statt durchgehender Tab-Leiste.
+             Links die Werkzeug-Säule, rechts die Wortmarke als Griff zum Panel-Sheet.
+             Dazwischen bleibt die Bühne frei — das war der ganze Punkt: eine Leiste
+             über die volle Breite verdeckt genau den Fuß des Modells. Desktop
+             blendet beide Docks über app-shell.css aus. ── */}
+      <div className={`shell-orbdock shell-orbdock--left${toolsOpen ? ' shell-orbdock--open' : ''}`}>
+        {toolsOpen && (
+          <div className="shell-orbmenu" role="group" aria-label={ORB_TOOLS}>
+            {toolItems.map(({ icon, label, on, toggle, sticky, loading, run }, i) => (
+              <button
+                key={icon}
+                className={`shell-orbitem${on ? ' shell-orbitem--active' : ''}`}
+                // Der Index zählt von unten: die Knöpfe steigen von der Kugel weg auf,
+                // statt oben zu beginnen und auf ihre eigene Herkunft zuzulaufen.
+                style={{ '--i': toolItems.length - 1 - i } as React.CSSProperties}
+                aria-pressed={toggle ? on : undefined}
+                disabled={loading}
+                onClick={() => { run(); if (!sticky) setToolsOpen(false) }}
+              >
+                <span className="shell-orbitem__icon">{I[icon]}</span>
+                <span className="shell-orbitem__label">{label}</span>
+              </button>
+            ))}
+          </div>
+        )}
         <button
-          className={`shell-tabbar__btn${activeTool === TOOL.SELECT && mobileSheet === null && openFlyout !== 'settings' ? ' shell-tabbar__btn--active' : ''}`}
-          aria-label="Auswählen"
-          onClick={() => { setTool(TOOL.SELECT); closeMobileSheet(); closeFlyout() }}
+          className={`shell-orb${toolsOpen ? ' shell-orb--on' : ''}`}
+          data-orb="tools"
+          title={ORB_TOOLS}
+          aria-label={ORB_TOOLS}
+          aria-expanded={toolsOpen}
+          onClick={() => {
+            if (toolsOpen) { setToolsOpen(false); return }
+            closeMobileSheet(); closeFlyout(); setToolsOpen(true)
+          }}
         >
-          {I.select}
+          {toolsOpen ? I.close : I.grid}
         </button>
+      </div>
+
+      {/* Die Wortmarke ist hier kein Schmuck, sondern das Bedienelement: sie öffnet
+          die Leiste, in der Details, Strukturen, Sammlung und ⚙ wohnen. Damit steht
+          das Zeichen mobil genau einmal auf dem Bildschirm — im Sheet blendet
+          responsive.css den Kopf-Marken-Block aus. */}
+      <div className="shell-orbdock shell-orbdock--right">
         <button
-          className={`shell-tabbar__btn${mobileSheet === 'panel' ? ' shell-tabbar__btn--active' : ''}`}
-          aria-label="Strukturen"
-          aria-pressed={mobileSheet === 'panel'}
-          onClick={() => (mobileSheet === 'panel' ? closeMobileSheet() : openMobileSheet('panel'))}
+          className={`shell-orb shell-orb--brand${mobileSheet === 'panel' ? ' shell-orb--on' : ''}`}
+          data-orb="brand"
+          title="Anatomie Fokus"
+          aria-label={multiCount > 0 ? `${ORB_BRAND} — ${multiCount} ausgewählt` : ORB_BRAND}
+          aria-expanded={mobileSheet === 'panel'}
+          aria-controls="shell-sidebar"
+          onClick={() => {
+            setToolsOpen(false)
+            if (mobileSheet === 'panel') closeMobileSheet()
+            else openMobileSheet('panel')
+          }}
         >
-          {I.layers}
+          <img
+            src={assetPath(theme === 'dark' ? 'af-logo.png' : 'af-logo-dark.png')}
+            alt=""
+            width={985}
+            height={892}
+            aria-hidden="true"
+          />
+          {/* Kleine Kugel auf der Kugel: wie viele Strukturen gerade in der
+              Mehrfachauswahl liegen. Sonst müsste man das Sheet öffnen, um zu
+              sehen, ob überhaupt etwas ausgewählt ist. Die Zahl steht auch im
+              aria-label — als Textknoten würde sie vom Label überschrieben. */}
+          {multiCount > 0 && (
+            <span className="shell-orb__count" aria-hidden="true">
+              {multiCount > 99 ? '99+' : multiCount}
+            </span>
+          )}
         </button>
-        <button
-          className={`shell-tabbar__btn${labelsOn ? ' shell-tabbar__btn--active' : ''}`}
-          aria-label="Beschriftungen"
-          aria-pressed={labelsOn}
-          onClick={() => setLabelsOn(toggleLabels())}
-        >
-          {I.labels}
-        </button>
-        <button
-          className={`shell-tabbar__btn${mobileSheet === 'view' ? ' shell-tabbar__btn--active' : ''}`}
-          aria-label="Ansicht"
-          aria-pressed={mobileSheet === 'view'}
-          onClick={() => (mobileSheet === 'view' ? closeMobileSheet() : openMobileSheet('view'))}
-        >
-          {I.cube}
-        </button>
-        <button
-          className={`shell-tabbar__btn${openFlyout === 'settings' ? ' shell-tabbar__btn--active' : ''}`}
-          aria-label="Einstellungen"
-          aria-pressed={openFlyout === 'settings'}
-          onClick={toggleSettings}
-        >
-          {I.settings}
-        </button>
-      </nav>
+      </div>
     </>
   )
 }

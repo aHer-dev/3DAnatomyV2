@@ -260,6 +260,8 @@
   border-top: 1px solid var(--hairline-soft);
 }
 
-/* Untere Tab-Leiste: nur mobil (§13, responsive.css). Auf Desktop ausgeblendet,
-   die Icon-Rail übernimmt. */
-.shell-tabbar { display: none; }
+/* Mobil-Bausteine: hier nur abgeschaltet, ausformuliert in responsive.css (§13).
+   Am Desktop übernehmen Icon-Rail (Werkzeuge) und Rail-⚙ (Einstellungen), also
+   bleiben Kugel-Docks und das ⚙ im Leisten-Kopf aus dem Bild. */
+.shell-orbdock { display: none; }
+.shell-sheetgear { display: none; }
