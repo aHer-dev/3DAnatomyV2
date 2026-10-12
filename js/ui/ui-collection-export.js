@@ -7,6 +7,7 @@ import { setModelColor, setModelOpacity } from '../features/appearance.js';
 import { renderer } from '../core/renderer.js';
 import { scene } from '../core/scene.js';
 import { camera } from '../core/camera.js';
+import { renderQualityFrame } from '../core/renderQuality.js';
 
 /**
  * Sammlung Export/Import Manager
@@ -115,7 +116,7 @@ class CollectionManager {
 
             // UI aktualisieren (React CollectionPanel reagiert auf den Store)
             document.dispatchEvent(new CustomEvent('collectionUpdated'));
-            renderer.render(scene, camera);
+            renderQualityFrame(renderer, scene, camera);
 
             // Erfolgsmeldung
             this.hideLoadingOverlay();

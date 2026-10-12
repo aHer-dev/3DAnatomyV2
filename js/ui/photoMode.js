@@ -7,6 +7,7 @@ import { renderer }           from '../core/renderer.js';
 import { scene }              from '../core/scene.js';
 import { setCameraDirection } from '../core/cameraUtils.js';
 import { requestRender } from '../core/renderScheduler.js';
+import { renderQualityFrame } from '../core/renderQuality.js';
 
 // ─── Konfiguration ───────────────────────────────────────────────────────────
 
@@ -301,7 +302,7 @@ function _capturePhoto() {
   camera.updateProjectionMatrix();
 
   // Rendern (nur 3D-Szene, keine DOM-Elemente)
-  renderer.render(scene, camera);
+  renderQualityFrame(renderer, scene, camera);
 
   // Sofort nach render() capturen – gleicher synchroner Call-Stack,
   // daher ist der Buffer noch intakt (preserveDrawingBuffer: false ist OK)

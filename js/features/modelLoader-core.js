@@ -18,6 +18,10 @@ import { getStore, INITIAL_COLORS, DEFAULT_COLOR } from '../store/useStore.js';
 import { requestRender } from '../core/renderScheduler.js';
 import { createGLTFLoader } from '../loaders/gltfLoaderFactory.js';
 import { setGroupVisibility, showObject, hideObject } from '../features/visibility.js';
+import { loadMuscleBoundaryData } from '../modelLoader/muscleBoundaryData.js';
+import { prepareAnatomyModel, updateAnatomyQuality } from '../modelLoader/muscleAppearance.js';
+import { preferOriginalModel, isModelResponse } from '../modelLoader/modelSourcePolicy.js';
+import useStore from '../store/useStore.js';
 import { showLoadingBar, hideLoadingBar, updateLoadingBar } from '../modelLoader/progress.js';
 
 // ✅ IMPORT CONFIG für dynamische Performance-Werte
@@ -88,7 +92,6 @@ export async function loadModels(entries, group, centerCamera, scene, loader, ca
   }
 
   showLoadingBar();
-  const errors = [];
   let loaded = 0;
   const configuredBatchSize = getConfig('performance.batchSize', 3);
   const batchSize = getResponsiveBatchSize(group, configuredBatchSize, entries.length);
@@ -110,7 +113,8 @@ export async function loadModels(entries, group, centerCamera, scene, loader, ca
           updateLoadingBar(Math.round((loaded / entries.length) * 100));
         } catch (err) {
           console.error(`❌ Fehler bei ${entry?.id ?? 'unbekannt'}:`, err);
-          errors.push({ id: entry?.id, error: err });
+          // Coordinate guard failures are fatal; do not silently continue with a partial group.
+          throw err;
         }
       })
     );
@@ -123,10 +127,6 @@ export async function loadModels(entries, group, centerCamera, scene, loader, ca
 
   console.timeEnd(`loadGroup-${group}`);
   hideLoadingBar();
-
-  if (errors.length) {
-    console.warn(`⚠️ ${errors.length} Modelle fehlerhaft in Gruppe "${group}":`, errors);
-  }
 
   console.log(`✅ Gruppe "${group}" vollständig geladen! (${loaded} Modelle)`);
 
@@ -144,8 +144,9 @@ export async function loadModels(entries, group, centerCamera, scene, loader, ca
 /**
  * Genau EIN Modell laden und in Szene + State einhängen
  */
-export function loadSingleModel(entry, group, scene, loader) {
-  return new Promise((resolve) => {
+export async function loadSingleModel(entry, group, scene, loader) {
+  const boundaries = await loadMuscleBoundaryData();
+  return new Promise((resolve, reject) => {
     try {
       // 1) Variante ermitteln
       const current = entry?.model?.current || 'draco';
@@ -179,6 +180,7 @@ export function loadSingleModel(entry, group, scene, loader) {
       loader.load(
         url,
         (gltf) => {
+          try {
           const model = gltf?.scene;
           if (!model) {
             console.warn(`⚠️ loadSingleModel: Kein scene-Objekt in GLTF: ${filename}`);
@@ -192,6 +194,9 @@ export function loadSingleModel(entry, group, scene, loader) {
           model.userData.group = effectiveGroup;
           model.userData.isModelRoot = true; // wichtig für getModelRoot()
           model.userData.entry = entry;      // direkter Zugriff im Info-Panel
+
+          // File geometry coordinates, before registration, scene changes or batching.
+          prepareAnatomyModel(model, filename, effectiveGroup, boundaries, getStore().renderingSettings);
 
           // 6) Schatten & Farbraum vorbereiten (🔆)
           prepareForShadows(model, effectiveGroup);
@@ -213,6 +218,10 @@ export function loadSingleModel(entry, group, scene, loader) {
           scene.add(model);
 
           resolve(model);
+          } catch (error) {
+            getStore().showLoading(error.message);
+            reject(error);
+          }
         },
         undefined, // onProgress
         (err) => {
@@ -234,7 +243,7 @@ export function loadSingleModel(entry, group, scene, loader) {
 async function bundleExists(url) {
   try {
     const res = await fetch(url, { method: 'HEAD' });
-    return res.ok;
+    return isModelResponse(res);
   } catch {
     return false;
   }
@@ -247,6 +256,7 @@ async function bundleExists(url) {
  * zum Einzel-Ladepfad, Picking/Farbe/Deckkraft pro Teil bleiben erhalten.
  */
 async function loadGroupBundle(groupName, bundleUrl, loader) {
+  const boundaries = await loadMuscleBoundaryData();
   const entries = getStore().groupedMeta?.[groupName] ?? [];
   const byBase = new Map();
   for (const e of entries) {
@@ -259,16 +269,37 @@ async function loadGroupBundle(groupName, bundleUrl, loader) {
   const gltf = await loader.loadAsync(bundleUrl);
   updateLoadingBar(60);
 
+  // Preserve verified originals: existing FJ801 bundle geometry lost two triangles.
+  // Prepare every part in its own file coordinates before either runtime path.
+  const parts = [];
+  for (const wrapper of [...(gltf?.scene?.children ?? [])]) {
+    const entry = byBase.get(wrapper.name);
+    if (!entry) continue;
+    const variant = entry.model?.variants?.[entry.model?.current || 'draco'];
+    const filename = variant?.filename || `${wrapper.name}.glb`;
+    if (preferOriginalModel(filename)) {
+      const variantPath = variant?.path || groupName;
+      const original = await loader.loadAsync(withBase(`models/${variantPath}/${filename}`));
+      // Retain the complete original node hierarchy; no coordinates or transforms changed.
+      parts.push({ model: original.scene, entry, filename });
+      disposeObject3D(wrapper);
+    } else {
+      parts.push({ model: wrapper, entry, filename });
+    }
+  }
+  for (const { model, filename } of parts) {
+    model.userData.group = groupName;
+    prepareAnatomyModel(model, filename, groupName, boundaries, getStore().renderingSettings);
+  }
+
   // Phase 1 (ADR 0007): Gruppe als EIN BatchedMesh rendern — nur Messung, keine
   // Interaktion (Picking/Selektion folgen in späteren Phasen über die Registry).
   if (getConfig('performance.batchedGroups', false)) {
     if (getGroupBatch(groupName)) { hideLoadingBar(); return; } // bereits gebatcht
-    gltf.scene.updateMatrixWorld(true);
     const batchParts = [];
-    for (const wrapper of [...(gltf?.scene?.children ?? [])]) {
-      const entry = byBase.get(wrapper.name) ?? null;
-      if (!entry) continue;
-      wrapper.traverse((ch) => {
+    for (const { model, entry } of parts) {
+      model.updateMatrixWorld(true);
+      model.traverse((ch) => {
         if (ch.isMesh && ch.geometry) {
           batchParts.push({ geometry: ch.geometry, matrixWorld: ch.matrixWorld.clone(), entry });
         }
@@ -276,7 +307,8 @@ async function loadGroupBundle(groupName, bundleUrl, loader) {
     }
     const groupColor = getStore().colors?.[groupName] ?? INITIAL_COLORS[groupName] ?? DEFAULT_COLOR;
     const gb = new GroupBatch(groupName);
-    const mesh = gb.build(batchParts, { color: groupColor });
+    const bellyColor = getStore().colors.muscles ?? INITIAL_COLORS.muscles;
+    const mesh = gb.build(batchParts, { color: groupColor, bellyColor, quality: getStore().renderingSettings });
     setGroupBatch(groupName, gb);
     scene.add(mesh);
     updateLoadingBar(100);
@@ -286,13 +318,10 @@ async function loadGroupBundle(groupName, bundleUrl, loader) {
   }
 
   // Snapshot: scene.add() hängt die Nodes um → Kinder-Liste würde sonst mutieren.
-  const parts = [...(gltf?.scene?.children ?? [])];
   let loaded = 0;
-  let unmapped = 0;
+  const unmapped = (gltf?.scene?.children?.length ?? 0) - parts.length;
 
-  for (const model of parts) {
-    const entry = byBase.get(model.name) ?? null;
-    if (!entry) { unmapped++; continue; }
+  for (const { model, entry } of parts) {
 
     model.name = entry.id || model.name;
     model.userData.meta = entry;
@@ -369,8 +398,21 @@ export async function loadGroupByName(groupName, { centerCamera = false, loaderR
     console.log(`✅ loadGroupByName: Gruppe "${groupName}" geladen (${entries.length} Modelle)`);
   } catch (err) {
     console.error(`❌ loadGroupByName: Fehler beim Laden von "${groupName}":`, err);
+    getStore().showLoading(err.message);
+    throw err;
   }
 }
+
+// UI updates only Store state; loaded models react here in the imperative layer.
+useStore.subscribe((state, previous) => {
+  if (state.renderingSettings === previous.renderingSettings) return;
+  for (const [group, models] of Object.entries(state.groups)) {
+    for (const model of models) updateAnatomyQuality(model, state.renderingSettings);
+    const batch = getGroupBatch(group);
+    if (batch?.mesh) updateAnatomyQuality(batch.mesh, state.renderingSettings);
+  }
+  requestRender();
+});
 
 
 /**

@@ -1,7 +1,5 @@
 // js/bootstrap/startApp.js - IMPORT FIX
 
-import * as THREE from 'three';
-
 import { scene } from '../core/scene.js';
 import { camera } from '../core/camera.js';
 import { controls } from '../core/controls.js';
@@ -32,12 +30,14 @@ import { processDeeplink, setupDeeplinkSync } from '../integration/deeplink.js';
 
 import { initRoomSettings } from '../features/roomSettings.js';
 import { updateModelColors } from '../modelLoader/color.js';
+import { updateAnatomyQuality } from '../modelLoader/muscleAppearance.js';
 import { renderLabels } from '../features/labels.js';
 
 import { updatePerformanceMonitor } from '../debug/performanceMonitor.js';
 import { showLoadingCircle, updateLoadingCircle } from '../modelLoader/progress.js';
 import { lifecycle } from '../core/lifecycle.js';
 import { registerRequestRender } from '../core/renderScheduler.js';
+import { initializeRenderQuality, renderQualityFrame, disposeRenderQuality, isConstrainedGraphics } from '../core/renderQuality.js';
 
 // --- Demand-Rendering: nur rendern wenn sich etwas geändert hat ---
 let _needsRender = true;
@@ -64,7 +64,7 @@ function ensureLoopRunning() {
         if (_needsRender) {
             _needsRender = false;
             updatePerformanceMonitor?.();
-            renderer.render(scene, camera);
+            renderQualityFrame(renderer, scene, camera);
             // Beschriftungen teilen sich den Takt mit dem 3D-Bild. Sie hatten
             // frueher eine eigene 60-fps-Schleife, die auch im Leerlauf weiterlief.
             renderLabels();
@@ -115,6 +115,7 @@ function startLoop() {
 // Sauberes Cleanup beim Verlassen/Navigieren
 window.addEventListener('beforeunload', () => {
     stopLoop?.();
+    disposeRenderQuality();
     lifecycle.dispose();
 }, { once: true });
 
@@ -126,7 +127,9 @@ export async function startApp() {
 
     // Sparsames Profil fuer Handys/schwache Verbindungen — muss VOR dem ersten
     // Laden stehen, danach liest niemand die Batch-Groessen mehr neu.
-    if (applyDeviceProfile()) console.log('📱 Sparsames Geraeteprofil aktiv');
+    const constrainedDevice = applyDeviceProfile() || isConstrainedGraphics(renderer);
+    getStore().setConstrainedDevice(constrainedDevice);
+    if (constrainedDevice) console.log('📱 Sparsames Geraeteprofil aktiv');
 
     window.__DISABLE_PROGRESS_OVERLAY = true;
     showLoadingCircle({ label: '3D-Modell wird geladen …' });
@@ -145,9 +148,9 @@ export async function startApp() {
         // 1) Metadaten
         await initializeGroupsFromMeta();
 
-        // 2) Licht + (optional) HDR
+        // 2) Licht + dateifreies RoomEnvironment
         setupBasicLights(scene);
-        await tryApplyEnvironment(renderer);
+        initializeRenderQuality(renderer, scene, camera);
         updateLoadingCircle(35);
 
         // 3) Farben aus Config in den State übernehmen (INITIAL_COLORS sind bereits gesetzt)
@@ -196,6 +199,9 @@ export async function startApp() {
             const hex = getStore().colors[g] ?? INITIAL_COLORS[g] ?? DEFAULT_COLOR;
             if (hex != null) updateModelColors(g, hex);
         });
+        for (const roots of Object.values(getStore().groups)) {
+            for (const root of roots) updateAnatomyQuality(root, getStore().renderingSettings);
+        }
 
         requestShadowUpdate();
         freezeShadows();
@@ -249,34 +255,4 @@ export function disableRenderOptimization() {
 export function showRenderStats() {
     const stats = optimizerControls.stats();
     if (stats) console.table(stats);
-}
-
-async function tryApplyEnvironment(renderer) {
-    try {
-        const { RGBELoader } = await import('three/addons/loaders/RGBELoader.js');
-        const pmrem = new THREE.PMREMGenerator(renderer);
-        pmrem.compileEquirectangularShader();
-
-        const hdrUrl = 'env/default.hdr';
-        const hdr = await new RGBELoader().loadAsync(hdrUrl);
-
-        hdr.mapping = THREE.EquirectangularReflectionMapping;
-
-        const envTex = pmrem.fromEquirectangular(hdr).texture;
-        hdr.dispose();
-        pmrem.dispose();
-
-        scene.environment = envTex;
-        scene.environmentIntensity = 0.3;
-        scene.background = null;
-
-        renderer.toneMapping = THREE.ACESFilmicToneMapping;
-        // toneMappingExposure wird von initRoomSettings gesetzt – hier nicht überschreiben
-
-    } catch (e) {
-        console.warn('Kein HDR geladen - weiter ohne Environment.', e?.message);
-        scene.environment = null;
-        scene.environmentIntensity = 0;
-    }
-    updateLoadingCircle(25);   // nur Fortschritt, NICHT schließen
 }

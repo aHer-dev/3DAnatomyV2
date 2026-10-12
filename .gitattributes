@@ -1,0 +1,2 @@
+# Preserve the measured OneDrive JSON byte-for-byte, including its Windows EOLs.
+public/data/muskelgrenzen.json -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol

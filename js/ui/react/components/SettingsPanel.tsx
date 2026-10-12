@@ -16,6 +16,8 @@ import { useSheetSwipe } from '../useSheetSwipe.js'
 import { resetColors } from '../../ui-reset.js'
 import { loadPresetManifest, applyPreset } from '../../../features/presets.js'
 import { LicenseModal } from './LicenseModal.js'
+import { getEffectiveRenderingSettings } from '../../../store/useStore.js'
+import type { RenderingSettings } from '../../../store/useStore.js'
 
 interface Preset {
   name: string
@@ -45,6 +47,63 @@ const BG_SWATCHES: { hex: string; label: string }[] = [
   { hex: '#34373c', label: 'Anthrazit' },
   { hex: '#0a0e27', label: 'Navy' },
 ]
+
+const QUALITY_CONTROLS: { key: keyof RenderingSettings; label: string }[] = [
+  { key: 'environment', label: 'Weiches Raumlicht' },
+  { key: 'toneMapping', label: 'Tonwertanpassung' },
+  { key: 'tissueMaterials', label: 'Gewebematerialien' },
+  { key: 'ambientOcclusion', label: 'Vertiefungen betonen' },
+  { key: 'smoothNormals', label: 'Glatte Oberflächen' },
+  { key: 'polygonOffset', label: 'Flimmern vermeiden' },
+]
+
+function RenderingSection() {
+  const settings = useReactStore(s => s.renderingSettings)
+  const performanceMode = useReactStore(s => s.performanceMode)
+  const constrainedDevice = useReactStore(s => s.constrainedDevice)
+  const setSetting = useReactStore(s => s.setRenderingSetting)
+  const setPerformanceMode = useReactStore(s => s.setPerformanceMode)
+  const effective = getEffectiveRenderingSettings(settings, performanceMode, constrainedDevice)
+  const constrained = performanceMode || constrainedDevice
+
+  return (
+    <section className="stp-section">
+      <h3 className="stp-section-title">Darstellung</h3>
+      <label className="stp-toggle">
+        <span className="stp-toggle__label">Performance-Modus</span>
+        <input
+          type="checkbox"
+          checked={performanceMode}
+          onChange={e => setPerformanceMode(e.target.checked)}
+          aria-describedby="stp-quality-hint"
+        />
+      </label>
+      {QUALITY_CONTROLS.map(({ key, label }) => (
+        <label className="stp-toggle" key={key}>
+          <span className="stp-toggle__label">
+            {label}
+            {settings[key] && !effective[key] && (
+              <span className="stp-toggle__status">pausiert</span>
+            )}
+          </span>
+          <input
+            type="checkbox"
+            checked={settings[key]}
+            disabled={key === 'environment' && constrained}
+            onChange={e => setSetting(key, e.target.checked)}
+            aria-describedby={key === 'ambientOcclusion' || key === 'environment' ? 'stp-quality-hint' : undefined}
+          />
+        </label>
+      ))}
+      <p className="stp-hint" id="stp-quality-hint">
+        {constrained
+          ? `Weiches Raumlicht und die Betonung von Vertiefungen pausieren ${performanceMode ? 'im Performance-Modus' : 'auf diesem Gerät'}. Deine Auswahl bleibt erhalten. `
+          : 'Der Performance-Modus spart Rechenleistung bei Raumlicht und Vertiefungen. '}
+        Bei transparenten Strukturen pausiert die Betonung der Vertiefungen ebenfalls.
+      </p>
+    </section>
+  )
+}
 
 // ─── Icons (15px, Stroke currentColor) ──────────────────────────────────────
 const icGear = <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
@@ -235,6 +294,8 @@ export function SettingsPanel({ onClose }: SettingsPanelProps) {
 
             <button className="stp-ghost" onClick={resetRoom}>Raum zurücksetzen</button>
           </section>
+
+          <RenderingSection />
 
           <PresetSection />
 

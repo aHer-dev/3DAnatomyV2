@@ -15,6 +15,7 @@ import { disposeObject3D } from '../modelLoader/cleanup.js';
 import { clearIsolationState } from '../interaction/isolationView.js';
 import { clearGhostContext } from '../features/ghostContext.js';
 import { clearLabels } from '../features/labels.js';
+import { renderQualityFrame } from '../core/renderQuality.js';
 
 const STANDARD_GROUPS = ['bones', 'teeth', 'cartilage'];
 
@@ -96,7 +97,7 @@ export async function resetApp() {
     getStore().setLoadingProgress(100);
     await new Promise(resolve => setTimeout(resolve, 500));
 
-    renderer.render(scene, camera);
+    renderQualityFrame(renderer, scene, camera);
   } catch (err) {
     console.error('❌ Fehler beim Reset:', err);
   } finally {
@@ -114,5 +115,5 @@ export function resetColors() {
       updateModelColors(groupName, hex);
     }
   });
-  renderer.render(scene, camera);
+  renderQualityFrame(renderer, scene, camera);
 }

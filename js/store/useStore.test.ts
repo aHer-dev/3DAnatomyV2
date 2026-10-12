@@ -1,12 +1,16 @@
 import { describe, it, expect, beforeEach } from 'vitest'
 import type * as THREE from 'three'
-import store from './useStore.js'
+import store, { getEffectiveRenderingSettings, INITIAL_RENDERING_SETTINGS } from './useStore.js'
+import type { RenderingSettings } from './useStore.js'
 import type { CollectionItem, MetaEntry } from '../types/index.js'
 
 // Startwerte gleich beim Import festhalten — die Tests weiter unten verstellen sie.
 const INITIAL_SIDEBAR_COLLAPSED = store.getState().sidebarCollapsed
 const INITIAL_VIEWBAR_VISIBLE = store.getState().viewBarVisible
 const INITIAL_THEME = store.getState().theme
+const INITIAL_RENDERING = store.getState().renderingSettings
+const INITIAL_PERFORMANCE_MODE = store.getState().performanceMode
+const INITIAL_CONSTRAINED_DEVICE = store.getState().constrainedDevice
 
 const mockMesh = () => ({ uuid: crypto.randomUUID(), type: 'Mesh', name: 'testMesh', isMesh: true }) as unknown as THREE.Object3D
 const mockMeta = () => ({ id: 'fma12345', labels: { de: 'Test', en: 'Test', la: 'Test' } }) as MetaEntry
@@ -20,6 +24,9 @@ const emptyState = () => ({
   multiSelected: new Set<THREE.Object3D>(),
   colors: {},
   opacity: {},
+  renderingSettings: { ...INITIAL_RENDERING_SETTINGS },
+  performanceMode: false,
+  constrainedDevice: false,
   pickableObjects: new Set<THREE.Object3D>(),
   protection: { bones: true, teeth: true },
   groupedMeta: {},
@@ -176,6 +183,79 @@ describe('Appearance', () => {
 
     store.getState().setGroupOpacity('muscles', -0.3)
     expect(store.getState().groupOpacity['muscles']).toBe(0)
+  })
+})
+
+describe('Darstellungsqualität', () => {
+  it('startet mit jeder Maßnahme einzeln aktiviert und ohne Performance-Modus', () => {
+    expect(INITIAL_RENDERING).toEqual({
+      environment: true,
+      toneMapping: true,
+      tissueMaterials: true,
+      ambientOcclusion: true,
+      smoothNormals: true,
+      polygonOffset: true,
+    })
+    expect(INITIAL_PERFORMANCE_MODE).toBe(false)
+    expect(INITIAL_CONSTRAINED_DEVICE).toBe(false)
+  })
+
+  it.each(Object.keys(INITIAL_RENDERING_SETTINGS) as (keyof RenderingSettings)[])(
+    '%s ist unabhängig schaltbar und verändert keine Gruppenfarben',
+    (key) => {
+      const original = store.getState().renderingSettings
+      const colors = store.getState().colors
+      store.getState().setRenderingSetting(key, false)
+      expect(store.getState().renderingSettings).toEqual({ ...original, [key]: false })
+      expect(original[key]).toBe(true)
+      expect(store.getState().colors).toBe(colors)
+      store.getState().setRenderingSetting(key, true)
+      expect(store.getState().renderingSettings).toEqual(original)
+    },
+  )
+
+  it.each([
+    [true, false],
+    [false, true],
+    [true, true],
+  ])('pausiert AO bei Performance=%s oder schwachem Gerät=%s und behält die Auswahl', (performance, constrained) => {
+    store.getState().setPerformanceMode(performance)
+    store.getState().setConstrainedDevice(constrained)
+    const state = store.getState()
+    expect(state.performanceMode).toBe(performance)
+    expect(state.constrainedDevice).toBe(constrained)
+    expect(getEffectiveRenderingSettings(state.renderingSettings, state.performanceMode, state.constrainedDevice)).toEqual({
+      ...INITIAL_RENDERING_SETTINGS,
+      environment: false,
+      ambientOcclusion: false,
+    })
+    expect(state.renderingSettings.ambientOcclusion).toBe(true)
+    store.getState().setPerformanceMode(false)
+    store.getState().setConstrainedDevice(false)
+    expect(getEffectiveRenderingSettings(store.getState().renderingSettings, false, false).ambientOcclusion).toBe(true)
+  })
+
+  it('reaktiviert eine explizit abgewählte Maßnahme nach dem Performance-Modus nicht', () => {
+    store.getState().setRenderingSetting('ambientOcclusion', false)
+    store.getState().setRenderingSetting('environment', false)
+    store.getState().setPerformanceMode(true)
+    store.getState().setPerformanceMode(false)
+    expect(getEffectiveRenderingSettings(store.getState().renderingSettings, false, false)).toEqual({
+      ...INITIAL_RENDERING_SETTINGS,
+      environment: false,
+      ambientOcclusion: false,
+    })
+  })
+
+  it('behält Darstellungswahl und Geräteprofil beim Modell-Reset', () => {
+    store.getState().setRenderingSetting('toneMapping', false)
+    store.getState().setPerformanceMode(true)
+    store.getState().setConstrainedDevice(true)
+    store.getState().resetAll()
+    const state = store.getState()
+    expect(state.renderingSettings).toEqual({ ...INITIAL_RENDERING_SETTINGS, toneMapping: false })
+    expect(state.performanceMode).toBe(true)
+    expect(state.constrainedDevice).toBe(true)
   })
 })
 

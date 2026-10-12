@@ -12,6 +12,37 @@ export const INITIAL_COLORS: Record<string, number> = {
   ...(APP_CONFIG.ui.colors as Record<string, number>),
 }
 
+export interface RenderingSettings {
+  environment: boolean
+  toneMapping: boolean
+  tissueMaterials: boolean
+  ambientOcclusion: boolean
+  smoothNormals: boolean
+  polygonOffset: boolean
+}
+
+export const INITIAL_RENDERING_SETTINGS: Readonly<RenderingSettings> = Object.freeze({
+  environment: true,
+  toneMapping: true,
+  tissueMaterials: true,
+  ambientOcclusion: true,
+  smoothNormals: true,
+  polygonOffset: true,
+})
+
+/** Teure Effekte pausieren, ohne die Auswahl der Nutzerin zu überschreiben. */
+export function getEffectiveRenderingSettings(
+  settings: RenderingSettings,
+  performanceMode: boolean,
+  constrainedDevice: boolean,
+): RenderingSettings {
+  return {
+    ...settings,
+    environment: settings.environment && !performanceMode && !constrainedDevice,
+    ambientOcclusion: settings.ambientOcclusion && !performanceMode && !constrainedDevice,
+  }
+}
+
 // ─── Einzelansicht (Isolation) ───────────────────────────────────────────────
 
 export interface IsolationActionBar {
@@ -94,6 +125,9 @@ export interface StoreState {
   colors: Record<string, number>
   opacity: Record<string, number>
   groupOpacity: Record<string, number>
+  renderingSettings: RenderingSettings
+  performanceMode: boolean
+  constrainedDevice: boolean
 
   // ─── Raycasting ─────────────────────────────────────────────────────────────
   pickableObjects: Set<THREE.Object3D>
@@ -149,6 +183,9 @@ export interface StoreState {
   setGroupColor: (group: string, color: number) => void
   setModelOpacity: (modelId: string, opacity: number) => void
   setGroupOpacity: (group: string, opacity: number) => void
+  setRenderingSetting: (key: keyof RenderingSettings, enabled: boolean) => void
+  setPerformanceMode: (enabled: boolean) => void
+  setConstrainedDevice: (constrained: boolean) => void
 
   // ─── Actions: Pickables ───────────────────────────────────────────────────
   addPickable: (mesh: THREE.Object3D) => void
@@ -215,6 +252,9 @@ const useStore = createStore<StoreState>((set, get) => ({
   colors: { ...INITIAL_COLORS },
   opacity: {},
   groupOpacity: {},
+  renderingSettings: { ...INITIAL_RENDERING_SETTINGS },
+  performanceMode: false,
+  constrainedDevice: false,
   pickableObjects: new Set(),
   protection: { bones: true, teeth: true },
   groupedMeta: {},
@@ -315,6 +355,13 @@ const useStore = createStore<StoreState>((set, get) => ({
     set((state) => ({
       groupOpacity: { ...state.groupOpacity, [group]: Math.max(0, Math.min(1, opacity)) },
     })),
+
+  setRenderingSetting: (key, enabled) =>
+    set((state) => ({
+      renderingSettings: { ...state.renderingSettings, [key]: enabled },
+    })),
+  setPerformanceMode: (performanceMode) => set({ performanceMode }),
+  setConstrainedDevice: (constrainedDevice) => set({ constrainedDevice }),
 
   // Pickables
   addPickable: (mesh) =>

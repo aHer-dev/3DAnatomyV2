@@ -43,6 +43,36 @@
 - **Kein paralleles DOM-Chrome mehr** — die gesamte UI liegt in React (ADR 0004);
   `index.html` enthält nur Canvas + `#ui-root`.
 
+## Muskelmaterial und Darstellungsqualität
+
+Die zusätzlichen Darstellungseinstellungen verwenden ausschließlich den Store
+als Bridge: `SettingsPanel` schreibt `renderingSettings`, `performanceMode` und
+deren Aktionen; der imperative 3D-Layer liest und abonniert sie. Das Geräteprofil
+setzt `constrainedDevice`. `getEffectiveRenderingSettings` pausiert weiches Raumlicht und GTAO bei
+Performance-Modus oder schwachem Gerät und erhält die gespeicherte Auswahl.
+
+`modelLoader/muscleBoundary.ts` ordnet `muskelgrenzen.json` anhand des GLB-Dateinamens
+zu und enthält die unveränderte Blender-Referenzrechnung. `muscleAppearance.ts`
+ergänzt beim Laden das Bauchgewicht in rohen Dateikoordinaten und installiert ein
+kopierbares `MeshStandardMaterial` mit fester Sehnenfarbe. Normalen und Rauheit
+sind unabhängig schaltbar; Positionen, Indizes und Knoten bleiben unverändert.
+Die Bounding-Box-Prüfung stoppt abweichende Quellen. `modelSourcePolicy.ts` wählt
+für den vorhandenen fehlerhaften FJ801-Bundle-Wrapper das geprüfte Original und
+erkennt HTML-Antworten auf fehlende Bundles für den Einzeldatei-Fallback.
+Gemessene Augenmuskeln teilen die Muskel-Bauchfarbe; echte Augen behalten ihre
+Gruppenfarbe. `muscleBoundaryData.ts` lädt und teilt die Messdaten einmal pro Sitzung.
+
+`core/renderQuality.ts` erzeugt RoomEnvironment/PMREM und verwaltet Tone-Mapping
+und die bei Bedarf erzeugte GTAO-Nachbearbeitung. Sie hängt im vorhandenen
+Demand-Render-Loop und pausiert auch bei sichtbarer Transparenz. Details und
+Datenpflege: [MUSCLE_RENDERING.md](MUSCLE_RENDERING.md), Entscheidung: [ADR 0010](decisions/0010-muscle-tendon-rendering.md).
+
+Der UI-Schalter Performance-Modus pausiert weiches Raumlicht und GTAO und aktiviert keine Bündelung.
+Der ältere `groupBatch.js`-Versuchspfad hinter `performance.batchedGroups`
+(Default aus) erhält Bauchgewichte, Instanzfarben und Originalnormalen in
+Geometriekopien. Seine vollständige individuelle Interaktion ist weiterhin
+offen (ADR 0007).
+
 ## Datei-Struktur (Ist)
 
 ```
@@ -59,6 +89,8 @@
 │   ├── interaction/        # Raycasting/Auswahl (index, multiSelect, boxSelect,
 │   │                       #   isolationView, highlightModel, hoverTooltip)
 │   ├── modelLoader/        # GLB laden/aufräumen (color, cleanup, progress)
+│   │                       #   muscleBoundary, muscleAppearance, modelSourcePolicy
+│   │                       #   muscleBoundaryData
 │   ├── loaders/            # gltfLoaderFactory (Draco)
 │   ├── store/              # Zustand-Store (useStore.ts) — Single Source of Truth
 │   ├── ui/                 # imperative UI-Logik (toolbar, photoMode, ui-reset,
@@ -73,7 +105,7 @@
 ├── css/                    # main.css (einziger Einstieg) importiert theme/ + components/
 ├── public/
 │   ├── models/             # .glb (Draco) + Decoder
-│   └── data/               # meta.json, presets/ (.bluebody + index.json)
+│   └── data/               # meta.json, muskelgrenzen.json, presets/ (.bluebody + index.json)
 └── docs/
     ├── architecture.md     # (diese Datei)
     ├── decisions/          # ADRs (0001 Vite/TS/React, 0002 Zustand, 0003 Lizenz,
@@ -101,4 +133,4 @@ interface MetaEntry {
 
 ---
 
-*Zuletzt aktualisiert: 2026-06-25 · UI vollständig in React konsolidiert (ADR 0004)*
+*Zuletzt aktualisiert: 2026-10-12 · Muskelmaterial und Qualitäts-Store-Bridge (ADR 0010)*

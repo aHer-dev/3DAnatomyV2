@@ -4,6 +4,7 @@
 import { camera } from '../core/camera.js';
 import { renderer, getTargetPixelRatio } from '../core/renderer.js';
 import { requestRender } from '../core/renderScheduler.js';
+import { resizeRenderQuality } from '../core/renderQuality.js';
 
 
 // Flag um Mehrfachregistrierung zu verhindern
@@ -27,6 +28,7 @@ export function initResizeHandler() {
                 // Renderer anpassen
                 renderer.setPixelRatio(getTargetPixelRatio());
             renderer.setSize(width, height);
+            resizeRenderQuality(width, height, renderer.getPixelRatio());
 
                 // Kamera-Aspekt anpassen
                 camera.aspect = width / height;

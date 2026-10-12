@@ -21,6 +21,7 @@
 import * as THREE from 'three';
 import { getStore } from '../store/useStore.js';
 import { requestRender } from '../core/renderScheduler.js';
+import { updateAnatomyQuality } from '../modelLoader/muscleAppearance.js';
 
 const GHOST_ALPHA = 0.08;
 
@@ -32,7 +33,7 @@ export const GHOST_MESH_BUDGET = 500;
 let _active = false;
 /** @type {GhostMode|null} */
 let _mode = null;
-/** @type {Array<{ mesh: THREE.Mesh, material: THREE.Material|THREE.Material[] }>|null} */
+/** @type {Array<{ root: THREE.Object3D, mesh: THREE.Mesh, material: THREE.Material|THREE.Material[] }>|null} */
 let _touched = null;
 
 let _translucentMat = null;
@@ -102,7 +103,7 @@ export function enterGhostContext(selectedModel) {
       if (root === selectedModel || !root.visible) continue;
       root.traverse(mesh => {
         if (!mesh.isMesh || !mesh.visible || !mesh.material) return;
-        _touched.push({ mesh, material: mesh.material });
+        _touched.push({ root, mesh, material: mesh.material });
         mesh.material = replacement;
       });
     }
@@ -127,9 +128,16 @@ export function clearGhostContext() {
 export function exitGhostContext() {
   if (!_active) return;
 
-  for (const { mesh, material } of _touched ?? []) {
+  /** @type {Set<THREE.Object3D>} */
+  const restoredRoots = new Set();
+  for (const { root, mesh, material } of _touched ?? []) {
     mesh.material = material;
+    restoredRoots.add(root);
   }
+  // The shared ghost material hid these originals from quality subscriptions.
+  // Reapply current choices once per model after restoring their references.
+  const quality = getStore().renderingSettings;
+  for (const root of restoredRoots) updateAnatomyQuality(root, quality);
 
   _touched = null;
   _mode = null;

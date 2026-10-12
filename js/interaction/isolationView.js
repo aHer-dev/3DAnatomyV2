@@ -4,6 +4,7 @@ import { camera } from '../core/camera.js';
 import { setModelVisibility } from '../features/visibility.js';
 import { getStore } from '../store/useStore.js';
 import { isGhostContextActive, exitGhostContext } from '../features/ghostContext.js';
+import { renderQualityFrame } from '../core/renderQuality.js';
 
 const DEFAULT_STRUCTURAL_GROUPS = ['bones', 'teeth', 'cartilage', 'ligaments'];
 
@@ -82,7 +83,7 @@ export function enterIsolatedView(model, options = {}) {
     label,
   });
 
-  renderer.render(scene, camera);
+  renderQualityFrame(renderer, scene, camera);
   return true;
 }
 
@@ -98,7 +99,7 @@ export function exitIsolatedView() {
   }
 
   getStore().setIsolation({ model: null, actionBar: null });
-  renderer.render(scene, camera);
+  renderQualityFrame(renderer, scene, camera);
 }
 
 export function getIsolatedModel() {

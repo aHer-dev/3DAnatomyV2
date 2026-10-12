@@ -10,18 +10,25 @@
 // → ein gemeinsames Material, Gruppenfarbe pro Instanz via setColorAt.
 
 import * as THREE from 'three';
+import {
+  AnatomyMaterial, DEFAULT_MATERIAL_QUALITY, getOriginalAnatomyNormal, preserveAnatomyNormals,
+} from '../modelLoader/muscleAppearance.js';
 
 /**
- * Reduziert eine Geometrie auf ein einheitliches Attribut-Set (position, normal),
+ * Reduziert eine Geometriekopie auf position, normal und bellyWeight,
  * damit alle Teile einer Gruppe dieselbe Layout-Signatur für BatchedMesh haben.
  * Texturkoordinaten u. Ä. entfallen (kein Textur-Material im Batch).
  */
 function normalizeGeometry(geometry) {
-  const g = geometry.index ? geometry : geometry.toNonIndexed();
+  const g = geometry.clone();
   for (const name of Object.keys(g.attributes)) {
-    if (name !== 'position' && name !== 'normal') g.deleteAttribute(name);
+    if (name !== 'position' && name !== 'normal' && name !== 'bellyWeight') g.deleteAttribute(name);
   }
   if (!g.attributes.normal) g.computeVertexNormals();
+  if (!g.attributes.bellyWeight) {
+    const weights = new Float32Array(g.attributes.position.count).fill(1);
+    g.setAttribute('bellyWeight', new THREE.BufferAttribute(weights, 1));
+  }
   return g;
 }
 
@@ -40,9 +47,9 @@ export class GroupBatch {
   /**
    * Baut das BatchedMesh aus den Teilen der Gruppe.
    * @param {Array<{ geometry: THREE.BufferGeometry, matrixWorld: THREE.Matrix4, entry: object }>} parts
-   * @param {{ color?: number }} [opts]
+   * @param {{ color?: number, bellyColor?: number, quality?: import('../modelLoader/muscleAppearance.js').MaterialQualitySettings }} [opts]
    */
-  build(parts, { color = 0xcccccc } = {}) {
+  build(parts, { color = 0xcccccc, bellyColor = color, quality = DEFAULT_MATERIAL_QUALITY } = {}) {
     const geoms = parts.map((p) => normalizeGeometry(p.geometry));
 
     let maxVerts = 0;
@@ -52,12 +59,20 @@ export class GroupBatch {
       maxIndices += g.index ? g.index.count : g.attributes.position.count;
     }
 
-    const material = new THREE.MeshStandardMaterial({
+    const material = new AnatomyMaterial({
       color: 0xffffff,
       metalness: 0.0,
       roughness: 0.85,
       side: THREE.DoubleSide,
     });
+    material.weighted = parts.some(part => !!part.geometry.getAttribute('bellyWeight'));
+    material.tissueMaterials = quality.tissueMaterials;
+    material.tissueRoughness = this.groupName === 'bones' ? 0.9 : 0.8;
+    material.originalRoughness = 0.85;
+    material.roughness = quality.tissueMaterials ? material.tissueRoughness : material.originalRoughness;
+    material.polygonOffset = quality.polygonOffset && (material.weighted || this.groupName === 'muscles');
+    material.polygonOffsetFactor = -1;
+    material.polygonOffsetUnits = -1;
 
     const batch = new THREE.BatchedMesh(Math.max(1, parts.length), maxVerts, maxIndices, material);
     batch.name = `batch:${this.groupName}`;
@@ -65,13 +80,26 @@ export class GroupBatch {
     batch.userData.group = this.groupName;
 
     const col = new THREE.Color(color);
+    const bellyCol = new THREE.Color(bellyColor);
+    const originalNormals = new Float32Array(maxVerts * 3);
     for (let i = 0; i < parts.length; i++) {
       const geometryId = batch.addGeometry(geoms[i]);
+      const sourceNormal = getOriginalAnatomyNormal(parts[i].geometry) ?? geoms[i].getAttribute('normal');
+      const { vertexStart } = batch.getGeometryRangeAt(geometryId);
+      for (let vertex = 0; vertex < sourceNormal.count; vertex++) {
+        const offset = (vertexStart + vertex) * 3;
+        originalNormals[offset] = sourceNormal.getX(vertex);
+        originalNormals[offset + 1] = sourceNormal.getY(vertex);
+        originalNormals[offset + 2] = sourceNormal.getZ(vertex);
+      }
       const batchId = batch.addInstance(geometryId);
       batch.setMatrixAt(batchId, parts[i].matrixWorld);
-      batch.setColorAt(batchId, col);
-      this._byBatchId.set(batchId, { entry: parts[i].entry, geometryId });
+      const weighted = !!parts[i].geometry.getAttribute('bellyWeight');
+      batch.setColorAt(batchId, weighted ? bellyCol : col);
+      this._byBatchId.set(batchId, { entry: parts[i].entry, geometryId, weighted });
+      geoms[i].dispose();
     }
+    preserveAnatomyNormals(batch.geometry, new THREE.Float32BufferAttribute(originalNormals, 3), quality.smoothNormals);
 
     this.mesh = batch;
     return batch;
@@ -89,10 +117,11 @@ export class GroupBatch {
   }
 
   /** Gruppenfarbe für alle Instanzen setzen. */
-  setGroupColor(color) {
+  setGroupColor(color, bellyColor = color) {
     if (!this.mesh) return;
     const col = new THREE.Color(color);
-    for (const batchId of this._byBatchId.keys()) this.mesh.setColorAt(batchId, col);
+    const bellyCol = new THREE.Color(bellyColor);
+    for (const [batchId, record] of this._byBatchId) this.mesh.setColorAt(batchId, record.weighted ? bellyCol : col);
   }
 
   dispose() {

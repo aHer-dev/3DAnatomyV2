@@ -7,6 +7,45 @@ Format: [Keep a Changelog](https://keepachangelog.com/de/1.0.0/)
 
 ## [Unreleased]
 
+### Added (2026-10-12 — Zweifarbige Muskeln und schaltbare Darstellungsqualität)
+- **Bauch und Sehne werden beim Laden getrennt gefärbt.** Die unveränderte
+  Blender-Referenzrechnung nutzt die 247 Einträge aus
+  `public/data/muskelgrenzen.json`, zugeordnet über GLB-Dateinamen einschließlich
+  Dateien in anderen Gruppen und der ausdrücklich benannten linken Partner.
+  Gemessene und gepaarte Muskeln unter `eyes` teilen die gespeicherte
+  Muskel-Bauchfarbe; tatsächliche Augen und Gruppenstandardfarben bleiben erhalten.
+  Der Farbwähler steuert die Bauchfarbe; Sehnen bleiben `#EFE6D2`.
+- **Sechs einzelne Schalter unter Einstellungen → Darstellung:** erzeugtes
+  RoomEnvironment, ACES-Tone-Mapping, Gewebematerialien, GTAO, geglättete Normalen
+  und Polygon-Offset. Performance-Modus und schwaches Geräteprofil pausieren
+  weiches Raumlicht und GTAO bei erhaltener Nutzerwahl; sichtbare transparente Strukturen umgehen
+  den Effekt ebenfalls. Teil B benötigt keine neuen Modell- oder Bilddateien;
+  Gruppenfarben bleiben erhalten. Muskelfaserung ist nicht aktiviert.
+- **Geometrieprüfung vor weiterer Verarbeitung:** Welt-Bounding-Box vor/nach
+  Vorbereitung (0,01 mm), rohe `position`-Box gegen die JSON-Referenz (1 mm),
+  Inventartests für 2.997 Originaldateien und 789 vorhandene Bundle-Wrapper. Positionen
+  und Transformationen werden nicht angepasst; eine Abweichung stoppt das Laden.
+- **Der vorhandene experimentelle Batchpfad erhält Bauchgewicht, Bauchfarben
+  je Instanz und Originalnormalen für reversible Glättungsschalter.** Er bleibt
+  standardmäßig aus und ohne vollständige individuelle Interaktion. Der neue
+  Performance-Schalter pausiert weiches Raumlicht und GTAO und aktiviert diesen Pfad nicht.
+- Datenpflege, Quellenwahl und Abnahme in `docs/MUSCLE_RENDERING.md`;
+  Material- und Store-Entscheidung in ADR 0010. Abschlussbilder, tatsächliche
+  Datenübertragung und Bildratenmessung sind noch in Prüfung.
+
+### Fixed (2026-10-12 — Geprüfte Originalquelle für M. temporoparietalis)
+- Der FJ801-Wrapper im Muskel-Bundle hat zwei Dreiecke weniger und überschreitet
+  mit 1,312 mm Abweichung die JSON-Bounding-Box-Toleranz. Für diese Datei verwendet der Loader
+  das bestehende geprüfte Original, ohne eine GLB zu verändern. Der zusätzliche
+  Request umfasst 22.328 Byte Modelldateigröße, getrennt von den 211.650 Byte
+  Messdaten für Teil A; HTTP-Übertragung wird separat gemessen.
+- Eine HTML-Antwort mit HTTP 200 auf ein fehlendes Gruppen-Bundle wird als
+  SPA-Fallback erkannt. Der Loader nutzt dann die bestehenden Einzeldateien,
+  sodass die unter `eyes` eingeordneten Muskeln geladen werden können.
+- Nach Ende des Ghost-Kontexts übernehmen wiederhergestellte Materialien die
+  aktuelle Qualitätswahl. Farbreset, Isolation und Sammlungsimport nutzen
+  dieselbe Renderpipeline wie der Hauptloop und behalten aktiviertes GTAO bei.
+
 ### Fixed (Beschriftungen: begrenzt statt alles auf einmal)
 - **Es wurden ALLE Strukturen beschriftet, nicht die sichtbaren und nicht wenige.**
   `_buildLabels()` lief über jeden Root jeder Gruppe. Die Isolation blendet Knochen,

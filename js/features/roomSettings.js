@@ -41,7 +41,7 @@ export function applyLighting(intensity) {
   _lighting = intensity;
   renderer.toneMappingExposure = 0.65 * intensity;
   setLightIntensity(intensity);
-  if (scene.environment) scene.environmentIntensity = 0.3 * intensity;
+  scene.environmentIntensity = 0.3 * intensity;
   requestRender();
 }
 
